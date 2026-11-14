@@ -1,0 +1,140 @@
+\{"nodes": \{"Altered Gravity": \{"position": {[}-651.2784244604318,
+-47.107128468653656{]}, "category": "Hazard", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Distance from Earth": \{"position":
+{[}-651.2784244604318, 343.99846454265156{]}, "category": "Hazard",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Hostile Closed
+Environment": \{"position": {[}-651.2784244604318, -321.058{]},
+"category": "Hazard", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Atmospheric Conditions": \{"position": {[}-484.31757965056516,
+-100.0{]}, "category": "Contributing Factor", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Breathing Masks": \{"position": {[}190.0,
+67.851{]}, "category": "Contributing Factor", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Cognitive Function": \{"position": {[}92.0,
+19.046{]}, "category": "Contributing Factor", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Compartment Isolation": \{"position":
+{[}425.0, 189.71673895169576{]}, "category": "Contributing Factor",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Crew Capability":
+\{"position": {[}378.00921685508746, -321.058{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Crew Health and Performance System": \{"position":
+{[}70.08110174717369, 343.99846454265156{]}, "category": "Contributing
+Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Detect
+Atmospheric Changes": \{"position": {[}-22.637, 189.71673895169576{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "EVA Operations": \{"position": {[}-484.31757965056516,
+-262.56{]}, "category": "Contributing Factor", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Effective Exposure Duration": \{"position":
+{[}-120.0, -76.694{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Environmental Monitoring
+Capability": \{"position": {[}70.08110174717369, 242.94449126413156{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Individual Factors": \{"position": {[}92.0,
+-129.53214594039054{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Individual Readiness":
+\{"position": {[}239.89940698869475, -321.058{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Loss of Vehicle": \{"position": {[}620.0, -40.207668036998975{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Mild Hypoxia": \{"position": {[}-170.0, 19.046{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Pressure Suits": \{"position": {[}295.0, 135.872{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Staged Denitrogenation": \{"position": {[}-588.557,
+19.046{]}, "category": "Contributing Factor", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Suit Design": \{"position": {[}-551.368,
+182.466{]}, "category": "Contributing Factor", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Suit Failure": \{"position":
+{[}-310.9577965056526, -202.0{]}, "category": "Contributing Factor",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Toxic Substance
+Exposure": \{"position": {[}-22.637, -249.637{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Vehicle Design": \{"position": {[}-484.31757965056516,
+343.99846454265156{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Vehicle Failure": \{"position":
+{[}-137.438, -321.058{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Depressurization": \{"position":
+{[}80.0, -321.058{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Hypoxia": \{"position":
+{[}456.07215930113057, 55.326508735868444{]}, "category": "Contributing
+Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "DCS, Immune,
+SANS, Sleep (Risks)": \{"position": {[}-304.0, 285.347{]}, "category":
+"Associated Risk", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"EIHSO (Risk)": \{"position": {[}-618.0, 285.347{]}, "category":
+"Associated Risk", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Medical (Risk)": \{"position": {[}523.0802744090441, 285.347{]},
+"category": "Associated Risk", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Loss of Crew Life": \{"position": {[}523.0802744090441,
+135.27969886947588{]}, "category": "Outcome", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Loss of Mission Objectives": \{"position":
+{[}656.4947564234327, -202.0{]}, "category": "Outcome", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Loss of Mission": \{"position":
+{[}656.4947564234327, -321.058{]}, "category": "Outcome", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Task Performance": \{"position":
+{[}523.0802744090441, -321.058{]}, "category": "Outcome", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}\}, "edges": \{"0": \{"source":
+"Hostile Closed Environment", "dest": "Atmospheric Conditions", "loe":
+2\}, "1": \{"source": "Vehicle Design", "dest": "Atmospheric
+Conditions", "loe": 2\}, "2": \{"source": "Detect Atmospheric Changes",
+"dest": "Breathing Masks", "loe": 2\}, "3": \{"source": "DCS, Immune,
+SANS, Sleep (Risks)", "dest": "Cognitive Function", "loe": 2\}, "4":
+\{"source": "Individual Factors", "dest": "Cognitive Function", "loe":
+2\}, "5": \{"source": "Mild Hypoxia", "dest": "Cognitive Function",
+"loe": 2\}, "6": \{"source": "Detect Atmospheric Changes", "dest":
+"Compartment Isolation", "loe": 2\}, "7": \{"source": "Individual
+Readiness", "dest": "Crew Capability", "loe": 2\}, "8": \{"source":
+"Vehicle Design", "dest": "Crew Health and Performance System", "loe":
+2\}, "9": \{"source": "Atmospheric Conditions", "dest": "Detect
+Atmospheric Changes", "loe": 2\}, "10": \{"source": "Environmental
+Monitoring Capability", "dest": "Detect Atmospheric Changes", "loe":
+2\}, "11": \{"source": "Toxic Substance Exposure", "dest": "Detect
+Atmospheric Changes", "loe": 2\}, "12": \{"source": "Depressurization",
+"dest": "Detect Atmospheric Changes", "loe": 2\}, "13": \{"source":
+"Altered Gravity", "dest": "EVA Operations", "loe": 2\}, "14":
+\{"source": "Crew Health and Performance System", "dest": "Environmental
+Monitoring Capability", "loe": 2\}, "15": \{"source": "Breathing Masks",
+"dest": "Individual Readiness", "loe": 2\}, "16": \{"source": "Cognitive
+Function", "dest": "Individual Readiness", "loe": 2\}, "17": \{"source":
+"Compartment Isolation", "dest": "Individual Readiness", "loe": 2\},
+"18": \{"source": "Pressure Suits", "dest": "Individual Readiness",
+"loe": 2\}, "19": \{"source": "Hypoxia", "dest": "Individual Readiness",
+"loe": 2\}, "20": \{"source": "Task Performance", "dest": "Loss of
+Vehicle", "loe": 2\}, "21": \{"source": "Atmospheric Conditions",
+"dest": "Mild Hypoxia", "loe": 2\}, "22": \{"source": "Effective
+Exposure Duration", "dest": "Mild Hypoxia", "loe": 2\}, "23":
+\{"source": "Staged Denitrogenation", "dest": "Mild Hypoxia", "loe":
+2\}, "24": \{"source": "Suit Failure", "dest": "Mild Hypoxia", "loe":
+2\}, "25": \{"source": "Detect Atmospheric Changes", "dest": "Pressure
+Suits", "loe": 2\}, "26": \{"source": "Altered Gravity", "dest": "Staged
+Denitrogenation", "loe": 2\}, "27": \{"source": "Atmospheric
+Conditions", "dest": "Staged Denitrogenation", "loe": 2\}, "28":
+\{"source": "Suit Design", "dest": "Staged Denitrogenation", "loe": 2\},
+"29": \{"source": "EIHSO (Risk)", "dest": "Suit Design", "loe": 2\},
+"30": \{"source": "EVA Operations", "dest": "Suit Failure", "loe": 2\},
+"31": \{"source": "Suit Design", "dest": "Suit Failure", "loe": 2\},
+"32": \{"source": "Vehicle Failure", "dest": "Toxic Substance Exposure",
+"loe": 2\}, "33": \{"source": "Distance from Earth", "dest": "Vehicle
+Design", "loe": 2\}, "34": \{"source": "EIHSO (Risk)", "dest": "Vehicle
+Design", "loe": 2\}, "35": \{"source": "Hostile Closed Environment",
+"dest": "Vehicle Failure", "loe": 2\}, "36": \{"source": "Vehicle
+Design", "dest": "Vehicle Failure", "loe": 2\}, "37": \{"source":
+"Vehicle Failure", "dest": "Depressurization", "loe": 2\}, "38":
+\{"source": "Suit Failure", "dest": "Hypoxia", "loe": 2\}, "39":
+\{"source": "Toxic Substance Exposure", "dest": "Hypoxia", "loe": 2\},
+"40": \{"source": "Depressurization", "dest": "Hypoxia", "loe": 2\},
+"41": \{"source": "Atmospheric Conditions", "dest": "DCS, Immune, SANS,
+Sleep (Risks)", "loe": 2\}, "42": \{"source": "Mild Hypoxia", "dest":
+"DCS, Immune, SANS, Sleep (Risks)", "loe": 2\}, "43": \{"source": "Crew
+Health and Performance System", "dest": "Medical (Risk)", "loe": 2\},
+"44": \{"source": "DCS, Immune, SANS, Sleep (Risks)", "dest": "Medical
+(Risk)", "loe": 2\}, "45": \{"source": "Mild Hypoxia", "dest": "Medical
+(Risk)", "loe": 2\}, "46": \{"source": "Hypoxia", "dest": "Medical
+(Risk)", "loe": 2\}, "47": \{"source": "Loss of Vehicle", "dest": "Loss
+of Crew Life", "loe": 2\}, "48": \{"source": "Medical (Risk)", "dest":
+"Loss of Crew Life", "loe": 2\}, "49": \{"source": "Task Performance",
+"dest": "Loss of Crew Life", "loe": 2\}, "50": \{"source": "Hypoxia",
+"dest": "Loss of Crew Life", "loe": 2\}, "51": \{"source": "Loss of
+Vehicle", "dest": "Loss of Mission Objectives", "loe": 2\}, "52":
+\{"source": "Task Performance", "dest": "Loss of Mission Objectives",
+"loe": 2\}, "53": \{"source": "Loss of Mission Objectives", "dest":
+"Loss of Mission", "loe": 2\}, "54": \{"source": "Crew Capability",
+"dest": "Task Performance", "loe": 2\}\}, "date": "06-24-2025"\}

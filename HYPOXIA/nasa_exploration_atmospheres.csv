@@ -1,0 +1,6 @@
+atmosphere,pressure_psia,o2_percent,ppo2_mmhg,alveolar_po2_mmhg,equivalent_air_altitude_m,source_page
+ISS / sea-level cabin,14.7,21.0,,,,5
+Shuttle staged decompression (pre-EVA),10.2,26.5,140.0,87.0,1265.0,9
+"Exploration atmosphere (lunar/Mars habitats, current)",8.2,34.0,144.0,88.0,1213.0,9
+EAWG 2006 recommendation (superseded),8.0,32.0,,,,4
+Lowest anticipated EVA suit pressure (100% O2),4.3,100.0,,,,6

@@ -1,0 +1,56 @@
+edge_id,source,dest,level_of_evidence
+0,Hostile Closed Environment,Atmospheric Conditions,2
+1,Vehicle Design,Atmospheric Conditions,2
+2,Detect Atmospheric Changes,Breathing Masks,2
+3,"DCS, Immune, SANS, Sleep (Risks)",Cognitive Function,2
+4,Individual Factors,Cognitive Function,2
+5,Mild Hypoxia,Cognitive Function,2
+6,Detect Atmospheric Changes,Compartment Isolation,2
+7,Individual Readiness,Crew Capability,2
+8,Vehicle Design,Crew Health and Performance System,2
+9,Atmospheric Conditions,Detect Atmospheric Changes,2
+10,Environmental Monitoring Capability,Detect Atmospheric Changes,2
+11,Toxic Substance Exposure,Detect Atmospheric Changes,2
+12,Depressurization,Detect Atmospheric Changes,2
+13,Altered Gravity,EVA Operations,2
+14,Crew Health and Performance System,Environmental Monitoring Capability,2
+15,Breathing Masks,Individual Readiness,2
+16,Cognitive Function,Individual Readiness,2
+17,Compartment Isolation,Individual Readiness,2
+18,Pressure Suits,Individual Readiness,2
+19,Hypoxia,Individual Readiness,2
+20,Task Performance,Loss of Vehicle,2
+21,Atmospheric Conditions,Mild Hypoxia,2
+22,Effective Exposure Duration,Mild Hypoxia,2
+23,Staged Denitrogenation,Mild Hypoxia,2
+24,Suit Failure,Mild Hypoxia,2
+25,Detect Atmospheric Changes,Pressure Suits,2
+26,Altered Gravity,Staged Denitrogenation,2
+27,Atmospheric Conditions,Staged Denitrogenation,2
+28,Suit Design,Staged Denitrogenation,2
+29,EIHSO (Risk),Suit Design,2
+30,EVA Operations,Suit Failure,2
+31,Suit Design,Suit Failure,2
+32,Vehicle Failure,Toxic Substance Exposure,2
+33,Distance from Earth,Vehicle Design,2
+34,EIHSO (Risk),Vehicle Design,2
+35,Hostile Closed Environment,Vehicle Failure,2
+36,Vehicle Design,Vehicle Failure,2
+37,Vehicle Failure,Depressurization,2
+38,Suit Failure,Hypoxia,2
+39,Toxic Substance Exposure,Hypoxia,2
+40,Depressurization,Hypoxia,2
+41,Atmospheric Conditions,"DCS, Immune, SANS, Sleep (Risks)",2
+42,Mild Hypoxia,"DCS, Immune, SANS, Sleep (Risks)",2
+43,Crew Health and Performance System,Medical (Risk),2
+44,"DCS, Immune, SANS, Sleep (Risks)",Medical (Risk),2
+45,Mild Hypoxia,Medical (Risk),2
+46,Hypoxia,Medical (Risk),2
+47,Loss of Vehicle,Loss of Crew Life,2
+48,Medical (Risk),Loss of Crew Life,2
+49,Task Performance,Loss of Crew Life,2
+50,Hypoxia,Loss of Crew Life,2
+51,Loss of Vehicle,Loss of Mission Objectives,2
+52,Task Performance,Loss of Mission Objectives,2
+53,Loss of Mission Objectives,Loss of Mission,2
+54,Crew Capability,Task Performance,2

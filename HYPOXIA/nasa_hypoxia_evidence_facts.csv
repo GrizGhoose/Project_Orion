@@ -1,0 +1,15 @@
+topic,finding,source_page
+atmosphere,8.2 psia / 34% O2 chosen in 2012 to reduce hypoxic stress; inspired O2 pressure 128 mmHg,4
+symptoms,"Most common symptoms after rapid ascent to 2,835 m: shortness of breath with activity 87%",15
+symptoms,"Sleeping difficulty 74%, headache 66%, fatigue 65%, dizziness/lightheadedness 46% (South Pole, n=246)",15
+symptoms,"52% of 246 people rapidly taken to 2,835 m developed acute mountain sickness",14
+symptoms,"7-25% of adults may get mild acute mountain sickness near 2,000 m",14
+symptoms,"AMS onset over 6 to 24 hours: headache plus nausea, dizziness, fatigue or sleeplessness",14
+performance,"Procedural errors appear to increase at 3,048 m (10,000 ft) though manual control holds",13
+performance,"Aircrew reported operationally significant hypoxia symptoms at a mean 2,590 m",13
+vision,"The retina is extremely sensitive to O2; low-light (mesopic) vision impaired at 1,830-2,438 m",12
+balance,"Postural sway increases at simulated 1,524-3,048 m: a sensitive indicator of mild hypoxia",13
+monitoring,"At simulated 2,438 m SaO2 was below 90% for 44.4% of sleep time vs 0.1% at sea level",21
+countermeasure,Crew must be trained to recognise their symptoms; avoid critical tasks and keep workload low during atmosphere transitions,25
+countermeasure,Supplemental O2 should be available during decompressions and throughout the mission,24
+countermeasure,Gradual decompression from 14.7 to 8.2 psia diminishes acute symptoms such as AMS,24
