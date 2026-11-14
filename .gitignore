@@ -11,3 +11,6 @@
 /HYPOXIA/nasa_crew_state_ecg_resp_256hz.csv
 
 .DS_Store
+
+# Local ESP32 communication sketch with device-specific credentials.
+/sketch_nov14a_copy_20261114174051/
