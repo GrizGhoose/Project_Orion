@@ -1,10 +1,11 @@
-# This folder holds 2.9 GB of research material; the repo only tracks the app and its data pack.
+# Research folders are ignored by default; explicitly include app, data, docs, and hardware tests.
 /*
 !/.gitignore
 !/.github/
 !/tablet/
 !/HYPOXIA/
 !/docs/
+!/MAX30102_raw_reading-test/
 
 # Over GitHub's 100 MB limit; rebuild with HYPOXIA/scripts/build_hypoxia_dataset.py
 /HYPOXIA/analog_harespod_waveforms_100hz.csv
