@@ -4,6 +4,7 @@
 !/.github/
 !/tablet/
 !/HYPOXIA/
+!/docs/
 
 # Over GitHub's 100 MB limit; rebuild with HYPOXIA/scripts/build_hypoxia_dataset.py
 /HYPOXIA/analog_harespod_waveforms_100hz.csv
