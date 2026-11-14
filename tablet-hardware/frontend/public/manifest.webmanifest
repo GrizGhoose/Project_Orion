@@ -1,0 +1,11 @@
+{
+  "name": "Crew Health",
+  "short_name": "Crew Health",
+  "description": "IV crew console for EVA hypoxia and DCS response",
+  "start_url": "/?bare=1",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#061226",
+  "theme_color": "#061226",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

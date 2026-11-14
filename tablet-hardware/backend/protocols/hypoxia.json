@@ -1,0 +1,448 @@
+{
+  "id": "hypoxia",
+  "title": "Hypoxia response",
+  "phases": [
+    {
+      "id": "confirm",
+      "title": "Confirm"
+    },
+    {
+      "id": "outside",
+      "title": "Stabilise outside"
+    },
+    {
+      "id": "ingress",
+      "title": "Bring inside"
+    },
+    {
+      "id": "aid",
+      "title": "First aid"
+    },
+    {
+      "id": "handoff",
+      "title": "Monitor & hand off"
+    }
+  ],
+  "start": "call",
+  "nodes": {
+    "call": {
+      "title": "Voice check",
+      "phase": "confirm",
+      "type": "question",
+      "prompt": "Call {crew} on the loop: “{crew}, Habitat. State your O₂ reading.” How do they answer?",
+      "detail": "Slurred speech, slow answers or wrong numbers are early hypoxia signs. Hypoxic crew often feel fine.",
+      "options": [
+        {
+          "label": "Clear and correct",
+          "sub": "Answers quickly, reads the right value",
+          "next": "suit",
+          "tone": "good"
+        },
+        {
+          "label": "Slow, confused or wrong",
+          "sub": "Hesitates, repeats, misreads",
+          "next": "act_now",
+          "tone": "caution"
+        },
+        {
+          "label": "No answer after 2 calls",
+          "sub": "Or only noise on the loop",
+          "next": "act_now",
+          "tone": "warning"
+        }
+      ],
+      "why": [
+        {
+          "fact": 6
+        },
+        {
+          "fact": 11
+        }
+      ]
+    },
+    "suit": {
+      "title": "Suit pressure check",
+      "phase": "confirm",
+      "type": "question",
+      "prompt": "Look at {crew}'s suit pressure on the left: {suit} psia. Is it below 4.0 psia?",
+      "detail": "Nominal suit pressure is 4.3 psia with 100 % O₂. Lower pressure means less O₂ reaching the lungs.",
+      "options": [
+        {
+          "label": "Yes, suit pressure low",
+          "sub": "Suit O₂ fault likely",
+          "next": "act_now",
+          "tone": "warning"
+        },
+        {
+          "label": "No, suit pressure normal",
+          "sub": "4.0 psia or more",
+          "next": "sensor",
+          "tone": "good"
+        }
+      ],
+      "image": "suit_gauge"
+    },
+    "sensor": {
+      "title": "Reaction check",
+      "phase": "confirm",
+      "type": "question",
+      "prompt": "Suit looks normal. Ask {crew} to stop, rest 30 s and press the HUD reaction check. What happens?",
+      "detail": "A slipped forehead sensor can read low. A real drop shows up as a slow or missed reaction.",
+      "options": [
+        {
+          "label": "Fast reaction, SpO₂ recovers",
+          "sub": "Likely sensor slip or heavy exertion",
+          "next": "watch",
+          "tone": "good"
+        },
+        {
+          "label": "Slow or missed reaction",
+          "sub": "Or SpO₂ stays low",
+          "next": "act_now",
+          "tone": "warning"
+        }
+      ]
+    },
+    "watch": {
+      "title": "Watch & reseat sensor",
+      "phase": "confirm",
+      "type": "action",
+      "prompt": "Treat as a false alarm, but keep watching.",
+      "steps": [
+        "Tell {crew} to reseat the comm cap so the forehead sensor sits flat.",
+        "Lower {crew}'s workload for 5 minutes.",
+        "If SpO₂ falls again, restart this response."
+      ],
+      "timer_s": 300,
+      "confirm": "SpO₂ stayed normal",
+      "next": "end_ok"
+    },
+    "act_now": {
+      "title": "Emergency O₂ + buddy",
+      "phase": "outside",
+      "type": "action",
+      "prompt": "Act now: get {crew} on emergency O₂ and send the buddy.",
+      "steps": [
+        "Tell {crew}: “STOP work. Hold position. Check your tether.”",
+        "Tell {crew} to open the emergency (secondary) O₂ supply per suit procedure. If they can't, EV2 does it for them.",
+        "Send the other EVA crewmember to {crew}: check their display and helmet, stay in arm's reach.",
+        "Call flight surgeon / mission control: “Suspected hypoxia, {crew}, SpO₂ {spo2} %.”"
+      ],
+      "timer_s": 120,
+      "confirm": "Done, 2 min on emergency O₂",
+      "next": "o2_effect",
+      "why": [
+        {
+          "fact": 12
+        },
+        {
+          "text": "Hypoxia worsens judgement before the crewmember notices it, so the buddy checks instead of relying on self-report.",
+          "source": "NASA NTRS 20150021491 p. 13 (performance at altitude)"
+        }
+      ],
+      "treat": true,
+      "image": "emergency_o2"
+    },
+    "o2_effect": {
+      "title": "O₂ effect check",
+      "phase": "outside",
+      "type": "question",
+      "prompt": "After 2 minutes on emergency O₂, what is {crew}'s SpO₂ doing? Now {spo2} %, baseline {base} %.",
+      "options": [
+        {
+          "label": "Rising toward baseline",
+          "sub": "Talking clearly again",
+          "next": "return",
+          "tone": "good"
+        },
+        {
+          "label": "Flat or still falling",
+          "sub": "Or crewmember getting worse",
+          "next": "escort",
+          "tone": "warning"
+        }
+      ],
+      "image": "oximeter"
+    },
+    "return": {
+      "title": "Return to airlock",
+      "phase": "ingress",
+      "type": "action",
+      "prompt": "Controlled return to the airlock. End the EVA for {crew}.",
+      "steps": [
+        "{crew} and buddy walk back together; no carrying tools.",
+        "Prepare the airlock: O₂ mask with regulator, pulse oximeter, medical kit at the hatch.",
+        "Repress the airlock to habitat pressure (8.2 psia) as soon as both are in."
+      ],
+      "confirm": "Both inside, airlock repressed",
+      "next": "helmet",
+      "image": "buddy"
+    },
+    "escort": {
+      "title": "Emergency escort",
+      "phase": "ingress",
+      "type": "action",
+      "prompt": "Emergency return. Buddy brings {crew} in now.",
+      "steps": [
+        "Buddy clips to {crew} and leads them back; {crew} does nothing but walk.",
+        "Keep talking to {crew} every 30 s; note any change in speech.",
+        "Prepare the airlock: O₂ mask, bag-valve mask, AED and medical kit at the hatch.",
+        "Start airlock repress the moment both are inside."
+      ],
+      "confirm": "Both inside, airlock repressed",
+      "next": "helmet",
+      "image": "airlock"
+    },
+    "helmet": {
+      "title": "Helmet off, mask on",
+      "phase": "aid",
+      "type": "action",
+      "prompt": "Get {crew} breathing cabin air and O₂.",
+      "steps": [
+        "Check pressure is equal, then remove {crew}'s helmet.",
+        "Put on the O₂ mask: 100 % O₂, high flow.",
+        "Clip the pulse oximeter on a finger."
+      ],
+      "confirm": "Mask on, oximeter on",
+      "next": "conscious",
+      "why": [
+        {
+          "fact": 12
+        }
+      ],
+      "treat": true,
+      "image": "helmet_off"
+    },
+    "conscious": {
+      "title": "Consciousness check",
+      "phase": "aid",
+      "type": "question",
+      "prompt": "How is {crew} now?",
+      "options": [
+        {
+          "label": "Awake, answers correctly",
+          "next": "o2_awake",
+          "tone": "good"
+        },
+        {
+          "label": "Awake but confused or drowsy",
+          "next": "o2_confused",
+          "tone": "caution"
+        },
+        {
+          "label": "Unresponsive, breathing",
+          "next": "recovery",
+          "tone": "warning"
+        },
+        {
+          "label": "Not breathing normally",
+          "next": "cpr",
+          "tone": "warning"
+        }
+      ]
+    },
+    "o2_awake": {
+      "title": "Rest on O₂",
+      "phase": "aid",
+      "type": "action",
+      "prompt": "Rest on O₂ and recheck in 5 minutes.",
+      "steps": [
+        "Sit {crew} upright and keep them still: no tasks.",
+        "Keep 100 % O₂ flowing; check the mask seal.",
+        "Target SpO₂ 94 % or above."
+      ],
+      "timer_s": 300,
+      "confirm": "5 minutes done",
+      "next": "recheck",
+      "image": "o2_mask"
+    },
+    "o2_confused": {
+      "title": "Stay & monitor",
+      "phase": "aid",
+      "type": "action",
+      "prompt": "Stay with {crew}. O₂ on, recheck in 5 minutes.",
+      "steps": [
+        "Do not leave {crew} alone or let them operate anything.",
+        "Keep 100 % O₂ flowing; check the mask seal.",
+        "Call the flight surgeon now for a private medical conference.",
+        "Ask simple questions every 2 minutes and note the answers."
+      ],
+      "timer_s": 300,
+      "confirm": "5 minutes done",
+      "next": "recheck",
+      "image": "o2_mask"
+    },
+    "recovery": {
+      "title": "Recovery position",
+      "phase": "aid",
+      "type": "action",
+      "prompt": "Protect the airway and get the flight surgeon.",
+      "steps": [
+        "Lay {crew} on their side (recovery position), head tilted to keep the airway open.",
+        "Keep 100 % O₂ on by mask.",
+        "Emergency call to flight surgeon / mission control.",
+        "Check breathing every minute. If it stops, go to CPR."
+      ],
+      "timer_s": 300,
+      "confirm": "Breathing, 5 minutes done",
+      "next": "recheck",
+      "alt": {
+        "label": "Breathing stopped",
+        "next": "cpr"
+      },
+      "image": "recovery"
+    },
+    "cpr": {
+      "title": "CPR",
+      "phase": "aid",
+      "type": "action",
+      "prompt": "Start CPR. This is a medical emergency.",
+      "steps": [
+        "Call mission control: medical emergency, {crew}.",
+        "Start chest compressions: arms straight, shoulders over hands, 100–120 per minute; brace yourself against the floor.",
+        "Ventilate with the bag-valve mask on 100 % O₂.",
+        "Attach the AED and follow its voice prompts."
+      ],
+      "confirm": "Flight surgeon has taken over",
+      "next": "end_handover",
+      "image": "cpr"
+    },
+    "recheck": {
+      "title": "SpO₂ recheck",
+      "phase": "aid",
+      "type": "question",
+      "prompt": "After 5 minutes on O₂, {crew}'s SpO₂ is…",
+      "detail": "Live value: {spo2} %. Baseline before the EVA: {base} %.",
+      "options": [
+        {
+          "label": "94 % or higher",
+          "sub": "Symptoms easing",
+          "next": "orient",
+          "tone": "good"
+        },
+        {
+          "label": "90 – 93 %",
+          "sub": "Improving slowly",
+          "next": "o2_awake",
+          "tone": "caution"
+        },
+        {
+          "label": "Below 90 % or falling",
+          "sub": "Not responding to O₂",
+          "next": "escalate",
+          "tone": "warning"
+        }
+      ],
+      "image": "oximeter"
+    },
+    "escalate": {
+      "title": "Escalate",
+      "phase": "aid",
+      "type": "action",
+      "prompt": "O₂ isn't working well enough. Check equipment and escalate.",
+      "steps": [
+        "Check the O₂ supply is open and flowing; the mask bag should stay inflated.",
+        "Refit the mask; try the bag-valve mask if breathing is shallow.",
+        "Flight surgeon on the loop now. Consider other causes: DCS, CO₂, injury."
+      ],
+      "timer_s": 180,
+      "confirm": "Done",
+      "next": "recheck",
+      "link": {
+        "label": "Open DCS check",
+        "protocol": "dcs"
+      },
+      "image": "o2_mask"
+    },
+    "orient": {
+      "title": "Orientation check",
+      "phase": "aid",
+      "type": "question",
+      "prompt": "Ask {crew}: Where are you? What day is it? What's your crewmate's name? How many are correct?",
+      "options": [
+        {
+          "label": "All 3 correct",
+          "next": "dcs_screen",
+          "tone": "good"
+        },
+        {
+          "label": "1 or 2 correct",
+          "next": "o2_confused",
+          "tone": "caution"
+        },
+        {
+          "label": "None",
+          "next": "recovery",
+          "tone": "warning"
+        }
+      ]
+    },
+    "dcs_screen": {
+      "title": "DCS screen",
+      "phase": "aid",
+      "type": "question",
+      "prompt": "The EVA was at 4.3 psia, so check for DCS too. Does {crew} have joint pain, numbness, rash or chest tightness?",
+      "detail": "DCS can look like hypoxia, but it doesn't go away with O₂ alone.",
+      "options": [
+        {
+          "label": "No",
+          "next": "monitor",
+          "tone": "good"
+        },
+        {
+          "label": "Yes or unsure",
+          "next": "dcs_link",
+          "tone": "caution"
+        }
+      ]
+    },
+    "dcs_link": {
+      "title": "Open DCS check",
+      "phase": "aid",
+      "type": "action",
+      "prompt": "Possible DCS. Keep {crew} on 100 % O₂ and open the DCS check.",
+      "steps": [
+        "Keep {crew} lying or sitting still on 100 % O₂.",
+        "Open the DCS check from the button below."
+      ],
+      "confirm": "Continue hypoxia hand-off",
+      "next": "monitor",
+      "link": {
+        "label": "Open DCS check",
+        "protocol": "dcs"
+      }
+    },
+    "monitor": {
+      "title": "Monitor & hand off",
+      "phase": "handoff",
+      "type": "action",
+      "prompt": "Monitor and hand off to the flight surgeon.",
+      "steps": [
+        "Keep O₂ on for 15 more minutes, then room air if SpO₂ stays at 94 % or above.",
+        "Check SpO₂ and alertness every 10 minutes for 30 minutes.",
+        "No further EVA for {crew} until the flight surgeon clears them.",
+        "Send the hand-off report from the Log tab."
+      ],
+      "confirm": "Hand-off done",
+      "next": "end_ok",
+      "why": [
+        {
+          "fact": 11
+        }
+      ],
+      "image": "oximeter"
+    },
+    "end_ok": {
+      "title": "Response complete",
+      "phase": "handoff",
+      "type": "end",
+      "prompt": "Response complete for {crew}. Every step is in the Log."
+    },
+    "end_handover": {
+      "title": "Surgeon takes over",
+      "phase": "handoff",
+      "type": "end",
+      "prompt": "Flight surgeon is leading care for {crew}. Steps so far are in the Log."
+    }
+  }
+}

@@ -1,0 +1,573 @@
+﻿@font-face {
+  font-family: Orbitron;
+  src: url('/fonts/orbitron-latin.ttf') format('truetype');
+  font-weight: 400 900;
+  font-display: swap;
+}
+:root {
+  font-family: 'Bahnschrift', 'Arial Narrow', sans-serif;
+  color: #eaf4ff;
+  background: #000;
+  color-scheme: dark;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: clip;
+}
+html {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+body,
+#root {
+  height: auto;
+  min-height: 100%;
+}
+.helmet-hud {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+}
+.lunar-background,
+.visor-shading,
+.visor-scatter,
+.visor-reflection,
+.visor-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.lunar-background {
+  background: #000 url('/images/lunar-surface-wide.png') center center / cover no-repeat;
+}
+.visor-shading {
+  background: radial-gradient(
+    ellipse 73% 88% at 50% 46%,
+    transparent 49%,
+    rgb(0 3 8 / 12%) 71%,
+    rgb(0 2 6 / 65%) 100%
+  );
+  box-shadow:
+    inset 0 22px 40px rgb(0 0 0 / 34%),
+    inset 0 -18px 45px rgb(0 0 0 / 35%);
+}
+.visor-scatter {
+  background:
+    radial-gradient(
+      ellipse 10% 56% at 0% 49%,
+      rgb(244 249 255 / 62%) 0%,
+      rgb(226 239 255 / 28%) 29%,
+      rgb(177 210 255 / 9%) 63%,
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 10% 56% at 100% 49%,
+      rgb(244 249 255 / 62%) 0%,
+      rgb(226 239 255 / 28%) 29%,
+      rgb(177 210 255 / 9%) 63%,
+      transparent 100%
+    ),
+    radial-gradient(ellipse 22% 13% at 11% 0%, rgb(238 245 255 / 27%), transparent 91%),
+    radial-gradient(ellipse 22% 13% at 89% 0%, rgb(238 245 255 / 27%), transparent 91%),
+    radial-gradient(ellipse 19% 10% at 12% 100%, rgb(221 236 255 / 17%), transparent),
+    radial-gradient(ellipse 19% 10% at 88% 100%, rgb(221 236 255 / 17%), transparent);
+  filter: blur(9px);
+  mix-blend-mode: screen;
+}
+.visor-reflection {
+  opacity: 0.32;
+  background:
+    radial-gradient(ellipse 2% 31% at 4% 46%, rgb(255 255 255 / 32%), transparent),
+    radial-gradient(ellipse 2% 31% at 96% 46%, rgb(255 255 255 / 32%), transparent),
+    radial-gradient(ellipse 46% 3% at 50% -1%, rgb(139 189 255 / 18%), transparent);
+  filter: blur(5px);
+}
+.visor-overlay {
+  overflow: hidden;
+  filter: drop-shadow(0 0 3px rgb(105 175 255 / 18%));
+}
+.brow-wash {
+  fill: url('#brow-wash');
+  stroke: none;
+}
+.brow-halo {
+  stroke: #69afff;
+  stroke-width: 9;
+  opacity: 0.09;
+  filter: blur(4px);
+}
+.brow-primary {
+  stroke: #8fbded;
+  stroke-width: 1.5;
+  opacity: 0.73;
+}
+.brow-secondary {
+  stroke: #69afff;
+  stroke-width: 1;
+  opacity: 0.36;
+}
+.brow-track {
+  stroke: #69afff;
+  stroke-width: 5;
+  opacity: 0.43;
+}
+.brow-track-inner {
+  stroke: #86b6ed;
+  stroke-width: 2;
+  opacity: 0.3;
+}
+.timer-rule {
+  stroke: #78a9db;
+  stroke-width: 1;
+  opacity: 0.53;
+}
+.peripheral-edge {
+  stroke: url('#edge-stroke');
+  stroke-width: 1.5;
+}
+.edge-echo {
+  stroke: #dcecff;
+  stroke-width: 1;
+  opacity: 0.14;
+}
+.corner-bracket {
+  stroke: #b4d0f5;
+  stroke-width: 1.3;
+  opacity: 0.5;
+}
+.peripheral-ticks {
+  stroke: #b4d4ff;
+  stroke-width: 1;
+  opacity: 0.38;
+}
+.edge-terminal {
+  stroke: #cbe3ff;
+  stroke-width: 5;
+  opacity: 0.64;
+}
+.hud-label {
+  fill: #78a9db;
+  font-weight: 400;
+  letter-spacing: 3px;
+}
+.digital {
+  font-family: Orbitron, 'Bahnschrift', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  fill: #eaf4ff;
+  text-shadow: 0 0 9px rgb(195 221 255 / 30%);
+}
+.clock-label {
+  font-size: 10px;
+  letter-spacing: 3.5px;
+  opacity: 0.75;
+}
+.clock-value {
+  font-size: 24px;
+  letter-spacing: 3px;
+  opacity: 0.83;
+}
+.elapsed-value {
+  font-size: 55px;
+  letter-spacing: 5px;
+}
+.elapsed-label {
+  font-size: 12px;
+  letter-spacing: 3.4px;
+}
+.panel-outline {
+  stroke: #8bb9eb;
+  stroke-width: 1.2;
+  fill: none;
+  opacity: 0.35;
+}
+.panel-rule {
+  stroke: #69afff;
+  stroke-width: 1;
+  fill: none;
+  opacity: 0.22;
+}
+.telemetry-label {
+  font-size: 13px;
+  letter-spacing: 2.6px;
+}
+.telemetry-value {
+  font-size: 30px;
+  letter-spacing: 1px;
+  fill: #d5e8fc;
+}
+.telemetry-unit {
+  font-family: 'Bahnschrift', 'Arial Narrow', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  fill: #8fb4da;
+}
+.percentage-unit {
+  font-size: 17px;
+  fill: #a5c4e7;
+}
+.waveform {
+  fill: none;
+  stroke: #82b8ee;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wave-baseline {
+  opacity: 0.15;
+  stroke-width: 0.75;
+}
+.wave-trace {
+  opacity: 0.48;
+}
+.wave-sweep {
+  stroke: #bfddff;
+  stroke-dasharray: 35 400;
+  opacity: 0.56;
+  animation: telemetry-sweep 7s linear infinite;
+}
+.waveform-heart .wave-sweep {
+  animation-duration: 4s;
+}
+.micro-ticks {
+  fill: none;
+  stroke: #8bb9eb;
+  stroke-width: 0.8;
+  opacity: 0.3;
+}
+.status-track {
+  stroke: #69afff;
+  stroke-width: 5;
+  fill: none;
+  opacity: 0.14;
+}
+.status-fill {
+  stroke: #90c2f5;
+  stroke-width: 3;
+  fill: none;
+  opacity: 0.62;
+}
+.oxygen-segment {
+  stroke: #69afff;
+  stroke-width: 5;
+  opacity: 0.14;
+}
+.oxygen-segment.is-filled {
+  stroke: #90c2f5;
+  opacity: 0.65;
+}
+@keyframes telemetry-sweep {
+  from {
+    stroke-dashoffset: 435;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-sweep {
+    animation: none;
+    display: none;
+  }
+}
+@media (max-aspect-ratio: 4/3) {
+  .lunar-background {
+    background-position: 47% center;
+  }
+}
+
+/* Added monitoring states; the existing NORMAL visor styles above are unchanged. */
+.readout-warning .telemetry-label,
+.readout-warning .telemetry-value,
+.readout-warning tspan {
+  fill: #ffc56b;
+}
+.readout-critical .telemetry-label,
+.readout-critical .telemetry-value,
+.readout-critical tspan {
+  fill: #ff737c;
+}
+.helmet-hud[data-alert-state='WARNING'] {
+  --alert-cycle: 1.2s;
+  --visor-alert-color: #ffc56b;
+  --visor-alert-glow: 0 0 4px rgb(255 197 107 / 35%);
+}
+.helmet-hud[data-alert-state='CRITICAL'] {
+  --alert-cycle: 0.8s;
+  --visor-alert-color: #ff737c;
+  --visor-alert-glow: 0 0 6px rgb(255 115 124 / 50%);
+}
+.helmet-hud:is([data-alert-state='WARNING'], [data-alert-state='CRITICAL']) .visor-alert-border {
+  stroke: var(--visor-alert-color);
+  opacity: 1;
+  filter: drop-shadow(var(--visor-alert-glow));
+  animation: hud-alert-fade var(--alert-cycle) ease-in-out infinite;
+}
+.helmet-hud:is([data-alert-state='WARNING'], [data-alert-state='CRITICAL']) .brow-halo {
+  stroke: var(--visor-alert-color);
+}
+.spo2-telemetry[data-severity='WARNING'] {
+  --spo2-alert-color: #ffc56b;
+  animation: hud-alert-fade var(--alert-cycle) ease-in-out infinite;
+}
+.spo2-telemetry[data-severity='CRITICAL'] {
+  --spo2-alert-color: #ff737c;
+  animation: hud-alert-fade var(--alert-cycle) ease-in-out infinite;
+}
+.heart-rate-telemetry:is([data-severity='WARNING'], [data-severity='CRITICAL']) {
+  animation: hud-alert-fade var(--alert-cycle) ease-in-out infinite;
+}
+.heart-rate-telemetry:is([data-severity='WARNING'], [data-severity='CRITICAL']) .waveform path {
+  stroke: var(--visor-alert-color);
+}
+.spo2-telemetry[data-severity='WARNING'] .status-track,
+.spo2-telemetry[data-severity='WARNING'] .status-fill,
+.spo2-telemetry[data-severity='CRITICAL'] .status-track,
+.spo2-telemetry[data-severity='CRITICAL'] .status-fill {
+  stroke: var(--spo2-alert-color);
+}
+@keyframes hud-alert-fade {
+  0%,
+  15%,
+  85%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.1;
+  }
+}
+.central-alert {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(1000px, 86vw);
+  display: grid;
+  justify-items: center;
+  gap: clamp(12px, 1.2vw, 22px);
+  padding: clamp(20px, 2vw, 38px);
+  animation: hud-alert-fade var(--alert-cycle, 1.15s) ease-in-out infinite;
+  text-align: center;
+  pointer-events: none;
+  color: #ffc56b;
+  text-shadow: 0 0 12px rgb(255 197 107 / 20%);
+}
+.central-alert-critical {
+  color: #ff737c;
+  text-shadow: 0 0 12px rgb(255 115 124 / 20%);
+}
+.central-alert-title {
+  font:
+    600 clamp(36px, 5.2vw, 100px) Orbitron,
+    monospace;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+}
+.central-alert-critical .central-alert-title {
+  font-size: clamp(42px, 6vw, 116px);
+}
+.central-alert-message {
+  font-size: clamp(14px, 1.5vw, 28px);
+  letter-spacing: 0.14em;
+}
+.central-alert-action {
+  font-size: clamp(18px, 1.8vw, 34px);
+  letter-spacing: 0.15em;
+}
+.central-alert-message,
+.central-alert-action,
+.central-alert-evidence {
+  -webkit-text-stroke: 0;
+  text-shadow: inherit;
+}
+.central-alert-evidence {
+  font-size: clamp(10px, 0.85vw, 16px);
+  letter-spacing: 0.11em;
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: reduce) {
+  .central-alert,
+  .spo2-telemetry[data-severity],
+  .heart-rate-telemetry[data-severity],
+  .helmet-hud[data-alert-state] .visor-alert-border {
+    animation: none;
+  }
+}
+.developer-panel {
+  padding: 48px max(24px, calc((100% - 1280px) / 2));
+  border-top: 1px solid #324759;
+  background: #09121b;
+  color: #d9e8f6;
+  line-height: 1.6;
+}
+.developer-panel header {
+  max-width: 850px;
+  margin-bottom: 32px;
+}
+.developer-panel h1 {
+  margin: 8px 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+.developer-panel h2,
+.developer-panel legend {
+  font-size: 17px;
+  font-weight: 500;
+  color: #eaf4ff;
+}
+.developer-panel p {
+  color: #9cb2c5;
+  font-size: 13px;
+}
+.developer-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+.developer-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+}
+.developer-panel fieldset {
+  margin: 0 0 24px;
+  padding: 20px;
+  border: 1px solid #294052;
+  border-radius: 4px;
+  min-width: 0;
+}
+.developer-panel fieldset p:first-of-type {
+  margin-top: 0;
+}
+.developer-buttons,
+.developer-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.developer-buttons {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.developer-scenarios {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.developer-panel button {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid #48637a;
+  border-radius: 3px;
+  background: #142637;
+  color: #eaf4ff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.developer-panel button:hover {
+  background: #203b51;
+}
+.developer-panel button[aria-pressed='true'] {
+  background: #254762;
+  border-color: #91c2ef;
+}
+.developer-panel button.developer-warning {
+  color: #ffc56b;
+  border-color: #947443;
+}
+.developer-panel button.developer-critical {
+  color: #ff9399;
+  border-color: #92535a;
+}
+.developer-panel button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.developer-panel :focus-visible {
+  outline: 2px solid #a3d1ff;
+  outline-offset: 3px;
+}
+.developer-inputs label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #b9cbdc;
+}
+.developer-inputs input {
+  min-width: 0;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #3d556a;
+  border-radius: 3px;
+  background: #0c1b28;
+  color: #eaf4ff;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.developer-status {
+  align-self: start;
+  padding: 20px;
+  border: 1px solid #294052;
+  border-radius: 4px;
+}
+.developer-status h2 {
+  margin-top: 0;
+}
+.developer-status dl {
+  margin: 0;
+}
+.developer-status dl > div {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #24384a;
+  font-size: 13px;
+}
+.developer-status dt {
+  color: #9cb2c5;
+}
+.developer-status dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.developer-status form {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid #324759;
+}
+.developer-panel .developer-config-error {
+  color: #ff9399;
+}
+.developer-panel .developer-override-note {
+  color: #ffc56b;
+}
+@media (max-width: 850px) {
+  .developer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 500px) {
+  .developer-buttons {
+    grid-template-columns: 1fr;
+  }
+}
