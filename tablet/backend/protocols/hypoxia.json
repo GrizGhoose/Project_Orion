@@ -26,6 +26,7 @@
   "start": "call",
   "nodes": {
     "call": {
+      "title": "Voice check",
       "phase": "confirm",
       "type": "question",
       "prompt": "Call {crew} on the loop: “{crew}, Habitat. State your O₂ reading.” How do they answer?",
@@ -60,6 +61,7 @@
       ]
     },
     "suit": {
+      "title": "Suit pressure check",
       "phase": "confirm",
       "type": "question",
       "prompt": "Look at {crew}'s suit pressure on the left: {suit} psia. Is it below 4.0 psia?",
@@ -77,9 +79,11 @@
           "next": "sensor",
           "tone": "good"
         }
-      ]
+      ],
+      "image": "suit_gauge"
     },
     "sensor": {
+      "title": "Reaction check",
       "phase": "confirm",
       "type": "question",
       "prompt": "Suit looks normal. Ask {crew} to stop, rest 30 s and press the HUD reaction check. What happens?",
@@ -100,6 +104,7 @@
       ]
     },
     "watch": {
+      "title": "Watch & reseat sensor",
       "phase": "confirm",
       "type": "action",
       "prompt": "Treat as a false alarm, but keep watching.",
@@ -113,6 +118,7 @@
       "next": "end_ok"
     },
     "act_now": {
+      "title": "Emergency O₂ + buddy",
       "phase": "outside",
       "type": "action",
       "prompt": "Act now: get {crew} on emergency O₂ and send the buddy.",
@@ -134,9 +140,11 @@
           "source": "NASA NTRS 20150021491 p. 13 (performance at altitude)"
         }
       ],
-      "treat": true
+      "treat": true,
+      "image": "emergency_o2"
     },
     "o2_effect": {
+      "title": "O₂ effect check",
       "phase": "outside",
       "type": "question",
       "prompt": "After 2 minutes on emergency O₂, what is {crew}'s SpO₂ doing? Now {spo2} %, baseline {base} %.",
@@ -153,9 +161,11 @@
           "next": "escort",
           "tone": "warning"
         }
-      ]
+      ],
+      "image": "oximeter"
     },
     "return": {
+      "title": "Return to airlock",
       "phase": "ingress",
       "type": "action",
       "prompt": "Controlled return to the airlock. End the EVA for {crew}.",
@@ -165,9 +175,11 @@
         "Repress the airlock to habitat pressure (8.2 psia) as soon as both are in."
       ],
       "confirm": "Both inside, airlock repressed",
-      "next": "helmet"
+      "next": "helmet",
+      "image": "buddy"
     },
     "escort": {
+      "title": "Emergency escort",
       "phase": "ingress",
       "type": "action",
       "prompt": "Emergency return. Buddy brings {crew} in now.",
@@ -178,9 +190,11 @@
         "Start airlock repress the moment both are inside."
       ],
       "confirm": "Both inside, airlock repressed",
-      "next": "helmet"
+      "next": "helmet",
+      "image": "airlock"
     },
     "helmet": {
+      "title": "Helmet off, mask on",
       "phase": "aid",
       "type": "action",
       "prompt": "Get {crew} breathing cabin air and O₂.",
@@ -196,9 +210,11 @@
           "fact": 12
         }
       ],
-      "treat": true
+      "treat": true,
+      "image": "helmet_off"
     },
     "conscious": {
+      "title": "Consciousness check",
       "phase": "aid",
       "type": "question",
       "prompt": "How is {crew} now?",
@@ -226,6 +242,7 @@
       ]
     },
     "o2_awake": {
+      "title": "Rest on O₂",
       "phase": "aid",
       "type": "action",
       "prompt": "Rest on O₂ and recheck in 5 minutes.",
@@ -236,9 +253,11 @@
       ],
       "timer_s": 300,
       "confirm": "5 minutes done",
-      "next": "recheck"
+      "next": "recheck",
+      "image": "o2_mask"
     },
     "o2_confused": {
+      "title": "Stay & monitor",
       "phase": "aid",
       "type": "action",
       "prompt": "Stay with {crew}. O₂ on, recheck in 5 minutes.",
@@ -250,9 +269,11 @@
       ],
       "timer_s": 300,
       "confirm": "5 minutes done",
-      "next": "recheck"
+      "next": "recheck",
+      "image": "o2_mask"
     },
     "recovery": {
+      "title": "Recovery position",
       "phase": "aid",
       "type": "action",
       "prompt": "Protect the airway and get the flight surgeon.",
@@ -268,22 +289,26 @@
       "alt": {
         "label": "Breathing stopped",
         "next": "cpr"
-      }
+      },
+      "image": "recovery"
     },
     "cpr": {
+      "title": "CPR",
       "phase": "aid",
       "type": "action",
       "prompt": "Start CPR. This is a medical emergency.",
       "steps": [
         "Call mission control: medical emergency, {crew}.",
-        "Start chest compressions, 100–120 per minute; brace yourself against the floor.",
+        "Start chest compressions: arms straight, shoulders over hands, 100–120 per minute; brace yourself against the floor.",
         "Ventilate with the bag-valve mask on 100 % O₂.",
         "Attach the AED and follow its voice prompts."
       ],
       "confirm": "Flight surgeon has taken over",
-      "next": "end_handover"
+      "next": "end_handover",
+      "image": "cpr"
     },
     "recheck": {
+      "title": "SpO₂ recheck",
       "phase": "aid",
       "type": "question",
       "prompt": "After 5 minutes on O₂, {crew}'s SpO₂ is…",
@@ -307,9 +332,11 @@
           "next": "escalate",
           "tone": "warning"
         }
-      ]
+      ],
+      "image": "oximeter"
     },
     "escalate": {
+      "title": "Escalate",
       "phase": "aid",
       "type": "action",
       "prompt": "O₂ isn't working well enough. Check equipment and escalate.",
@@ -324,9 +351,11 @@
       "link": {
         "label": "Open DCS check",
         "protocol": "dcs"
-      }
+      },
+      "image": "o2_mask"
     },
     "orient": {
+      "title": "Orientation check",
       "phase": "aid",
       "type": "question",
       "prompt": "Ask {crew}: Where are you? What day is it? What's your crewmate's name? How many are correct?",
@@ -349,6 +378,7 @@
       ]
     },
     "dcs_screen": {
+      "title": "DCS screen",
       "phase": "aid",
       "type": "question",
       "prompt": "The EVA was at 4.3 psia, so check for DCS too. Does {crew} have joint pain, numbness, rash or chest tightness?",
@@ -367,6 +397,7 @@
       ]
     },
     "dcs_link": {
+      "title": "Open DCS check",
       "phase": "aid",
       "type": "action",
       "prompt": "Possible DCS. Keep {crew} on 100 % O₂ and open the DCS check.",
@@ -382,6 +413,7 @@
       }
     },
     "monitor": {
+      "title": "Monitor & hand off",
       "phase": "handoff",
       "type": "action",
       "prompt": "Monitor and hand off to the flight surgeon.",
@@ -397,14 +429,17 @@
         {
           "fact": 11
         }
-      ]
+      ],
+      "image": "oximeter"
     },
     "end_ok": {
+      "title": "Response complete",
       "phase": "handoff",
       "type": "end",
       "prompt": "Response complete for {crew}. Every step is in the Log."
     },
     "end_handover": {
+      "title": "Surgeon takes over",
       "phase": "handoff",
       "type": "end",
       "prompt": "Flight surgeon is leading care for {crew}. Steps so far are in the Log."

@@ -79,6 +79,16 @@ The decision trees are stored as data, so a medic can review them without readin
   - It runs **NASA's DCS treatment model** to show how likely each treatment option is to resolve the symptoms.
 - **Log & hand-off.** A timestamped record of alerts, acknowledgements and every step taken, plus a summary for the flight surgeon that can be downloaded.
 
+## Look and feel
+
+- **Fonts:** **Chakra Petch** (angular and technical) for headings, buttons, option labels and step codes; **IBM Plex Sans** for reading text; **IBM Plex Mono** for numbers and data labels. They are bundled with the app (`@fontsource`), so they also work offline. We picked them to look like engineering hardware and to stand apart from typical web apps. They keep the NASA colour palette.
+- **Cockpit-key options:** each answer is a hardware-style key with a lettered block coloured by severity, a label in capitals, a "NEXT →" strip naming the step that answer leads to, and an indicator light that turns on when the option is selected. Cards and buttons have cut corners. Steps are coded Q.01 (question) or S.02 (action step), with a phase tag.
+- **Step pictures** (`frontend/src/components/Illustrations.tsx`) are line drawings shown beside the options. They cover: O₂ mask, pulse oximeter, recovery position, CPR, suit pressure gauge, emergency O₂ control, buddy check, airlock repress, helmet removal, DCS body map, and the Bends Treatment Apparatus (BTA).
+  - The gauge, the oximeter and the O₂ control show live values.
+  - The body map highlights the symptoms that are ticked.
+  - Each step's picture is set by the `image` field of that step in `backend/protocols/*.json`.
+  - The suit controls are drawn as a generic layout, not a real suit's panel.
+
 ## Where each number comes from
 
 | Signal | Source |

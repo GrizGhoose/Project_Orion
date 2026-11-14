@@ -42,7 +42,8 @@ class CrewTrack:
         k_suit = 1 - math.exp(-dt / SUIT_TAU_S)
         return streams.Sample(
             spo2=f["spo2_smooth"] + (self.det.mu - f["spo2_smooth"]) * k_spo2 + self.rng.gauss(0, 0.25),
-            hr=f["hr"] + (self.det.hr_mu - f["hr"]) * k_spo2,
+            # Keep the replay's beat-to-beat variation around the recovering mean, so HR stays lifelike.
+            hr=f["hr"] + (self.det.hr_mu - f["hr"]) * k_spo2 + (s.hr - self.det.hr_mu) * 0.5 + self.rng.gauss(0, 1.2),
             hrv=s.hrv, resp=s.resp,
             suit_psia=f["suit_psia"] + (streams.SUIT_NOMINAL_PSIA - f["suit_psia"]) * k_suit + self.rng.gauss(0, 0.01),
             eq_alt_m=f["eq_alt_m"] * (1 - k_suit),
@@ -86,6 +87,7 @@ class Mission:
 
     def reset(self, scenario):
         self.scenario = scenario
+        self.paused = False
         cfg = SCENARIOS[scenario]
         length = len(streams.hypoxia_stream()) if "hypoxia" in cfg.values() else 3080
         self.length = length
@@ -133,8 +135,9 @@ class Mission:
 
     def tick(self):
         """Advance one second of mission time. Returns (frame, new log entries)."""
-        if self.t >= self.length - 1:
-            self.paused = True
+        if self.paused and all(tr.last for tr in self.tracks):
+            # Hold the last second on screen; the detectors must not run again on it.
+            return self._frame([tr.last for tr in self.tracks]), []
         new_log = []
         crew = []
         for tr in self.tracks:
@@ -153,10 +156,15 @@ class Mission:
                 new_log.append(self.add_log(c["id"], "baseline",
                                             f"Baseline set: SpO₂ {b['spo2_mean']:.1f} ± {b['spo2_sd']:.1f} %, HR {b['hr_mean']:.0f} bpm"))
             self.levels[c["id"]] = c["level"]
-        frame = {"type": "frame", "t": self.t, "speed": self.speed, "paused": self.paused,
-                 "scenario": self.scenario, "length": self.length, "crew": crew}
         self.history.append({"t": self.t, "crew": [{"id": c["id"], "spo2": c["spo2_smooth"], "hr": c["hr"],
                                                      "level": c["level"]} for c in crew]})
-        if not self.paused:
+        frame = self._frame(crew)
+        if self.t >= self.length - 1:
+            self.paused = True  # end of the recording
+        else:
             self.t += 1
         return frame, new_log
+
+    def _frame(self, crew):
+        return {"type": "frame", "t": self.t, "speed": self.speed, "paused": self.paused,
+                "scenario": self.scenario, "length": self.length, "crew": crew}

@@ -72,7 +72,7 @@ export function CrewCard({ c, points, th, linked, onRespond }: Props) {
         </div>
       </div>
 
-      <TrendChart points={points} baseline={b} th={th} width={631} height={266} />
+      <TrendChart points={points} baseline={b} th={th} width={631} height={196} />
 
       {c.phase === "PRE-EVA" ? (
         <div className="calib">
@@ -90,6 +90,17 @@ export function CrewCard({ c, points, th, linked, onRespond }: Props) {
           <Meter label={`Below ${th.warning_z} σ → warning`} held={c.below_warning_s} need={th.warning_hold_s} />
         </div>
       )}
+
+      <div className="hr-block">
+        <div className="chart-head">
+          <span>Heart rate · last 5 min</span>
+          <span className="num">
+            <span className="hr-now">{c.hr} bpm</span>
+            {b ? `  ·  baseline ${b.hr_mean.toFixed(0)} ± ${(2 * b.hr_sd).toFixed(0)}` : ""}
+          </span>
+        </div>
+        <TrendChart points={points} baseline={b} th={th} width={631} height={92} metric="hr" />
+      </div>
 
       <div className="vitals">
         <Vital label="Heart rate" value={String(c.hr)} unit="bpm"

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { getJSON, logStep, post } from "../api";
 import { LEVEL_LABEL, fill, levelClass, mmss } from "../format";
 import type { CrewFrame, HistoryPoint, ProtoNode, Protocol, Session, Thresholds } from "../types";
+import { Figure } from "./Illustrations";
 import { TrendChart } from "./TrendChart";
 
 interface Props {
@@ -94,6 +95,7 @@ export function ProtocolRunner({ proto, session, crew, points, th, evaMinutes, o
   const complete = () => finish("Response complete", proto.id === "hypoxia", true);
 
   const nav = { canPrev: session.path.length > 1, onPrev: prev };
+  const fig: FigFn | undefined = node.image ? (picks) => <Figure id={node.image!} crew={crew} picks={picks} /> : undefined;
 
   return (
     <div className="runner">
@@ -136,8 +138,11 @@ export function ProtocolRunner({ proto, session, crew, points, th, evaMinutes, o
         </div>
         <div className="step-top">
           <span className="step-kicker">
-            {proto.title} · {session.crew} · Step {session.path.length}
-            {!isEnd && <span className="step-left"> · about {left} left</span>}
+            <span className="step-code">
+              {node.type === "question" || node.type === "select" ? "Q" : "S"}.{String(session.path.length).padStart(2, "0")}
+            </span>
+            <span className="step-phase">{proto.phases[phaseIdx]?.title}</span>
+            <span className="step-meta">{proto.title} · {session.crew}{!isEnd && ` · about ${left} left`}</span>
           </span>
           {node.why && node.why.length > 0 && (
             <button className={`info-btn ${why ? "on" : ""}`} aria-label="Why this step" onClick={() => setWhy(!why)}>i</button>
@@ -153,15 +158,15 @@ export function ProtocolRunner({ proto, session, crew, points, th, evaMinutes, o
 
         <div className="step-body" key={`${nodeId}-${session.path.length}`}>
           {node.type === "question" && (
-            <Question node={node} t={t} initial={session.picks[nodeId]?.[0]} nav={nav}
+            <Question fig={fig} nextTitle={(id) => (id ? proto.nodes[id]?.title ?? "" : "")} node={node} t={t} initial={session.picks[nodeId]?.[0]} nav={nav}
               onNext={(i) => {
                 const o = node.options![i];
                 go(o.next, o.label, { picks: { ...session.picks, [nodeId]: [String(i)] }, ...(o.set ? { flags: o.set } : {}) });
               }} />
           )}
-          {node.type === "action" && <Action node={node} t={t} nav={nav} onDone={(label, next) => go(next, label)} onLink={onLink} />}
+          {node.type === "action" && <Action fig={fig} node={node} t={t} nav={nav} onDone={(label, next) => go(next, label)} onLink={onLink} />}
           {node.type === "select" && (
-            <Select node={node} initial={session.picks[nodeId] ?? []} nav={nav}
+            <Select fig={fig} node={node} initial={session.picks[nodeId] ?? []} nav={nav}
               onNext={(next, labels, ids) => go(next, labels, { picks: { ...session.picks, [nodeId]: ids } })} />
           )}
           {node.type === "number" && (
@@ -223,32 +228,46 @@ function Nav({ canPrev, onPrev, label = "Next", disabled, onNext, children }: Na
 }
 
 type NavBase = { canPrev: boolean; onPrev: () => void };
+type FigFn = (picks?: string[]) => ReactNode;
 
-function Question({ node, t, initial, nav, onNext }: {
-  node: ProtoNode; t: (s: string) => string; initial?: string; nav: NavBase; onNext: (i: number) => void;
+/** Options or checklist on the left, the step's picture (if any) on the right. */
+function Split({ fig, picks, children }: { fig?: FigFn; picks?: string[]; children: ReactNode }) {
+  return fig ? <div className="split">{children}{fig(picks)}</div> : <>{children}</>;
+}
+
+function Question({ node, t, initial, nav, fig, nextTitle, onNext }: {
+  node: ProtoNode; t: (s: string) => string; initial?: string; nav: NavBase; fig?: FigFn;
+  nextTitle: (id?: string) => string; onNext: (i: number) => void;
 }) {
   const [sel, setSel] = useState<number | null>(initial != null ? Number(initial) : null);
   return (
     <>
+      <Split fig={fig}>
       <div className="choices fill" role="radiogroup">
         {node.options!.map((o, i) => (
           <button key={i} role="radio" aria-checked={sel === i}
-            className={`choice tone-${o.tone ?? "good"} ${sel === i ? "sel" : ""}`} onClick={() => setSel(i)}>
+            className={`choice key tone-${o.tone ?? "good"} ${sel === i ? "sel" : ""}`} onClick={() => setSel(i)}>
             <span className="choice-key">{String.fromCharCode(65 + i)}</span>
-            <span>
+            <span className="choice-body">
               <span className="choice-label">{t(o.label)}</span>
               {o.sub && <span className="choice-sub">{t(o.sub)}</span>}
             </span>
+            <span className="choice-next">
+              <span className="next-k">Next</span>
+              <span className="next-v">{nextTitle(o.next)}</span>
+            </span>
+            <span className="led" />
           </button>
         ))}
       </div>
+      </Split>
       <Nav {...nav} disabled={sel === null} onNext={() => sel !== null && onNext(sel)} />
     </>
   );
 }
 
-function Action({ node, t, nav, onDone, onLink }: {
-  node: ProtoNode; t: (s: string) => string; nav: NavBase; onDone: (label: string, next?: string) => void; onLink: (p: string) => void;
+function Action({ node, t, nav, fig, onDone, onLink }: {
+  node: ProtoNode; t: (s: string) => string; nav: NavBase; fig?: FigFn; onDone: (label: string, next?: string) => void; onLink: (p: string) => void;
 }) {
   const steps = node.steps ?? [];
   const [done, setDone] = useState<boolean[]>(steps.map(() => false));
@@ -263,16 +282,19 @@ function Action({ node, t, nav, onDone, onLink }: {
   const allDone = done.every(Boolean);
   return (
     <>
+      <Split fig={fig}>
       <ul className="checklist fill">
         {steps.map((s, i) => (
           <li key={i}>
             <button className={`check ${done[i] ? "on" : ""}`} onClick={() => setDone((cur) => cur.map((d, j) => (j === i ? !d : d)))}>
+              <span className="check-no">{String(i + 1).padStart(2, "0")}</span>
               <span className="box">{done[i] ? "✓" : ""}</span>
               <span>{t(s)}</span>
             </button>
           </li>
         ))}
       </ul>
+      </Split>
       <Nav {...nav} disabled={!allDone} label={allDone ? (node.confirm ?? "Next") : `Tick all ${steps.length}`}
         onNext={() => onDone(node.confirm ?? "Done", node.next)}>
         {node.timer_s && (
@@ -294,8 +316,8 @@ function Action({ node, t, nav, onDone, onLink }: {
   );
 }
 
-function Select({ node, initial, nav, onNext }: {
-  node: ProtoNode; initial: string[]; nav: NavBase; onNext: (next: string, labels: string, ids: string[]) => void;
+function Select({ node, initial, nav, fig, onNext }: {
+  node: ProtoNode; initial: string[]; nav: NavBase; fig?: FigFn; onNext: (next: string, labels: string, ids: string[]) => void;
 }) {
   const [on, setOn] = useState<Set<string>>(new Set(initial));
   const opts = node.options!;
@@ -308,6 +330,7 @@ function Select({ node, initial, nav, onNext }: {
   };
   return (
     <>
+      <Split fig={fig} picks={[...on]}>
       <div className="tiles fill">
         {opts.map((o) => (
           <button key={o.id} className={`tile ${on.has(o.id!) ? "on" : ""}`}
@@ -320,6 +343,7 @@ function Select({ node, initial, nav, onNext }: {
           </button>
         ))}
       </div>
+      </Split>
       <Nav {...nav} label={picked.length ? `Next (${picked.length} selected)` : "None of these"} onNext={next} />
     </>
   );

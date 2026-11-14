@@ -78,6 +78,21 @@ def test_false_alarm_resolve_realarms_if_still_low():
     assert m.tracks[0].last["level"] in (CAUTION, WARNING)
 
 
+def test_pause_holds_state_and_reset_restarts():
+    from app.sim import Mission
+    m = Mission()
+    for _ in range(50):
+        m.tick()
+    m.paused = True
+    t, det_t = m.t, m.tracks[0].det.t
+    for _ in range(20):
+        m.tick()
+    assert m.t == t and m.tracks[0].det.t == det_t
+    m.reset("demo")
+    m.tick(); m.tick()
+    assert m.t == 2 and not m.paused
+
+
 def test_dcs_model_matches_nasa_mars_case():
     # TP-2014-218561: pain-only symptom at 203 min, return 4.3 -> 8.2 psia: 0.49 (0.36-0.62)
     p = dcs_model.p_resolution(8.2 - 4.3, 203, True)

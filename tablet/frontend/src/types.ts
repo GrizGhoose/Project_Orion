@@ -100,6 +100,7 @@ export interface Option {
 }
 
 export interface ProtoNode {
+  title?: string;
   phase: string;
   type: "question" | "action" | "select" | "number" | "dcs_model" | "end";
   prompt: string;
@@ -119,6 +120,7 @@ export interface ProtoNode {
   max?: number;
   why?: Why[];
   treat?: boolean;
+  image?: string;
 }
 
 export interface Protocol {
