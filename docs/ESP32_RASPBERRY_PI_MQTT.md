@@ -2,7 +2,9 @@
 
 This guide connects the astronaut ESP32 devices to the Raspberry Pi using Wi-Fi and MQTT. The Pi runs Mosquitto, an MQTT broker that routes messages between devices. Start with one ESP32, then repeat for the buddy's device.
 
-The user confirmed that communication works. The Pi address reported for this setup is **192.168.10.110**. Addresses can change when reconnecting or changing networks; check before uploading firmware.
+Use this guide to establish and verify communication on your own network. Addresses can change when reconnecting or changing networks; check before uploading firmware.
+
+See [Communication sketch walkthrough](ESP32_RASPBERRY_PI_COMMUNICATION_SKETCH.md) for a generic copy of the local test sketch and an explanation of its behavior.
 
 ```text
 ESP32 astro01 ── Wi-Fi ──┐
@@ -23,7 +25,7 @@ The Pi may connect to the router through Wi-Fi or Ethernet. Both ESP32s must be 
 hostname -I
 ```
 
-Use the Pi's address on the network shared with the ESP32s. This guide uses `192.168.10.110`. A DHCP reservation in the router can keep that address stable.
+Use the Pi's address on the network shared with the ESP32s. Use that address in place of `YOUR_RASPBERRY_PI_IP` in the sketch. A DHCP reservation in the router can keep that address stable.
 
 ## 2. Install the broker on the Raspberry Pi
 
@@ -138,7 +140,7 @@ Create a new sketch and paste the following. Replace the Wi-Fi credentials and M
 
 const char* WIFI_SSID = "YOUR_WIFI_NAME";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* PI_IP = "192.168.10.110";
+const char* PI_IP = "YOUR_RASPBERRY_PI_IP";
 
 const char* MQTT_USER = "eva";
 const char* MQTT_PASSWORD = "YOUR_MQTT_PASSWORD";
