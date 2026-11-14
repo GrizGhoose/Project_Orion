@@ -34,14 +34,14 @@ export function MissionClock({ now }) {
   );
 }
 
-export function Stopwatch({ elapsed }) {
+export function Stopwatch({ elapsed, live = false }) {
   return (
-    <g role="timer" aria-label="EVA elapsed" aria-live="off">
+    <g role="timer" aria-label={live ? 'Device uptime' : 'EVA elapsed'} aria-live="off">
       <text x="960" y="125" textAnchor="middle" className="digital elapsed-value">
         {formatElapsed(elapsed)}
       </text>
       <text x="960" y="151" textAnchor="middle" className="hud-label elapsed-label">
-        EVA ELAPSED
+        {live ? 'DEVICE UPTIME' : 'EVA ELAPSED'}
       </text>
     </g>
   );
@@ -52,13 +52,13 @@ export function TelemetryReadout({ metric, x, y, percentage = false, emphasis = 
     <g
       role="group"
       className={emphasis === 'NORMAL' ? undefined : `readout-${emphasis.toLowerCase()}`}
-      aria-label={`${metric.label}: ${metric.value}${percentage ? '' : ' '}${metric.unit} simulated`}
+      aria-label={`${metric.label}: ${metric.value ?? '—'}${percentage ? '' : ' '}${metric.unit}${metric.live ? '' : ' simulated'}`}
     >
       <text x={x} y={y} className="hud-label telemetry-label">
         {metric.label}
       </text>
       <text x={x} y={y + 39} className="digital telemetry-value">
-        {metric.value}
+        {metric.value ?? '—'}
         <tspan dx="10" className={percentage ? 'percentage-unit' : 'telemetry-unit'}>
           {metric.unit}
         </tspan>
@@ -91,17 +91,17 @@ function Waveform({ kind, d, reserveWideReading = false }) {
   );
 }
 
-function LeftTelemetry({ telemetry, severity, heartRateElevated }) {
+function LeftTelemetry({ telemetry, severity, heartRateElevated, live }) {
   const heartSeverity = heartRateElevated ? severity : 'NORMAL';
   return (
-    <g className="telemetry-wing" aria-label="Simulated respiration and heart rate" role="group">
+    <g className="telemetry-wing" aria-label={live ? 'Respiration and heart rate' : 'Simulated respiration and heart rate'} role="group">
       <path
         className="panel-outline"
         d="M259 130 Q437 184 650 196 M251 133 Q233 184 217 300 Q211 328 236 334 Q430 378 649 386"
       />
       <path className="panel-rule" d="M244 238 Q430 285 648 298" />
       <TelemetryReadout
-        metric={{ ...TELEMETRY.respiration, value: telemetry.respiration }}
+        metric={{ ...TELEMETRY.respiration, value: telemetry.respiration, live }}
         x={275}
         y={163}
       />
@@ -111,7 +111,7 @@ function LeftTelemetry({ telemetry, severity, heartRateElevated }) {
       />
       <g key={heartSeverity} className="heart-rate-telemetry" data-severity={heartSeverity}>
         <TelemetryReadout
-          metric={{ ...TELEMETRY.heartRate, value: telemetry.heartRate }}
+          metric={{ ...TELEMETRY.heartRate, value: telemetry.heartRate, live }}
           x={254}
           y={271}
           emphasis={heartSeverity}
@@ -131,11 +131,11 @@ function LeftTelemetry({ telemetry, severity, heartRateElevated }) {
   );
 }
 
-function RightTelemetry({ telemetry, severity }) {
+function RightTelemetry({ telemetry, severity, live }) {
   const segments = 20;
   const active = Math.round((telemetry.oxygen / 100) * segments);
   return (
-    <g className="telemetry-wing" aria-label="Simulated oxygen measurements" role="group">
+    <g className="telemetry-wing" aria-label={live ? 'Oxygen measurements' : 'Simulated oxygen measurements'} role="group">
       <path
         className="panel-outline"
         d="M1661 130 Q1483 184 1270 196 M1669 133 Q1687 184 1703 300 Q1709 328 1684 334 Q1490 378 1271 386"
@@ -143,7 +143,7 @@ function RightTelemetry({ telemetry, severity }) {
       <path className="panel-rule" d="M1676 238 Q1490 285 1272 298" />
       <g key={severity} className="spo2-telemetry" data-severity={severity}>
         <TelemetryReadout
-          metric={{ ...TELEMETRY.spo2, value: telemetry.spo2 }}
+          metric={{ ...TELEMETRY.spo2, value: telemetry.spo2, live }}
           x={1295}
           y={192}
           percentage
@@ -153,12 +153,12 @@ function RightTelemetry({ telemetry, severity }) {
         <path
           className="status-fill"
           pathLength="100"
-          strokeDasharray={`${telemetry.spo2} 100`}
+          strokeDasharray={`${Number.isFinite(telemetry.spo2) ? telemetry.spo2 : 0} 100`}
           d="M1410 221 Q1525 211 1644 181"
         />
       </g>
       <TelemetryReadout
-        metric={{ ...TELEMETRY.oxygen, value: telemetry.oxygen }}
+        metric={{ ...TELEMETRY.oxygen, value: telemetry.oxygen, live }}
         x={1295}
         y={300}
         percentage
@@ -277,6 +277,8 @@ export function HelmetHUD({
   telemetry = defaultTelemetry(),
   severity = 'NORMAL',
   heartRateElevated = false,
+  live = false,
+  deviceElapsed,
 }) {
   const { now, elapsed } = useTime();
   return (
@@ -287,13 +289,14 @@ export function HelmetHUD({
       <div className="visor-reflection" aria-hidden="true" />
       <VisorOverlay severity={severity}>
         <MissionClock now={now} />
-        <Stopwatch elapsed={elapsed} />
+        <Stopwatch elapsed={deviceElapsed ?? elapsed} live={live} />
         <LeftTelemetry
           telemetry={telemetry}
           severity={severity}
           heartRateElevated={heartRateElevated}
+          live={live}
         />
-        <RightTelemetry telemetry={telemetry} severity={severity} />
+        <RightTelemetry telemetry={telemetry} severity={severity} live={live} />
       </VisorOverlay>
       <CentralAlert key={severity} severity={severity} heartRateElevated={heartRateElevated} />
     </main>
