@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import App from '../../app/App';
+import App from '../../app/DemoApp';
 
 let now;
 beforeEach(() => {

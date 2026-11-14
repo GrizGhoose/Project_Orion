@@ -19,3 +19,7 @@
 !/astronaut-eva-hud-hardware/
 !/tablet-hardware/
 !/node_modules/
+
+!/esp32-vitals/
+
+!/raspberry-pi-gateway/

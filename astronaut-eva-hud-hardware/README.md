@@ -1,3 +1,5 @@
+> **Live hardware mode:** The default entry point now reads the Raspberry Pi telemetry API. Setup: [Pi gateway](../raspberry-pi-gateway/README.md) and [ESP32 firmware](../esp32-vitals/README.md). The simulation described below remains available explicitly at `?demo=1`. Real baseline and alert calculations run on the ESP32; the live UI displays their results.
+
 # Lunar EVA Helmet HUD
 
 An astronaut helmet display for the NASA Space Apps Challenge, with a preserved NORMAL visor, SpO₂-gated WARNING/CRITICAL states, and a separate developer panel below the HUD. Earlier simulation, health, routing, and control modules are retained as inactive source files; the current app does not import them.

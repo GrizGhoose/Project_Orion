@@ -1,19 +1,7 @@
-import { HelmetHUD } from '../features/visor/HelmetHUD';
-import { useMonitoring } from '../features/monitoring/useMonitoring';
-import { DeveloperControls } from '../features/monitoring/DeveloperControls';
-import { displayedSeverity } from '../features/monitoring/monitoringState';
-import { isHeartRateElevated } from '../features/monitoring/baselineConfig';
+import DemoApp from './DemoApp';
+import { LiveHUD } from '../features/live/LiveHUD';
 
 export default function App() {
-  const { state, send } = useMonitoring();
-  return (
-    <>
-      <HelmetHUD
-        telemetry={state.telemetry}
-        severity={displayedSeverity(state)}
-        heartRateElevated={isHeartRateElevated(state.telemetry, state.config)}
-      />
-      <DeveloperControls state={state} send={send} />
-    </>
-  );
+  return new URLSearchParams(window.location.search).get('demo') === '1'
+    ? <DemoApp /> : <LiveHUD />;
 }

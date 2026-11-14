@@ -1,0 +1,15 @@
+.live-hud { color: #e1efff; background: #07101b; font-family: system-ui, sans-serif; }
+.live-visor { position: relative; }
+.live-hud .waveform { display: none; }
+.live-status { position: absolute; bottom: 9%; left: 50%; transform: translateX(-50%); width: min(640px, 80%); padding: 20px 24px; text-align: center; background: #07101bed; border: 1px solid #9dc7f966; border-radius: 12px; }
+.live-status h1 { font-size: clamp(20px, 2.2vw, 32px); margin: 8px 0; letter-spacing: .08em; }
+.live-status p { margin: 8px 0; line-height: 1.5; }
+.live-eyebrow, .live-muted { color: #9fb5cd; font-size: 12px; }
+.live-history { padding: 28px; max-width: 1200px; margin: auto; overflow-x: auto; }
+.live-history-header { display: flex; justify-content: space-between; gap: 20px; align-items: center; flex-wrap: wrap; }
+.live-history h2 { margin: 0; }
+.live-history p { color: #b3c7dd; }
+.live-history button { background: #245d91; color: white; padding: 12px 18px; border: 1px solid #a0caff; border-radius: 6px; cursor: pointer; }
+.live-history button:disabled { opacity: .4; cursor: default; }
+.live-history table { width: 100%; border-collapse: collapse; margin-top: 24px; font-variant-numeric: tabular-nums; }
+.live-history th, .live-history td { padding: 12px; text-align: left; border-bottom: 1px solid #263b51; }
