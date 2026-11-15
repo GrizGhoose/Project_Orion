@@ -4,7 +4,7 @@ import { MediaCard } from "@/components/MediaCard";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { NewsRow } from "@/components/NewsRow";
 import { PageHero } from "@/components/PageHero";
-import { ProductShowcase } from "@/components/ProductShowcase";
+import { ProductCarousel } from "@/components/ProductCarousel";
 import { PressQuote } from "@/components/PressQuote";
 import { Reveal } from "@/components/Reveal";
 import { Section, SectionHeading } from "@/components/Section";
@@ -25,7 +25,7 @@ export default function HomePage() {
         video={hero.video}
       />
 
-      <ProductShowcase />
+      <ProductCarousel />
 
       {/* Progress feed */}
       <Section alt divider>

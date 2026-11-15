@@ -33,7 +33,8 @@
   .link-gold {
     @apply text-ink underline decoration-gold decoration-1 underline-offset-[6px] transition-colors duration-200 hover:text-gold-bright hover:decoration-gold-bright;
   }
-  /* Home product showcase: grid areas per breakpoint (see components/ProductShowcase.tsx) */
+  /* Product carousel slide: grid areas per breakpoint (see components/ProductSlide.tsx).
+     Callout labels sit in areas c1–c3; the leader-line side follows from where each label lands. */
   .showcase-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -41,24 +42,27 @@
     row-gap: 3rem;
   }
   @media (min-width: theme("screens.lg")) {
-    /* 1024–1279: info boxes above and below; callouts beside the image */
+    /* 1024–1279: Device box on top; image left with the three callouts stacked to its right in dot order,
+       so no line crosses another line or a box */
     .showcase-grid {
-      grid-template-columns: minmax(0, 1fr) var(--img-w) minmax(0, 1fr);
+      grid-template-columns: var(--img-w) minmax(0, 1fr);
       grid-template-areas:
-        "device device ."
-        "left   img    right"
-        ".      anchor anchor";
+        "device device"
+        "img    c1"
+        "img    c2"
+        "img    c3"
+        ".      anchor";
       column-gap: 3rem;
     }
   }
   @media (min-width: theme("screens.xl")) {
-    /* 1280+: info boxes share the side columns with the callouts */
+    /* 1280+: callouts either side of the image; info boxes in the top-left and bottom-right corners */
     .showcase-grid {
-      grid-template-rows: auto 1fr auto;
+      grid-template-columns: minmax(0, 1fr) var(--img-w) minmax(0, 1fr);
       grid-template-areas:
-        "device img right"
-        "left   img right"
-        "left   img anchor";
+        "device img c2"
+        "c1     img c2"
+        "c3     img anchor";
     }
   }
   /* 1px gold hairline divider */

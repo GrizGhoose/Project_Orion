@@ -126,74 +126,149 @@ export type Callout = {
   /** Dot position on the part, as % of the product image box (0–100, from the top-left) */
   x: number;
   y: number;
-  /** Which column the label sits in on desktop; left-side labels stack top to bottom in list order */
-  side: "left" | "right";
 };
 
 /** Standalone caption box (no dot or leader line) */
 export type InfoBoxContent = { label: string; title: string; body: string };
 
-/** Home product showcase: cut-out hardware over huge background lettering, with callouts */
+/** One slide of the home product carousel. Each product uses three callouts (01–03). */
+export type ShowcaseProduct = {
+  id: string;
+  /** Shown in the pager and read out by screen readers */
+  name: string;
+  /** Huge decorative lettering behind the image */
+  backgroundWord: string;
+  /** Cut-out product image (transparent PNG/WebP), or null to show `imageSlot` as a placeholder */
+  image: { src: string; alt: string; width: number; height: number } | null;
+  imageSlot?: { slot: string; size: string; alt: string };
+  /** Top-left caption for the whole product */
+  device: InfoBoxContent;
+  /** Bottom-right standalone caption */
+  anchor: InfoBoxContent;
+  callouts: Callout[];
+  specs?: Spec[];
+  cta?: Link;
+};
+
+const placeholderSpecs: Spec[] = [
+  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
+  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
+  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
+  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
+];
+
+/**
+ * Home product carousel. To add a product, add an entry to `products`: the counter, pager bars and arrows
+ * update automatically. Put product images in public/images/ (see images-needed.md).
+ */
 export const productShowcase = {
-  /** Top-left caption for the whole device */
-  device: {
-    label: "The Device",
-    title: "Custom PCB",
-    body: "An embedded system on a microchip, worn behind the ear and built into the astronaut's headgear. It's the most accurate spot to measure BPM and SpO₂, the key indicators of hypoxia.",
-  } as InfoBoxContent,
-  /** Bottom-right caption for the crew tablet */
-  anchor: {
-    label: "The Anchor",
-    title: "iPad Pro 13in M4",
-    body: "The master control for the crew member on board. They can monitor every astronaut on a spacewalk in real time and get step-by-step guidance to help if a hypoxia incident occurs. Controlled by the Raspberry Pi over Bluetooth.",
-  } as InfoBoxContent,
-  /** Background lettering (decorative) and the screen-reader heading */
-  word: "H.E.R.B",
-  heading: "H.E.R.B",
-  image: {
-    src: "/images/herb-hardware.webp",
-    width: 1240,
-    height: 1600,
-    alt: "[PLACEHOLDER: H.E.R.B] prototype hardware: pulse-oximeter sensor, ESP32 microcontroller and Raspberry Pi wired together on breadboards",
-  },
-  callouts: [
+  label: "Products",
+  products: [
     {
-      number: "01",
-      name: "The Sensor",
-      model: "MAX30102",
-      body: "Uses infrared and red light to measure how much of each the blood absorbs. Infrared is absorbed by oxyhaemoglobin (oxygenated blood), red light by deoxyhaemoglobin, and the sensor returns the raw values.",
-      secondary: "It samples every 6 seconds and keeps the last 15 readings in memory to watch for serious trends. Older samples are erased to keep it fast.",
-      x: 21,
-      y: 15,
-      side: "left",
+      id: "herb",
+      name: "H.E.R.B",
+      backgroundWord: "H.E.R.B",
+      image: {
+        src: "/images/herb-hardware.webp",
+        width: 1240,
+        height: 1600,
+        alt: "[PLACEHOLDER: H.E.R.B] prototype hardware: pulse-oximeter sensor, ESP32 microcontroller and Raspberry Pi wired together on breadboards",
+      },
+      device: {
+        label: "The Device",
+        title: "Custom PCB",
+        body: "An embedded system on a microchip, worn behind the ear and built into the astronaut's headgear. It's the most accurate spot to measure BPM and SpO₂, the key indicators of hypoxia.",
+      },
+      anchor: {
+        label: "The Anchor",
+        title: "iPad Pro 13in M4",
+        body: "The master control for the crew member on board. They can monitor every astronaut on a spacewalk in real time and get step-by-step guidance to help if a hypoxia incident occurs. Controlled by the Raspberry Pi over Bluetooth.",
+      },
+      callouts: [
+        {
+          number: "01",
+          name: "The Sensor",
+          model: "MAX30102",
+          body: "Uses infrared and red light to measure how much of each the blood absorbs. Infrared is absorbed by oxyhaemoglobin (oxygenated blood), red light by deoxyhaemoglobin, and the sensor returns the raw values.",
+          secondary: "It samples every 6 seconds and keeps the last 15 readings in memory to watch for serious trends. Older samples are erased to keep it fast.",
+          x: 21,
+          y: 15,
+        },
+        {
+          number: "02",
+          name: "The MCU",
+          model: "ESP32-WROOM-32E",
+          body: "Turns the raw data into real SpO₂ and BPM values, then sends the live data over long-range Bluetooth to the Brain (Raspberry Pi).",
+          x: 42,
+          y: 36,
+        },
+        {
+          number: "03",
+          name: "The Brain",
+          model: "Raspberry Pi 5",
+          body: "The main communicator to the two HUDs and the tablet. It handles several devices at once for low-latency syncing, updates each one with the refined data, and triggers any warnings needed on each device.",
+          x: 53,
+          y: 69,
+        },
+      ],
+      specs: [
+        { label: "[PLACEHOLDER: Sampling rate]", value: "[PLACEHOLDER]" },
+        { label: "[PLACEHOLDER: Connectivity]", value: "[PLACEHOLDER]" },
+        { label: "[PLACEHOLDER: Power]", value: "[PLACEHOLDER]" },
+        { label: "[PLACEHOLDER: Weight]", value: "[PLACEHOLDER]" },
+        { label: "[PLACEHOLDER: Battery life]", value: "[PLACEHOLDER]" },
+      ],
+      cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" },
     },
     {
-      number: "02",
-      name: "The MCU",
-      model: "ESP32-WROOM-32E",
-      body: "Turns the raw data into real SpO₂ and BPM values, then sends the live data over long-range Bluetooth to the Brain (Raspberry Pi).",
-      x: 42,
-      y: 36,
-      side: "right",
+      id: "product-2",
+      name: "[PLACEHOLDER: Product 2 name]",
+      backgroundWord: "PRODUCT 02",
+      image: null,
+      imageSlot: { slot: "product-2.png", size: "transparent PNG · ~1200×1500", alt: "[PLACEHOLDER: Product 2 image description]" },
+      device: {
+        label: "[PLACEHOLDER: LABEL]",
+        title: "[PLACEHOLDER: Product title]",
+        body: "[PLACEHOLDER: 1–2 sentence overview of this product]",
+      },
+      anchor: {
+        label: "[PLACEHOLDER: LABEL]",
+        title: "[PLACEHOLDER: Supporting item]",
+        body: "[PLACEHOLDER: short standalone note, not connected to anything]",
+      },
+      callouts: [
+        { number: "01", name: "[Part A]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 30, y: 22 },
+        { number: "02", name: "[Part B]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 62, y: 40 },
+        { number: "03", name: "[Part C]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 45, y: 72 },
+      ],
+      specs: placeholderSpecs,
+      cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" },
     },
     {
-      number: "03",
-      name: "The Brain",
-      model: "Raspberry Pi 5",
-      body: "The main communicator to the two HUDs and the tablet. It handles several devices at once for low-latency syncing, updates each one with the refined data, and triggers any warnings needed on each device.",
-      x: 53,
-      y: 69,
-      side: "left",
+      id: "product-3",
+      name: "[PLACEHOLDER: Product 3 name]",
+      backgroundWord: "PRODUCT 03",
+      image: null,
+      imageSlot: { slot: "product-3.png", size: "transparent PNG · ~1200×1500", alt: "[PLACEHOLDER: Product 3 image description]" },
+      device: {
+        label: "[PLACEHOLDER: LABEL]",
+        title: "[PLACEHOLDER: Product title]",
+        body: "[PLACEHOLDER: 1–2 sentence overview of this product]",
+      },
+      anchor: {
+        label: "[PLACEHOLDER: LABEL]",
+        title: "[PLACEHOLDER: Supporting item]",
+        body: "[PLACEHOLDER: short standalone note, not connected to anything]",
+      },
+      callouts: [
+        { number: "01", name: "[Part A]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 30, y: 22 },
+        { number: "02", name: "[Part B]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 62, y: 40 },
+        { number: "03", name: "[Part C]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 45, y: 72 },
+      ],
+      specs: placeholderSpecs,
+      cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" },
     },
-  ] as Callout[],
-  specs: [
-    { label: "[PLACEHOLDER: Sampling rate]", value: "[PLACEHOLDER]" },
-    { label: "[PLACEHOLDER: Connectivity]", value: "[PLACEHOLDER]" },
-    { label: "[PLACEHOLDER: Power]", value: "[PLACEHOLDER]" },
-    { label: "[PLACEHOLDER: Weight]", value: "[PLACEHOLDER]" },
-    { label: "[PLACEHOLDER: Battery life]", value: "[PLACEHOLDER]" },
-  ] as Spec[],
-  cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" } as Link,
+  ] as ShowcaseProduct[],
 };
 
 export const progress = {

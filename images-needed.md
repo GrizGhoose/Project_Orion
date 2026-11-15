@@ -8,6 +8,8 @@ Every image slot on the site. Until a real image is added, each slot shows a dar
 |---|---|---|---|
 | `hero-bg` | Home (hero) | 1920×1080 | Signature wide shot: the vehicle or station against space or on the pad. Dark, with calm space at the bottom left for the headline. Also the poster for the optional hero video. |
 | `herb-hardware` ✅ | Home (product showcase) | 1240×1600 cut-out (done) | Transparent cut-out of the prototype hardware, made from `herb-hardware-raw.jpg` by `scripts/cutout_herb.py`. Replace both if the hardware changes, then re-check the callout dot positions. |
+| `product-2.png` | Home (product carousel, slide 2) | transparent PNG, ~1200×1500 | Cut-out of product 2 on a transparent background (no shadow; the page adds one). Set `image` on product 2 in `content/site.ts`, then adjust its three callout dot positions. |
+| `product-3.png` | Home (product carousel, slide 3) | transparent PNG, ~1200×1500 | Cut-out of product 3, same treatment as product 2 |
 | `progress-1` | Home (progress feed) | 1200×900 | Hardware being built or tested (factory floor, integration) |
 | `progress-2` | Home (progress feed) | 1200×900 | Test campaign: test stand, chamber or rig |
 | `progress-3` | Home (progress feed) | 1200×900 | Team at work on a milestone |
