@@ -26,6 +26,10 @@ def captures(text):
                 raise ValueError('Expected a 100-pair, 25 Hz capture')
             current = {'seq': int(metadata['seq']), 'end_ms': int(metadata['end_ms']),
                        'samples': [], 'beats': []}
+            if 'led_drive' in metadata:
+                current['led_drive'] = int(metadata['led_drive'])
+                if not 0 <= current['led_drive'] <= 255:
+                    raise ValueError('Invalid LED drive code')
         elif current is not None and fields[0] in ('PPG', 'BEAT'):
             if int(fields[1]) != current['seq']:
                 raise ValueError('Mixed sequences in capture')
@@ -59,7 +63,7 @@ def waveform_svg(capture):
            '<rect width="1000" height="820" fill="white"/>',
            '<g font-family="sans-serif" font-size="14" fill="#222">',
            f'<text x="70" y="28">PPG window {capture["seq"]}; report uptime {capture["end_ms"]} ms; 25 pairs/s</text>',
-           '<text x="70" y="52">Red = red channel; blue = infrared. Synthetic or real source is determined by the supplied log.</text>']
+           f'<text x="70" y="52">Red = red channel; blue = infrared. LED drive code: {capture.get("led_drive", "unspecified")}. Source: supplied log.</text>']
 
     def panel(top, title, series):
         vals = [v for values, _ in series for v in values]

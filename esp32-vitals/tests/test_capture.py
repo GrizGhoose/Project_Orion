@@ -17,6 +17,14 @@ def log():
 
 
 class CaptureTests(unittest.TestCase):
+    def test_led_metadata_is_preserved_in_plot(self):
+        text = log().replace('count=100', 'count=100,led_drive=47')
+        window = next(capture.captures(text))
+        self.assertEqual(window['led_drive'], 47)
+        self.assertIn('LED drive code: 47', capture.waveform_svg(window))
+        with self.assertRaises(ValueError):
+            list(capture.captures(text.replace('led_drive=47', 'led_drive=999')))
+
     def test_timestamped_capture_exports(self):
         with tempfile.TemporaryDirectory() as directory:
             self.assertEqual(capture.export(log(), Path(directory)), 1)

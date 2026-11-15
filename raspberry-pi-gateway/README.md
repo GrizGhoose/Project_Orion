@@ -2,7 +2,7 @@
 
 ```text
 MAX30102 → ESP32 (optical processing, baseline, alert decisions)
-                   ↓ MQTT, result + rolling 15-report history every 6 seconds
+                   ↓ MQTT, result + rolling 90-second result history every second
            Mosquitto on Raspberry Pi
                    ↓
            Python gateway → SQLite database → HTTP API → astronaut HUD browser
@@ -42,11 +42,11 @@ Use this only on the trusted demo LAN. HTTP has no login and reachable clients c
 ## What to expect
 
 1. Upload `../esp32-vitals/esp32_vitals/esp32_vitals.ino` using your own `secrets.h`.
-2. Serial Monitor should show `MQTT connected`, then a report every six seconds.
+2. Serial Monitor should show `MQTT connected`, then a report every second.
 3. The HUD shows independently accepted HR/SpO₂ or an explicit acquisition/rejection state, and calibration progress such as `4/15`.
-4. After 15 eligible valid reports, the HUD shows the frozen baseline means. The table below the visor shows the latest 15 results.
+4. After 15 eligible samples taken at least six seconds apart (at least 90 seconds), the HUD shows frozen baseline means. The table below the visor shows up to 90 results from the trailing 90 seconds.
 5. **Start new baseline** asks the ESP32 to restart. It stays pending until the command ID returns from the ESP32; a timeout does not claim success.
-6. Disconnect the ESP32 to test connection handling: after 18 seconds without a fresh sample, current readings disappear and the HUD shows `CONNECTION LOST`. Stored historical readings remain.
+6. Disconnect the ESP32 to test connection handling: after 3 seconds without a fresh sample for schema 3 (18 seconds for legacy schemas), plus the browser polling delay, current readings disappear and the HUD shows `CONNECTION LOST`. Stored historical readings remain.
 
 Respiration, suit oxygen reserve and simulated ECG/breathing waveforms are not fabricated in live mode. The visible elapsed counter follows ESP32 uptime (it resets on power cycle), not a certified mission clock. `?demo=1` explicitly enables the old simulator; never use that URL to verify sensor data.
 
@@ -62,15 +62,17 @@ SQLite defaults to `data/eva.sqlite3` (ignored by Git). It survives gateway and 
 | `POST /api/devices/astro01/baseline/restart` | Queue ESP32 restart; returns command ID and HTTP 202, **not** a completed calibration |
 | `GET /docs` | Interactive API schema |
 
-The gateway accepts schemas **1 and 2**, and keeps stored legacy packets unchanged. Deploy this version and rebuild the HUD before uploading schema-2 firmware. Each packet's `history[-1]` is its latest measurement.
+The gateway accepts schemas **1, 2 and 3**, and keeps stored legacy packets unchanged. Deploy this version and rebuild the HUD before uploading schema-3 firmware. Each packet's `history[-1]` is its latest measurement.
 
-For schema 2, display `hr` only when `hr_valid`, and `spo2` only when `spo2_valid`; `valid` means **both** accepted. Never hide an accepted HR solely because SpO₂ was rejected. Use `acquisition`, `hr_quality`, and `spo2_quality` for diagnostics. `ACQUISITION_ERROR` is distinct from `MEASUREMENT_REJECTED`; `PARTIAL_SIGNAL` retains a single accepted value. An active oxygen alert may coexist with rejected HR. Present `alert` as current only when SpO₂ is accepted and the packet is fresh; otherwise label it as the prior alert. Firmware quality checks are heuristics, not accuracy certification.
+For schemas 2 and 3, display `hr` only when `hr_valid`, and `spo2` only when `spo2_valid`; `valid` means **both** accepted. Never hide an accepted HR solely because SpO₂ was rejected. Use `acquisition`, `hr_quality`, and `spo2_quality` for diagnostics. `ACQUISITION_ERROR` is distinct from `MEASUREMENT_REJECTED`; `PARTIAL_SIGNAL` retains a single accepted value. An active oxygen alert may coexist with rejected HR. Present `alert` as current only when SpO₂ is accepted and the packet is fresh; otherwise label it as the prior alert. Firmware quality checks are heuristics, not accuracy certification.
 
-Schema-1 readings keep the legacy combined `valid` flag and `NO_SIGNAL`. Both versions use the ESP32's baseline/state/alert decisions unchanged. Hide all current values if `fresh` or `broker_connected` is false. Null is never zero or a normal measurement. The maximum MQTT body is 12,288 bytes; raw waveform captures are serial-only and are not stored in the Pi database.
+Schema-1 readings keep the legacy combined `valid` flag and `NO_SIGNAL`. All versions use the ESP32's baseline/state/alert decisions unchanged. Hide all current values if `fresh` or `broker_connected` is false. Null is never zero or a normal measurement. The maximum MQTT body is 65,536 bytes; raw waveform captures are serial-only and are not stored in the Pi database.
+
+Schema 3 retains the schema-2 reading fields, but allows up to 90 reports in a window shorter than 90,000 ms and uses a one-second cadence. Legacy schemas remain limited to 15 reports. The rolling display expires results; the Pi database still preserves older readings and has no automatic deletion policy.
 
 Rows are de-duplicated by `(device_id, boot_id, seq)`. Overlapping windows are inserted once; duplicate/out-of-order packets cannot refresh the live state. Packets from a known retired boot cannot overwrite the current boot. A previously unseen boot is treated as a restart, since the ESP32 has no synchronized wall clock. Retained MQTT packets are ignored. The gateway validates message shape, sizes, measurement ranges and topic identity, without calculating physiological values or alarm thresholds.
 
-`received` is the Pi receipt timestamp. `sample_time_estimate` subtracts the ESP32-reported age from that receipt time. It is approximate (network transit is not measured); device `t_ms` is authoritative for within-boot ordering. ESP32 RAM holds only the last 15 reports, so an extended network outage can leave permanent archive gaps. One gateway process/worker should write this database and consume MQTT.
+`received` is the Pi receipt timestamp. `sample_time_estimate` subtracts the ESP32-reported age from that receipt time. It is approximate (network transit is not measured); device `t_ms` is authoritative for within-boot ordering. Schema-3 ESP32 RAM holds up to 90 reports from the last 90 seconds, so an extended network outage can leave permanent archive gaps. One gateway process/worker should write this database and consume MQTT.
 
 Optional environment variables: `MQTT_HOST`, `MQTT_PORT`, `MQTT_USER`, `MQTT_PASSWORD`, `EVA_DB`, `HUD_DIST`. `.env` loads automatically without overriding existing environment variables. Changing the database or built-UI path requires restart.
 

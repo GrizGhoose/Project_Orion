@@ -16,6 +16,16 @@ function mockData(data) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('Pi-backed live HUD', () => {
+  it('shows the one-second cadence and full 90-second history for schema 3', async () => {
+    const data = snapshot(); data.packet.schema = 3;
+    const row = data.packet.history[0];
+    data.packet.history = Array.from({ length: 90 }, (_, i) => ({ ...row, seq: i+1, t_ms: (i+1)*1000 }));
+    mockData(data); render(<App />);
+    expect(await screen.findByText('Last 90 seconds')).toBeInTheDocument();
+    expect(screen.getByText(/One result every second/)).toBeInTheDocument();
+    expect(screen.getAllByRole('row')).toHaveLength(91);
+    expect(screen.getByText(/eligible samples, at least 6 seconds apart/)).toBeInTheDocument();
+  });
   it('keeps accepted HR visible when SpO2 is rejected and marks prior alerts as historical', async () => {
     const data = snapshot();
     Object.assign(data.packet.history[0], { hr_valid: true, spo2_valid: false, valid: false,

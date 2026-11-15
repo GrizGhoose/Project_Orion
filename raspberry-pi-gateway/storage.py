@@ -56,7 +56,8 @@ class Store:
             return {'packet': None, 'fresh': False, 'age_seconds': None, 'received_at': None}
         packet = json.loads(row['packet'])
         age = max(0, (time.time() if now is None else now) - row['received']) + (packet['sent_at_ms'] - packet['history'][-1]['t_ms']) / 1000
-        return {'packet': json.loads(row['packet']), 'fresh': age < 18,
+        timeout = 3 if packet['schema'] == 3 else 18
+        return {'packet': packet, 'fresh': age < timeout,
                 'age_seconds': round(age, 1), 'received_at': row['received']}
 
     def readings(self, device, limit=100, offset=0):

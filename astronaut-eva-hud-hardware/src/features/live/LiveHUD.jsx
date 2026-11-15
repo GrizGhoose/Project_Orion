@@ -39,6 +39,7 @@ export function LiveHUD() {
   }, [endpoint]);
 
   const packet = data?.packet;
+  const fastReports = packet?.schema === 3;
   const reading = packet?.history.at(-1);
   const connected = Boolean(data?.fresh && data?.broker_connected && !error);
   const hrUsable = connected && (reading?.hr_valid ?? reading?.valid);
@@ -74,7 +75,7 @@ export function LiveHUD() {
           {connected && reading.acquisition && reading.acquisition !== 'ok' && <p>Acquisition: {reading.acquisition.replaceAll('_', ' ')}. Measurements have not been evaluated.</p>}
           {connected && reading.hr_quality && <p>HR: {reading.hr_quality.replaceAll('_', ' ')} · SpO₂: {reading.spo2_quality.replaceAll('_', ' ')}.</p>}
           {connected && !reading.valid && !reading.acquisition && <p>Measurement unavailable: {reading.quality.replaceAll('_', ' ')}.</p>}
-          {connected && !baseline.ready && <p>Startup baseline: {baseline.count}/15 valid readings. Rest and keep your finger still; allow at least 90 seconds.</p>}
+          {connected && !baseline.ready && <p>Startup baseline: {baseline.count}/{baseline.required} eligible samples, at least 6 seconds apart. Rest and keep your finger still; allow at least 90 seconds.</p>}
           {baseline?.ready && <p>Baseline: {baseline.hr.toFixed(1)} BPM · {baseline.spo2.toFixed(1)}% SpO₂</p>}
           {!connected && <p>{error || 'Waiting for fresh telemetry from the Raspberry Pi.'}</p>}
           {(!spo2Usable && reading?.alert !== 'NORMAL' && reading?.alert) && <p>Last reported alert: {reading.alert}. Current oxygen condition unknown.</p>}
@@ -84,7 +85,7 @@ export function LiveHUD() {
       </div>
       <section className="live-history" aria-label="Measurement history">
         <div className="live-history-header">
-          <div><h2>Last 15 measurements</h2><p>One result every 6 seconds · stored on Raspberry Pi · invalid results stay in the log</p></div>
+          <div><h2>{fastReports ? 'Last 90 seconds' : 'Last 15 measurements'}</h2><p>{fastReports ? 'One result every second · latest 4-second optical window · up to 90 results' : 'One result every 6 seconds'} · stored on Raspberry Pi · invalid results stay in the log</p></div>
           <button onClick={restart} disabled={!connected || sending || waiting}>Start new baseline</button>
         </div>
         {waiting && <p role="status">Restart sent. Waiting for the ESP32 to acknowledge…</p>}
