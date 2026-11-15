@@ -267,8 +267,9 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
               </div>
             </div>
           ) : visor && image ? (
-            // Angled visor, right side nearer; from xl nudged left and down so it clears the right-hand callouts
-            <div className="tablet-scene xl:translate-x-[-2vw] xl:translate-y-[5%]">
+            // Angled visor, right side nearer, centred in its column. The tilt shifts its outline left, so from xl
+            // it's nudged right by 0.7vw to keep equal clearance from the callouts on both sides
+            <div className="tablet-scene xl:translate-x-[0.7vw]">
               <div
                 role="img"
                 aria-label={image.alt}
