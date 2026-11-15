@@ -7,7 +7,7 @@ import { ImageSlot } from "@/components/ImageSlot";
 import { NewsRow } from "@/components/NewsRow";
 import { Reveal } from "@/components/Reveal";
 import { Section } from "@/components/Section";
-import { news } from "@/content/site";
+import { news, ui } from "@/content/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -36,7 +36,7 @@ export default async function UpdatePost({ params }: Props) {
         <div className="container-page">
           <Reveal className="max-w-4xl">
             <Link href="/updates" className="link-gold text-small uppercase tracking-[0.12em]">
-              ← All updates
+              ← {ui.allUpdates}
             </Link>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <Eyebrow>{item.category}</Eyebrow>
@@ -60,7 +60,7 @@ export default async function UpdatePost({ params }: Props) {
         </div>
       </article>
       <Section alt divider>
-        <Eyebrow>More updates</Eyebrow>
+        <Eyebrow>{ui.moreUpdates}</Eyebrow>
         <ul className="mt-8 border-t border-gold/40">
           {more.map((n) => (
             <NewsRow key={n.slug} item={n} />

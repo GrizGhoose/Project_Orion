@@ -201,7 +201,7 @@ export default function StyleguidePage() {
             <GoldButton href="#">Gold button</GoldButton>
             <GoldButton className="bg-gold-bright">Hover / focus</GoldButton>
             <GhostButton href="#">Ghost button</GhostButton>
-            <GhostButton className="border-gold-bright text-gold-bright">Hover / focus</GhostButton>
+            <GhostButton className="!border-gold-bright !text-gold-bright">Hover / focus</GhostButton>
             <GoldButton arrow={false}>No arrow</GoldButton>
           </div>
           <p className="mt-10 max-w-prose">

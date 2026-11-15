@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { newsletter } from "@/content/site";
+import { newsletter, ui } from "@/content/site";
 import { GoldButton } from "./Buttons";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,7 +15,7 @@ export function NewsletterForm() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!EMAIL.test(email.trim())) {
-      setError("Enter a valid email address.");
+      setError(ui.errors.email);
       return;
     }
     setError("");
@@ -33,7 +33,7 @@ export function NewsletterForm() {
   return (
     <form onSubmit={submit} noValidate className="w-full">
       <label htmlFor="newsletter-email" className="text-eyebrow uppercase text-ink-muted">
-        Email address
+        {ui.newsletterEmailLabel}
       </label>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row">
         <input
@@ -44,7 +44,7 @@ export function NewsletterForm() {
           onChange={(e) => setEmail(e.target.value)}
           aria-invalid={!!error}
           aria-describedby={error ? "newsletter-error" : undefined}
-          placeholder="you@example.com"
+          placeholder={ui.emailPlaceholder}
           className="min-h-12 flex-1 border border-gold/40 bg-bg px-4 text-ink placeholder:text-ink-muted focus:border-gold-bright focus:outline-none"
         />
         <GoldButton type="submit">{newsletter.button}</GoldButton>

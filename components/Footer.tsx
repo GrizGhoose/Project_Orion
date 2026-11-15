@@ -44,7 +44,7 @@ export function Footer() {
       <div className="border-t border-gold/40">
         <div className="container-page flex flex-col gap-4 py-6 text-small sm:flex-row sm:items-center sm:justify-between">
           <p>{footer.legal}</p>
-          <ul className="flex gap-6">
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
             {footer.legalLinks.map((link, i) => (
               <li key={i}>
                 <Link href={link.href} className="transition-colors hover:text-gold-bright">

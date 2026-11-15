@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { NewsItem } from "@/content/site";
+import { ui, type NewsItem } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { NewsRow } from "./NewsRow";
 
@@ -27,12 +27,12 @@ export function UpdatesList({ items, categories, allLabel }: { items: NewsItem[]
 
   return (
     <div>
-      <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-3">
+      <div role="group" aria-label={ui.filterLabel} className="flex flex-wrap gap-3">
         {chip(allLabel, null)}
         {categories.map((c) => chip(c, c))}
       </div>
       <p aria-live="polite" className="mt-8 text-small">
-        {shown.length} {shown.length === 1 ? "update" : "updates"}
+        {ui.updateCount(shown.length)}
       </p>
       <ul className="mt-4 border-t border-gold/40">
         {shown.map((item) => (

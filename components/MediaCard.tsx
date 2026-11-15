@@ -1,4 +1,4 @@
-import type { ProgressItem } from "@/content/site";
+import { ui, type ProgressItem } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { ImageSlot } from "./ImageSlot";
 import { Reveal } from "./Reveal";
@@ -22,7 +22,7 @@ export function MediaCard({ item, index, reverse = false }: { item: ProgressItem
           <p className="mt-4 max-w-prose">{item.caption}</p>
           {item.videoHref && (
             <a href={item.videoHref} className="link-gold mt-6 inline-flex items-center gap-2 text-small uppercase tracking-[0.12em]">
-              <span aria-hidden className="text-gold">▶</span> Watch video
+              <span aria-hidden className="text-gold">▶</span> {ui.watchVideo}
             </a>
           )}
         </div>

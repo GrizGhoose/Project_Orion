@@ -71,6 +71,28 @@ export const nav: Link[] = [
 
 export const headerCta: Link = { label: "Get in touch", href: "/contact" };
 
+/** Small interface strings used across components */
+export const ui = {
+  skipToContent: "Skip to content",
+  menu: "Menu",
+  close: "Close",
+  watchVideo: "Watch video",
+  allUpdates: "All updates",
+  moreUpdates: "More updates",
+  updateCount: (n: number) => `${n} ${n === 1 ? "update" : "updates"}`,
+  filterLabel: "Filter by category",
+  optional: "(optional)",
+  addressLabel: "Address",
+  emailLabel: "Email",
+  newsletterEmailLabel: "Email address",
+  emailPlaceholder: "you@example.com",
+  errors: {
+    name: "Enter your name.",
+    email: "Enter a valid email address.",
+    message: "Write a message of at least 10 characters.",
+  },
+};
+
 // ---------- Home ----------
 
 export const hero = {
@@ -147,7 +169,7 @@ export const mission = {
   cta: { label: "About us", href: "/about" } as Link,
 };
 
-export const updateCategories = ["[PLACEHOLDER: Category A]", "[PLACEHOLDER: Category B]", "[PLACEHOLDER: Category C]"];
+export const updateCategories = ["[PLACEHOLDER: Topic A]", "[PLACEHOLDER: Topic B]", "[PLACEHOLDER: Topic C]"];
 
 export const news: NewsItem[] = [
   {
@@ -253,12 +275,12 @@ export const productPage = {
     eyebrow: "Gallery",
     title: "[PLACEHOLDER: Gallery heading]",
     images: [
-      { slot: "gallery-1", size: "1600×1200", alt: "[PLACEHOLDER: Image description]" },
+      { slot: "gallery-1", size: "2000×1000", alt: "[PLACEHOLDER: Image description]" },
       { slot: "gallery-2", size: "1200×1200", alt: "[PLACEHOLDER: Image description]" },
       { slot: "gallery-3", size: "1200×1200", alt: "[PLACEHOLDER: Image description]" },
-      { slot: "gallery-4", size: "1600×1200", alt: "[PLACEHOLDER: Image description]" },
+      { slot: "gallery-4", size: "1200×1200", alt: "[PLACEHOLDER: Image description]" },
       { slot: "gallery-5", size: "1200×1200", alt: "[PLACEHOLDER: Image description]" },
-      { slot: "gallery-6", size: "1200×1200", alt: "[PLACEHOLDER: Image description]" },
+      { slot: "gallery-6", size: "2000×1000", alt: "[PLACEHOLDER: Image description]" },
     ] as ImageRef[],
   },
 };
@@ -269,6 +291,7 @@ export const aboutPage = {
   hero: {
     eyebrow: "About",
     statement: "[PLACEHOLDER: Mission statement in one bold sentence.]",
+    bodyEyebrow: "Our mission",
     body: "[PLACEHOLDER: Two or three sentences expanding on the mission and the company's approach.]",
     image: { slot: "about-hero", size: "1920×1080", alt: "[PLACEHOLDER: Image description]" } as ImageRef,
   },

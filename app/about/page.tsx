@@ -16,7 +16,7 @@ export default function AboutPage() {
 
       <Section>
         <Reveal className="grid gap-8 lg:grid-cols-12">
-          <p className="text-eyebrow uppercase text-gold lg:col-span-4">{hero.eyebrow}</p>
+          <p className="text-eyebrow uppercase text-gold lg:col-span-4">{hero.bodyEyebrow}</p>
           <p className="font-display text-h3 text-ink lg:col-span-8">{hero.body}</p>
         </Reveal>
       </Section>

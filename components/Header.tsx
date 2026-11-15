@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { headerCta, nav } from "@/content/site";
+import { headerCta, nav, ui } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { GhostButton } from "./Buttons";
 import { Wordmark } from "./Wordmark";
@@ -80,7 +80,7 @@ export function Header() {
             onClick={() => setOpen(true)}
             className="flex min-h-11 items-center gap-3 text-small uppercase tracking-[0.12em] text-ink md:hidden"
           >
-            Menu
+            {ui.menu}
             <span aria-hidden className="flex w-6 flex-col gap-1.5">
               <span className="h-px w-full bg-gold" />
               <span className="h-px w-full bg-gold" />
@@ -95,7 +95,7 @@ export function Header() {
             id="mobile-menu"
             role="dialog"
             aria-modal="true"
-            aria-label="Menu"
+            aria-label={ui.menu}
             className="fixed inset-0 z-50 flex flex-col bg-bg md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -110,7 +110,7 @@ export function Header() {
                 onClick={() => setOpen(false)}
                 className="flex min-h-11 items-center gap-3 text-small uppercase tracking-[0.12em] text-ink"
               >
-                Close <span aria-hidden className="text-h3 leading-none text-gold">×</span>
+                {ui.close} <span aria-hidden className="text-h3 leading-none text-gold">×</span>
               </button>
             </div>
             <nav aria-label="Mobile" className="container-page flex flex-1 flex-col justify-center">

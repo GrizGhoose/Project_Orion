@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { contactPage } from "@/content/site";
+import { contactPage, ui } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { GoldButton } from "./Buttons";
 
@@ -12,9 +12,9 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validate(v: Values): Partial<Record<Field, string>> {
   const errors: Partial<Record<Field, string>> = {};
-  if (!v.name.trim()) errors.name = "Enter your name.";
-  if (!EMAIL.test(v.email.trim())) errors.email = "Enter a valid email address.";
-  if (v.message.trim().length < 10) errors.message = "Write a message of at least 10 characters.";
+  if (!v.name.trim()) errors.name = ui.errors.name;
+  if (!EMAIL.test(v.email.trim())) errors.email = ui.errors.email;
+  if (v.message.trim().length < 10) errors.message = ui.errors.message;
   return errors;
 }
 
@@ -67,7 +67,7 @@ export function ContactForm() {
     <div>
       <label htmlFor={`contact-${f}`} className="text-eyebrow uppercase text-ink-muted">
         {label}
-        {optional && <span className="ml-2 normal-case tracking-normal">(optional)</span>}
+        {optional && <span className="ml-2 normal-case tracking-normal">{ui.optional}</span>}
       </label>
       <div className="mt-3">{control}</div>
       <p id={`contact-${f}-error`} className="mt-2 min-h-6 text-small text-danger">

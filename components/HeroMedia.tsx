@@ -25,7 +25,7 @@ export function HeroMedia({ video, poster }: { video?: string; poster: ImageRef 
           aria-hidden
         />
       ) : (
-        <ImageSlot {...poster} bordered={false} priority className="absolute inset-0" />
+        <ImageSlot {...poster} bordered={false} priority labelPlacement="corner" fill />
       )}
       {/* Readability overlays: darker at the bottom where the text sits, and at the top under the header */}
       <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-bg/20" />

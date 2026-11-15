@@ -10,8 +10,10 @@ type ImageSlotProps = {
   /** Real image path; when set, the image replaces the placeholder */
   src?: string;
   alt: string;
-  /** Sizing/aspect classes, e.g. "aspect-[4/3]" or "absolute inset-0" */
+  /** Sizing/aspect classes, e.g. "aspect-[4/3]" */
   className?: string;
+  /** Fill the nearest positioned parent (full-bleed backgrounds) instead of sizing itself */
+  fill?: boolean;
   /** Gold corner ticks */
   ticks?: boolean;
   /** Thin gold border (off for full-bleed backgrounds) */
@@ -20,6 +22,8 @@ type ImageSlotProps = {
   priority?: boolean;
   /** Responsive sizes hint for the real image */
   sizes?: string;
+  /** Where the placeholder label sits: centred, or top-right (for heroes, clear of the headline) */
+  labelPlacement?: "center" | "corner";
 };
 
 /**
@@ -36,13 +40,24 @@ export function ImageSlot({
   bordered = true,
   priority = false,
   sizes = "100vw",
+  labelPlacement = "center",
+  fill = false,
 }: ImageSlotProps) {
   return (
-    <div className={cn("relative overflow-hidden bg-slot", bordered && "border border-gold/40", className)}>
+    <div
+      className={cn(fill ? "absolute inset-0" : "relative", "overflow-hidden bg-slot", bordered && "border border-gold/40", className)}
+    >
       {src ? (
         <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
       ) : (
-        <div role="img" aria-label={alt} className="absolute inset-0 flex items-center justify-center p-4">
+        <div
+          role="img"
+          aria-label={alt}
+          className={cn(
+            "pointer-events-none absolute inset-0 z-10 flex p-4", // above any overlay drawn after the slot
+            labelPlacement === "center" ? "items-center justify-center" : "items-start justify-end px-gutter pt-28",
+          )}
+        >
           <span className="flex items-center gap-2 text-center text-small text-ink-muted">
             <span aria-hidden className="inline-block h-1.5 w-1.5 bg-gold" />
             {slot} · {size}
