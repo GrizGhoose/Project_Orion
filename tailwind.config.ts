@@ -24,6 +24,8 @@ const config: Config = {
         // Swap fonts in app/fonts.ts; these read the CSS variables it sets
         display: ["var(--font-display)", "system-ui", "sans-serif"],
         sans: ["var(--font-body)", "system-ui", "sans-serif"],
+        // Eyebrow labels and the showcase info boxes (Device / Anchor) share this one source
+        eyebrow: ["var(--font-body)", "system-ui", "sans-serif"],
       },
       // One type scale: [size, { lineHeight, letterSpacing }]
       fontSize: {

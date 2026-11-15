@@ -33,6 +33,34 @@
   .link-gold {
     @apply text-ink underline decoration-gold decoration-1 underline-offset-[6px] transition-colors duration-200 hover:text-gold-bright hover:decoration-gold-bright;
   }
+  /* Home product showcase: grid areas per breakpoint (see components/ProductShowcase.tsx) */
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "device" "img" "mlist" "anchor";
+    row-gap: 3rem;
+  }
+  @media (min-width: theme("screens.lg")) {
+    /* 1024–1279: info boxes above and below; callouts beside the image */
+    .showcase-grid {
+      grid-template-columns: minmax(0, 1fr) var(--img-w) minmax(0, 1fr);
+      grid-template-areas:
+        "device device ."
+        "left   img    right"
+        ".      anchor anchor";
+      column-gap: 3rem;
+    }
+  }
+  @media (min-width: theme("screens.xl")) {
+    /* 1280+: info boxes share the side columns with the callouts */
+    .showcase-grid {
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "device img right"
+        "left   img right"
+        "left   img anchor";
+    }
+  }
   /* 1px gold hairline divider */
   .hairline {
     @apply border-gold/40;

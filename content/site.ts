@@ -116,20 +116,37 @@ export const specs: Spec[] = [
 
 export type Callout = {
   number: string;
+  /** Part name, e.g. "The Sensor" (ink) */
   name: string;
-  description: string;
+  /** Model, e.g. "MAX30102" (gold, second line) */
+  model: string;
+  body: string;
+  /** Optional smaller follow-up line */
+  secondary?: string;
   /** Dot position on the part, as % of the product image box (0–100, from the top-left) */
   x: number;
   y: number;
-  /** Which side the label sits on (desktop) */
+  /** Which column the label sits in on desktop; left-side labels stack top to bottom in list order */
   side: "left" | "right";
-  /** Optional label height as % of the image box; defaults to the dot's y (straight leader line) */
-  labelY?: number;
 };
+
+/** Standalone caption box (no dot or leader line) */
+export type InfoBoxContent = { label: string; title: string; body: string };
 
 /** Home product showcase: cut-out hardware over huge background lettering, with callouts */
 export const productShowcase = {
-  eyebrow: "[PLACEHOLDER: eyebrow, e.g. PROTOTYPE HARDWARE]",
+  /** Top-left caption for the whole device */
+  device: {
+    label: "The Device",
+    title: "Custom PCB",
+    body: "An embedded system on a microchip, worn behind the ear and built into the astronaut's headgear. It's the most accurate spot to measure BPM and SpO₂, the key indicators of hypoxia.",
+  } as InfoBoxContent,
+  /** Bottom-right caption for the crew tablet */
+  anchor: {
+    label: "The Anchor",
+    title: "iPad Pro 13in M4",
+    body: "The master control for the crew member on board. They can monitor every astronaut on a spacewalk in real time and get step-by-step guidance to help if a hypoxia incident occurs. Controlled by the Raspberry Pi over Bluetooth.",
+  } as InfoBoxContent,
   /** Background lettering (decorative) and the screen-reader heading */
   word: "H.E.R.B",
   heading: "H.E.R.B",
@@ -142,24 +159,28 @@ export const productShowcase = {
   callouts: [
     {
       number: "01",
-      name: "[PLACEHOLDER: Sensor name, e.g. MAX30102 SpO₂ sensor]",
-      description: "[PLACEHOLDER: 1–2 sentence explanation of what this part does]",
+      name: "The Sensor",
+      model: "MAX30102",
+      body: "Uses infrared and red light to measure how much of each the blood absorbs. Infrared is absorbed by oxyhaemoglobin (oxygenated blood), red light by deoxyhaemoglobin, and the sensor returns the raw values.",
+      secondary: "It samples every 6 seconds and keeps the last 15 readings in memory to watch for serious trends. Older samples are erased to keep it fast.",
       x: 21,
       y: 15,
       side: "left",
     },
     {
       number: "02",
-      name: "[PLACEHOLDER: MCU name, e.g. ESP32 microcontroller]",
-      description: "[PLACEHOLDER: 1–2 sentence explanation of what this part does]",
+      name: "The MCU",
+      model: "ESP32-WROOM-32E",
+      body: "Turns the raw data into real SpO₂ and BPM values, then sends the live data over long-range Bluetooth to the Brain (Raspberry Pi).",
       x: 42,
       y: 36,
       side: "right",
     },
     {
       number: "03",
-      name: "[PLACEHOLDER: Brain, e.g. Raspberry Pi]",
-      description: "[PLACEHOLDER: 1–2 sentence explanation of what this part does]",
+      name: "The Brain",
+      model: "Raspberry Pi 5",
+      body: "The main communicator to the two HUDs and the tablet. It handles several devices at once for low-latency syncing, updates each one with the refined data, and triggers any warnings needed on each device.",
       x: 53,
       y: 69,
       side: "left",
