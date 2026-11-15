@@ -16,6 +16,37 @@ function mockData(data) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('Pi-backed live HUD', () => {
+  it('keeps accepted HR visible when SpO2 is rejected and marks prior alerts as historical', async () => {
+    const data = snapshot();
+    Object.assign(data.packet.history[0], { hr_valid: true, spo2_valid: false, valid: false,
+      spo2: null, acquisition: 'ok', hr_quality: 'accepted', spo2_quality: 'unstable_ratio',
+      state: 'PARTIAL_SIGNAL', alert: 'CRITICAL', quality: 'partial' });
+    mockData(data); render(<App />);
+    expect(await screen.findByText('PARTIAL SIGNAL')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'HEART RATE: 72 BPM' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'SpO₂: —%' })).toBeInTheDocument();
+    expect(screen.getByText(/Current oxygen condition unknown/)).toBeInTheDocument();
+    expect(screen.queryByText('STOP EVA ACTIVITY')).not.toBeInTheDocument();
+  });
+  it('shows an accepted oxygen alert even when HR is rejected', async () => {
+    const data = snapshot();
+    Object.assign(data.packet.history[0], { hr_valid: false, spo2_valid: true, valid: false,
+      hr: null, spo2: 80, acquisition: 'ok', hr_quality: 'out_of_range', spo2_quality: 'accepted',
+      state: 'CRITICAL', alert: 'CRITICAL', quality: 'partial' });
+    mockData(data); render(<App />);
+    expect(await screen.findByText('STOP EVA ACTIVITY')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'HEART RATE: — BPM' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'SpO₂: 80%' })).toBeInTheDocument();
+  });
+  it('distinguishes failed acquisition from rejected optical measurements', async () => {
+    const data = snapshot();
+    Object.assign(data.packet.history[0], { hr_valid: false, spo2_valid: false, valid: false,
+      hr: null, spo2: null, acquisition: 'i2c_error', hr_quality: 'not_evaluated',
+      spo2_quality: 'not_evaluated', state: 'ACQUISITION_ERROR', quality: 'not_evaluated' });
+    mockData(data); render(<App />);
+    expect(await screen.findByText('ACQUISITION ERROR')).toBeInTheDocument();
+    expect(screen.getByText(/Acquisition: i2c error. Measurements have not been evaluated/)).toBeInTheDocument();
+  });
   it('defaults to live mode and shows measured values plus baseline progress', async () => {
     mockData(snapshot()); render(<App />);
     expect(await screen.findByText(/Startup baseline: 4\/15/)).toBeInTheDocument();
