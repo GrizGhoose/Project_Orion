@@ -33,6 +33,7 @@ export function VideoPlayer({ video, active = true, sizes }: { video: MilestoneV
         poster={video.poster}
         title={video.title}
       >
+        {video.srcSmall && <source src={video.srcSmall} type="video/mp4" media="(max-width: 1279px)" />}
         {video.srcWebm && <source src={video.srcWebm} type="video/webm" />}
         <source src={video.src} type="video/mp4" />
         {video.captions && <track kind="captions" src={video.captions} srcLang="en" label="English" default />}

@@ -57,14 +57,27 @@ export function Icon({ d }: { d: string }) {
 
 export const CHEVRON = { left: "M15 4 7 12l8 8", right: "M9 4l8 8-8 8" };
 
+/** Panel behind the image: off-white for light technical drawings, near-black for dark slides */
+export type Tone = "paper" | "dark";
+const PANEL: Record<Tone, string> = { paper: "bg-paper", dark: "bg-bg" };
+
 /**
- * The framed image on the page (off-white panel, gold hairline, corner ticks, "Click to enlarge" hint) as a button
- * that opens the overlay. The ref points at the frame, the overlay's grow animation starts from its rect.
+ * The framed image on the page (panel, gold hairline, corner ticks, "Click to enlarge" hint) as a button that opens
+ * the overlay. The ref points at the frame, the overlay's grow animation starts from its rect.
  */
 export const FramedImage = forwardRef<
   HTMLButtonElement,
-  { image: MilestoneImage; label: string; sizes: string; onOpen: () => void; className?: string }
->(function FramedImage({ image, label, sizes, onOpen, className }, ref) {
+  {
+    image: { src: string; alt: string };
+    label: string;
+    sizes: string;
+    onOpen: () => void;
+    tone?: Tone;
+    /** Hint chip text (default "Click to enlarge" / "Tap to enlarge") */
+    hint?: { mouse: string; touch: string };
+    className?: string;
+  }
+>(function FramedImage({ image, label, sizes, onOpen, tone = "paper", hint, className }, ref) {
   return (
     <button
       ref={ref}
@@ -72,7 +85,11 @@ export const FramedImage = forwardRef<
       aria-label={label}
       aria-haspopup="dialog"
       onClick={onOpen}
-      className={cn("group relative block h-full w-full cursor-zoom-in border border-gold bg-paper p-4 text-left transition-colors duration-200 hover:border-gold-bright focus-visible:border-gold-bright", className)}
+      className={cn(
+        "group relative block h-full w-full cursor-zoom-in border border-gold p-4 text-left transition-colors duration-200 hover:border-gold-bright focus-visible:border-gold-bright",
+        PANEL[tone],
+        className,
+      )}
     >
       <span className="relative block h-full w-full overflow-hidden">
         <Image
@@ -87,8 +104,8 @@ export const FramedImage = forwardRef<
       {/* Hint chip, pinned to the frame's bottom-right corner */}
       <span className="absolute bottom-3 right-3 z-20 flex items-center gap-2 bg-bg/85 px-2.5 py-1.5 font-eyebrow text-[0.6875rem] font-medium uppercase leading-none tracking-[0.18em] text-gold">
         <Icon d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" />
-        <span className="[@media(hover:none)]:hidden">{lightbox.hintMouse}</span>
-        <span className="hidden [@media(hover:none)]:inline">{lightbox.hintTouch}</span>
+        <span className="[@media(hover:none)]:hidden">{hint?.mouse ?? lightbox.hintMouse}</span>
+        <span className="hidden [@media(hover:none)]:inline">{hint?.touch ?? lightbox.hintTouch}</span>
       </span>
     </button>
   );
@@ -96,6 +113,11 @@ export const FramedImage = forwardRef<
 
 type OverlayProps = {
   images: MilestoneImage[];
+  tone?: Tone;
+  /** "page" for slide decks: page-wise arrow labels and a "Page 3 / 7" counter */
+  unit?: "image" | "page";
+  /** Extra toolbar link, e.g. "Open PDF ↗" (opens in a new tab) */
+  link?: { label: string; href: string };
   index: number;
   onIndexChange: (i: number) => void;
   /** e.g. "01 · Mock-up schematics" */
@@ -111,7 +133,17 @@ type OverlayProps = {
  * Wheel / double-click / pinch / double-tap zoom up to 3×, drag to pan, + − Reset buttons, ← → (and arrow buttons)
  * between images, Esc or backdrop click to close. Images load unoptimised (`fullSrc` or `src`), only once opened.
  */
-export function LightboxOverlay({ images, index, onIndexChange, caption, originRect, onClosed }: OverlayProps) {
+export function LightboxOverlay({
+  images,
+  tone = "paper",
+  unit = "image",
+  link,
+  index,
+  onIndexChange,
+  caption,
+  originRect,
+  onClosed,
+}: OverlayProps) {
   const reduce = useReducedMotion();
   const image = images[index];
   const aspect = image.width / image.height;
@@ -187,7 +219,7 @@ export function LightboxOverlay({ images, index, onIndexChange, caption, originR
         e.preventDefault();
         go(e.key === "ArrowLeft" ? index - 1 : index + 1);
       } else if (e.key === "Tab") {
-        const focusables = Array.from(overlayRef.current?.querySelectorAll<HTMLElement>("button") ?? []);
+        const focusables = Array.from(overlayRef.current?.querySelectorAll<HTMLElement>("button, a[href]") ?? []);
         if (!focusables.length) return;
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
@@ -334,7 +366,7 @@ export function LightboxOverlay({ images, index, onIndexChange, caption, originR
 
       {/* Enlarged image on its off-white panel */}
       <div
-        className="absolute origin-top-left border border-gold bg-paper p-4"
+        className={cn("absolute origin-top-left border border-gold p-4", PANEL[tone])}
         style={{
           ...layout.frame,
           transform: shown || reduce ? "none" : flip,
@@ -375,7 +407,9 @@ export function LightboxOverlay({ images, index, onIndexChange, caption, originR
           <>
             <span className="mx-2 text-gold">·</span>
             <span className="whitespace-nowrap">
-              {image.label} {String(index + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+              {unit === "page"
+                ? lightbox.page(index + 1, images.length)
+                : `${image.label} ${String(index + 1).padStart(2, "0")} / ${String(images.length).padStart(2, "0")}`}
             </span>
           </>
         )}
@@ -405,7 +439,7 @@ export function LightboxOverlay({ images, index, onIndexChange, caption, originR
           {index > 0 && (
             <button
               type="button"
-              aria-label={lightbox.previous}
+              aria-label={unit === "page" ? lightbox.previousPage : lightbox.previous}
               onClick={() => go(index - 1)}
               className={cn(ctrl, "absolute", fade, visible, column ? "left-4 top-1/2 -translate-y-1/2" : "left-4 top-4")}
             >
@@ -415,7 +449,7 @@ export function LightboxOverlay({ images, index, onIndexChange, caption, originR
           {index < images.length - 1 && (
             <button
               type="button"
-              aria-label={lightbox.next}
+              aria-label={unit === "page" ? lightbox.nextPage : lightbox.next}
               onClick={() => go(index + 1)}
               className={cn(ctrl, "absolute", fade, visible, column ? "right-4 top-[max(50%,17rem)] -translate-y-1/2" : "left-[4.5rem] top-4")}
             >
@@ -423,6 +457,22 @@ export function LightboxOverlay({ images, index, onIndexChange, caption, originR
             </button>
           )}
         </>
+      )}
+
+      {/* Extra link (e.g. the deck's PDF), bottom-left, clear of the image and its caption */}
+      {link && (
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(
+            "absolute bottom-4 left-4 flex h-12 items-center border border-gold bg-bg/80 px-4 font-eyebrow text-eyebrow font-medium uppercase text-gold transition-colors duration-200 hover:bg-gold hover:text-bg focus-visible:bg-gold focus-visible:text-bg",
+            fade,
+            visible,
+          )}
+        >
+          {link.label}
+        </a>
       )}
     </div>,
     document.body,

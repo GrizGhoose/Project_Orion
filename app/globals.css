@@ -64,6 +64,20 @@
       transform-origin: bottom;
     }
   }
+  /* Product carousel: the next arrow nudges right three times when the carousel is first seen */
+  .carousel-nudge {
+    animation: carousel-nudge 1.2s ease-in-out 3;
+  }
+  @keyframes carousel-nudge {
+    0%,
+    60%,
+    100% {
+      transform: translateX(0);
+    }
+    30% {
+      transform: translateX(6px);
+    }
+  }
   /* Gold text link with a hairline underline */
   .link-gold {
     @apply text-gold underline decoration-gold/60 decoration-1 underline-offset-[6px] transition-colors duration-200 hover:text-gold-bright hover:decoration-gold-bright focus-visible:text-gold-bright;
@@ -240,7 +254,8 @@
     transition-duration: 0.01ms !important;
   }
   .hero-zoom,
-  .scroll-line {
+  .scroll-line,
+  .carousel-nudge {
     animation: none !important;
   }
   /* The lightbox keeps a short fade (no movement) */

@@ -95,6 +95,9 @@ export type ShowcaseProduct = {
  */
 export const productShowcase = {
   label: "Products",
+  /** Hint under the carousel's next arrow */
+  nextHint: "Click here to go next",
+  nextHintTouch: "Tap here to go next",
   products: [
     {
       id: "herb",
@@ -109,7 +112,7 @@ export const productShowcase = {
       },
       device: {
         label: "The Device",
-        title: "Custom PCB",
+        title: "Custom Hardware Concept",
         body: "An embedded system on a microchip, worn behind the ear and built into the astronaut's headgear. It's the most accurate spot to measure BPM and SpO₂, the key indicators of hypoxia.",
       },
       anchor: {
@@ -280,6 +283,8 @@ export type MilestoneVideo = {
   type: "video";
   /** H.264 MP4 */
   src: string;
+  /** Smaller (1280px) H.264 MP4 served to screens narrower than 1280px */
+  srcSmall?: string;
   srcWebm?: string;
   /** JPG frame shown before playback */
   poster: string;
@@ -287,10 +292,27 @@ export type MilestoneVideo = {
   captions?: string;
   width: number;
   height: number;
+  /** Short name under the frame, e.g. "Prototype demo" */
+  label: string;
+  /** Full title, read out by the play button */
   title: string;
 };
 
-export type MilestoneMedia = MilestoneImage | MilestoneVideo;
+/** Slide deck: page images (rendered from the PDF) shown as a cover that opens a page viewer */
+export type MilestoneDeck = {
+  type: "deck";
+  /** One image per page, in order; page 1 is the cover */
+  pages: string[];
+  width: number;
+  height: number;
+  /** The PDF itself, linked from the viewer */
+  pdf: string;
+  label: string;
+  /** Alt text per page; "{n}" becomes the page number */
+  alt: string;
+};
+
+export type MilestoneMedia = MilestoneImage | MilestoneVideo | MilestoneDeck;
 
 export type Milestone = {
   number: string;
@@ -342,11 +364,29 @@ export const milestones = {
     {
       number: "02",
       title: "Prototype functionality",
-      // Add the video here once it exists (run scripts/prepare_video.sh first), e.g.
-      // { type: "video", src: "/videos/milestone-2/demo.mp4", srcWebm: "/videos/milestone-2/demo.webm",
-      //   poster: "/videos/milestone-2/demo-poster.jpg", width: 1920, height: 1080, title: "Prototype demo" }
-      media: [],
       slot: "milestone-2 video",
+      media: [
+        {
+          type: "video",
+          src: "/videos/milestone-2/prototype-demo-web.mp4",
+          srcSmall: "/videos/milestone-2/prototype-demo-web-1280.mp4",
+          srcWebm: "/videos/milestone-2/prototype-demo-web.webm",
+          poster: "/videos/milestone-2/prototype-demo-web-poster.jpg",
+          width: 1920,
+          height: 1080,
+          label: "Prototype demo",
+          title: "Project Orion prototype demo",
+        },
+        {
+          type: "deck",
+          pages: [1, 2, 3, 4, 5, 6, 7].map((n) => `/images/deck/page-0${n}.webp`),
+          width: 2400,
+          height: 1351,
+          pdf: "/docs/project-orion-deck.pdf",
+          label: "Project Orion deck",
+          alt: "Project Orion slide deck, page {n} of 7",
+        },
+      ],
     },
     {
       number: "03",
@@ -391,8 +431,14 @@ export const gallery = {
   previous: "Previous image",
   nextVideo: "Next video",
   previousVideo: "Previous video",
+  nextItem: "Next item",
+  previousItem: "Previous item",
   play: (title: string) => `Play video: ${title}`,
   enlarge: (label: string) => `Enlarge ${label.toLowerCase()}`,
+  viewDeck: (label: string, pages: number) => `View the ${label} (${pages} pages)`,
+  deckHintMouse: (pages: number) => `${pages} pages · Click to view`,
+  deckHintTouch: (pages: number) => `${pages} pages · Tap to view`,
+  openPdf: "Open PDF ↗",
 };
 
 /** Strings for the click-to-enlarge overlay */
@@ -400,6 +446,9 @@ export const lightbox = {
   close: "Close enlarged image",
   next: "Next image",
   previous: "Previous image",
+  nextPage: "Next page",
+  previousPage: "Previous page",
+  page: (n: number, total: number) => `Page ${n} / ${total}`,
   zoomIn: "Zoom in",
   zoomOut: "Zoom out",
   reset: "Reset zoom",

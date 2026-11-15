@@ -3,13 +3,16 @@
 #   scripts/prepare_video.sh <input video> [output dir, default public/videos/milestone-2] [name, default input's name]
 # Keep originals over 50 MB outside public/ (they'd be shipped with the site). Put a <name>.vtt next to the outputs
 # to add captions, then add the entry to `milestones` in content/site.ts (the script prints it).
-# Uses ffmpeg from PATH, or set FFMPEG=/path/to/ffmpeg.
+# Uses ffmpeg from PATH, or set FFMPEG=/path/to/ffmpeg. CRF (default 23) and POSTER_AT (seconds, default 2) can be
+# set in the environment; SMALL=1 also makes a 1280px-wide <name>-1280.mp4 for narrow screens.
 set -euo pipefail
 
 in="${1:?usage: prepare_video.sh <input> [outdir] [name]}"
 out="${2:-public/videos/milestone-2}"
 name="${3:-$(basename "${in%.*}" | tr '[:upper:] ' '[:lower:]-')}"
 ff="${FFMPEG:-ffmpeg}"
+crf="${CRF:-23}"
+poster_at="${POSTER_AT:-2}"
 mkdir -p "$out"
 
 size=$(du -m "$in" | cut -f1)
@@ -19,15 +22,20 @@ case "$(cd "$(dirname "$in")" && pwd)" in
 esac
 
 scale="scale='min(1920,iw)':-2"
-"$ff" -y -loglevel error -i "$in" -vf "$scale" -c:v libx264 -crf 23 -preset veryfast -pix_fmt yuv420p \
+"$ff" -y -loglevel error -i "$in" -vf "$scale" -c:v libx264 -crf "$crf" -preset veryfast -pix_fmt yuv420p \
   -c:a aac -b:a 128k -movflags +faststart "$out/$name.mp4"
 "$ff" -y -loglevel error -i "$in" -vf "$scale" -c:v libvpx-vp9 -crf 34 -b:v 0 -row-mt 1 -deadline good -cpu-used 4 \
   -c:a libopus -b:a 96k "$out/$name.webm"
-"$ff" -y -loglevel error -ss 2 -i "$in" -frames:v 1 -vf "$scale" -q:v 3 "$out/$name-poster.jpg"
+"$ff" -y -loglevel error -ss "$poster_at" -i "$in" -frames:v 1 -vf "$scale" -q:v 3 "$out/$name-poster.jpg"
 
 # (ffmpeg with no output file exits non-zero after printing the stream info)
 dims=$({ "$ff" -i "$out/$name.mp4" 2>&1 || true; } | grep -oE 'Video:.*' | grep -oE '[0-9]{2,5}x[0-9]{2,5}' | head -1)
 w=${dims%x*}; h=${dims#*x}
+if [ "${SMALL:-0}" = 1 ]; then
+  "$ff" -y -loglevel error -i "$in" -vf "scale='min(1280,iw)':-2" -c:v libx264 -crf "$crf" -preset veryfast -pix_fmt yuv420p \
+    -c:a aac -b:a 128k -movflags +faststart "$out/$name-1280.mp4"
+  du -h "$out/$name-1280.mp4"
+fi
 du -h "$out/$name.mp4" "$out/$name.webm" "$out/$name-poster.jpg"
 
 pub="/${out#public/}"

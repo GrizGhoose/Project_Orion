@@ -12,7 +12,8 @@ Every image on the site. Slots without a file show a dark placeholder labelled w
 | `hero-eva.jpg` ✅ | Hero background | 4928×2768 (NASA original) | NASA photo iss072e487421 (see credits.md). A muted hero loop can be added later: set `hero.video`; this image stays as its poster. |
 | `milestone-1-schematic.png` ✅ | Milestones, entry 01 (image 1) | 1280×1059 | KiCad schematic of the custom PCB, zoomable. A larger export (or SVG) set as `fullSrc` would read better at 3×. |
 | `milestone-1-pcb-3d.png` ✅ | Milestones, entry 01 (image 2) | 1280×705 | KiCad 3D render of the H.E.R.B v1 board, zoomable. |
-| `milestone-2` video | Milestones, entry 02 | 16:9, up to 1920 wide | Prototype functionality video. Not supplied yet: run `scripts/prepare_video.sh <file>` and add the printed entry to milestone 02's `media`. |
+| `videos/milestone-2/prototype-demo-web*` ✅ | Milestones, entry 02 (item 1) | 1920×1080 MP4 + WebM, 1280px MP4, poster | Prototype demo. Made from `media-src/prototype-demo.mp4` (git-ignored original) with `CRF=24 POSTER_AT=5 SMALL=1 scripts/prepare_video.sh media-src/prototype-demo.mp4 public/videos/milestone-2 prototype-demo-web`. |
+| `images/deck/page-01…07.webp` ✅ | Milestones, entry 02 (item 2) | 2400×1351 | Pages of `public/docs/project-orion-deck.pdf`, rendered at 2400px wide. Re-render them whenever the PDF changes (see README). |
 | `milestone-3-aegis-preview.webp` ✅ | Milestones, entry 03 (preview card) | 2880×1800 (16:10) | Capture of astronaut-eva-hud.vercel.app at 1440×900 @2×, 3 s after load. |
 | `milestone-4-hera-preview.webp` ✅ | Milestones, entry 04 (preview card) | 2880×1800 (16:10) | Capture of crew-health-tablet.vercel.app at 1440×900 @2×, 30 s after "Begin monitoring". |
 

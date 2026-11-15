@@ -48,7 +48,9 @@ tailwind.config.ts   Design tokens: colours, fonts, type scale, spacing
 - **Text and data:** everything is in `content/site.ts`. Search for `[PLACEHOLDER` to find what is still open.
 - **Carousel:** `productShowcase.products`. Add an entry to add a slide.
 - **Hero:** `hero` (headline, buttons, key facts, background image and optional `video`). Image credits are in `credits.md`.
-- **Milestones:** `milestones.items`. Each entry has a `media` array of images (`type: "image"`, with `zoomable` for the lightbox) and/or videos (`type: "video"`); more than one item adds arrows and a counter. Set `link` (`url`, `label`) to show the first image as a preview card that opens a live app. For a video, run `scripts/prepare_video.sh <file>` and paste the entry it prints.
+- **Milestones:** `milestones.items`. Each entry has a `media` array of images (`type: "image"`, with `zoomable` for the lightbox), videos (`type: "video"`) and slide decks (`type: "deck"`, page images opened in a page viewer with an "Open PDF" link); more than one item adds arrows and a counter. Set `link` (`url`, `label`) to show the first image as a preview card that opens a live app. For a video, run `scripts/prepare_video.sh <file>` and paste the entry it prints.
+- **Replace the prototype video:** put the new original in `media-src/` (git-ignored, never deployed), then run `CRF=24 POSTER_AT=5 SMALL=1 scripts/prepare_video.sh media-src/<file>.mp4 public/videos/milestone-2 prototype-demo-web`. Same file names, so `site.ts` needs no change. ffmpeg: `brew install ffmpeg`.
+- **Replace the deck:** overwrite `public/docs/project-orion-deck.pdf`, then render each page to `public/images/deck/page-NN.webp` at 2400px wide (e.g. `pdftoppm -png -scale-to-x 2400 -scale-to-y -1 public/docs/project-orion-deck.pdf page` and convert to WebP, or any PDF renderer). If the page count changes, update `pages` and the "of 7" in `alt` in `site.ts`.
 
 ## Motion
 

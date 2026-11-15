@@ -6,3 +6,6 @@ next-env.d.ts
 .env*
 .DS_Store
 .vercel
+
+# Original media (large source files, never deployed)
+/media-src
