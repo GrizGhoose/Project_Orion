@@ -123,22 +123,28 @@ export type Callout = {
   body: string;
   /** Optional smaller follow-up line */
   secondary?: string;
-  /** Dot position on the part, as % of the product image box (0–100, from the top-left) */
+  /** Dot position on the part, as % of the product visual (for a tablet: % of its screen), from the top-left */
   x: number;
   y: number;
+  /** Desktop label alignment within its row (default "center"); "start" pins it to the top */
+  labelAlign?: "start" | "center" | "end";
 };
 
-/** Standalone caption box (no dot or leader line) */
-export type InfoBoxContent = { label: string; title: string; body: string };
+/** Standalone caption box (no dot or leader line); `link` is appended after the body */
+export type InfoBoxContent = { label: string; title: string; body: string; link?: { label: string; href: string } };
 
 /** One slide of the home product carousel. Each product uses three callouts (01–03). */
 export type ShowcaseProduct = {
   id: string;
   /** Shown in the pager and read out by screen readers */
   name: string;
-  /** Huge decorative lettering behind the image */
+  /** Huge decorative lettering behind the visual */
   backgroundWord: string;
-  /** Cut-out product image (transparent PNG/WebP), or null to show `imageSlot` as a placeholder */
+  /** Optional font-size override for long words, e.g. "clamp(120px, 24vw, 520px)" */
+  wordSize?: string;
+  /** photo: cut-out image · tablet: angled tablet frame with `image` as its screen · slot: placeholder ImageSlot */
+  kind: "photo" | "tablet" | "slot";
+  /** For "photo" the cut-out, for "tablet" the screen image; null for "slot" */
   image: { src: string; alt: string; width: number; height: number } | null;
   imageSlot?: { slot: string; size: string; alt: string };
   /** Top-left caption for the whole product */
@@ -168,6 +174,7 @@ export const productShowcase = {
       id: "herb",
       name: "H.E.R.B",
       backgroundWord: "H.E.R.B",
+      kind: "photo",
       image: {
         src: "/images/herb-hardware.webp",
         width: 1240,
@@ -221,33 +228,61 @@ export const productShowcase = {
       cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" },
     },
     {
-      id: "product-2",
-      name: "[PLACEHOLDER: Product 2 name]",
-      backgroundWord: "PRODUCT 02",
-      image: null,
-      imageSlot: { slot: "product-2.png", size: "transparent PNG · ~1200×1500", alt: "[PLACEHOLDER: Product 2 image description]" },
+      id: "anchor",
+      name: "The Anchor",
+      backgroundWord: "ANCHOR",
+      wordSize: "clamp(120px, 24vw, 520px)",
+      kind: "tablet",
+      image: {
+        src: "/images/tablet-ui.png",
+        width: 2310,
+        height: 1732,
+        alt: "iPad Pro showing the H.E.R crew console: live SpO₂ and heart-rate trends over the last five minutes for two spacewalkers",
+      },
       device: {
-        label: "[PLACEHOLDER: LABEL]",
-        title: "[PLACEHOLDER: Product title]",
-        body: "[PLACEHOLDER: 1–2 sentence overview of this product]",
+        label: "THE ANCHOR",
+        title: "iPad Pro 13in M4",
+        body: "The master control for the crew member on board. Monitor every spacewalker in real time and get step-by-step guidance if hypoxia strikes.",
       },
       anchor: {
-        label: "[PLACEHOLDER: LABEL]",
-        title: "[PLACEHOLDER: Supporting item]",
-        body: "[PLACEHOLDER: short standalone note, not connected to anything]",
+        label: "THE APP",
+        title: "H.E.R crew console",
+        body: "[PLACEHOLDER: one line about the app.] Live demo at",
+        link: { label: "crew-health-tablet.vercel.app", href: "https://crew-health-tablet.vercel.app" },
       },
       callouts: [
-        { number: "01", name: "[Part A]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 30, y: 22 },
-        { number: "02", name: "[Part B]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 62, y: 40 },
-        { number: "03", name: "[Part C]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 45, y: 72 },
+        {
+          number: "01",
+          name: "Live vitals",
+          model: "5-min SpO₂ trend",
+          body: "[PLACEHOLDER: each spacewalker's SpO₂ over the last five minutes, against their own pre-EVA baseline.]",
+          x: 16,
+          y: 32.3,
+        },
+        {
+          number: "02",
+          name: "Crew status",
+          model: "Nominal → Warning → Critical",
+          body: "[PLACEHOLDER: a status tag per spacewalker that escalates as readings drift.]",
+          x: 94.4,
+          y: 9.7,
+          labelAlign: "start",
+        },
+        {
+          number: "03",
+          name: "Hypoxia aid",
+          model: "Guided first aid",
+          body: "[PLACEHOLDER: a game-style, step-by-step care protocol for the crew member inside.]",
+          x: 37.5,
+          y: 95.5,
+        },
       ],
-      specs: placeholderSpecs,
-      cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" },
     },
     {
       id: "product-3",
       name: "[PLACEHOLDER: Product 3 name]",
       backgroundWord: "PRODUCT 03",
+      kind: "slot",
       image: null,
       imageSlot: { slot: "product-3.png", size: "transparent PNG · ~1200×1500", alt: "[PLACEHOLDER: Product 3 image description]" },
       device: {

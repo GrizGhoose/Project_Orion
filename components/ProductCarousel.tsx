@@ -96,12 +96,12 @@ export function ProductCarousel() {
             total={total}
             active={i === index}
             play={inView && (i === index || i === settled)}
-            onImageCenter={centerFor(i)}
+            onVisualCenter={centerFor(i)}
           />
         ))}
       </div>
 
-      {/* Arrows: level with the image on mobile, vertically centred from lg */}
+      {/* Arrows: level with the visual on mobile, vertically centred from lg */}
       <button
         type="button"
         aria-label="Previous product"
@@ -140,7 +140,7 @@ export function ProductCarousel() {
             </button>
           ))}
         </div>
-        <p className="hidden max-w-[16rem] truncate text-small text-ink-muted lg:block">{products[index].name}</p>
+        <p className="hidden max-w-[18rem] truncate font-eyebrow text-eyebrow uppercase text-ink-muted lg:block">{products[index].name}</p>
       </div>
 
       <p aria-live="polite" className="sr-only">

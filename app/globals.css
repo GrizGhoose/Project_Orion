@@ -65,6 +65,68 @@
         "c3     img anchor";
     }
   }
+  /* Angled tablet (product carousel, kind "tablet"). Poses are custom properties so they're easy to tweak:
+     --tablet-pose is the resting pose, --tablet-from the entrance start. Mobile uses a gentler pose. */
+  .tablet-scene {
+    perspective: 2200px;
+    transform-style: preserve-3d;
+  }
+  .tablet {
+    --tablet-pose: rotateZ(4deg) rotateY(-14deg) rotateX(18deg);
+    --tablet-from: rotateZ(6deg) rotateY(-24deg) rotateX(28deg);
+    position: relative;
+    aspect-ratio: 2310 / 1732;
+    padding: 1.6%;
+    border-radius: clamp(18px, 2.2vw, 34px);
+    border: 1px solid theme("colors.frame.edge");
+    background: linear-gradient(145deg, theme("colors.frame.hi"), theme("colors.frame.DEFAULT") 55%, theme("colors.frame.lo"));
+    box-shadow:
+      inset 0 0 0 2px theme("colors.frame.ink"),
+      2px 2px 0 theme("colors.frame.d1"),
+      5px 4px 0 theme("colors.frame.d2"),
+      8px 6px 0 theme("colors.frame.d3"),
+      30px 50px 80px theme("colors.black / 75%"),
+      0 0 90px theme("colors.gold / 6%");
+    transform-origin: 50% 60%;
+    transform-style: preserve-3d;
+    transform: var(--tablet-from);
+    transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) var(--tablet-delay, 0s);
+  }
+  .tablet[data-play="true"] {
+    transform: var(--tablet-pose);
+  }
+  @media (min-width: theme("screens.lg")) {
+    .tablet {
+      --tablet-pose: rotateZ(7deg) rotateY(-26deg) rotateX(15deg);
+      --tablet-from: rotateZ(10deg) rotateY(-38deg) rotateX(26deg) translateZ(-140px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tablet,
+    .tablet[data-play="true"] {
+      transform: var(--tablet-pose);
+      transition: none;
+    }
+  }
+  .tablet-screen {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border-radius: calc(clamp(18px, 2.2vw, 34px) * 0.62);
+    background: theme("colors.frame.ink");
+  }
+  .tablet-camera {
+    position: absolute;
+    left: 50%;
+    top: 0.8%;
+    width: 0.45%;
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    background: theme("colors.frame.d2");
+    box-shadow: inset 0 0 0 1px theme("colors.frame.edge");
+  }
+
   /* 1px gold hairline divider */
   .hairline {
     @apply border-gold/40;

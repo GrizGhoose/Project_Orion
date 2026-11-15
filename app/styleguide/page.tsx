@@ -20,7 +20,14 @@ export const metadata: Metadata = { title: "Style guide", robots: { index: false
 
 // Tokens come straight from tailwind.config.ts, so this page always shows the live values
 const extend = tailwindConfig.theme?.extend ?? {};
-const colors = extend.colors as Record<string, string>;
+// Nested groups (e.g. frame: { hi, DEFAULT, … }) flatten to "frame-hi", "frame", …
+const colors = Object.fromEntries(
+  Object.entries(extend.colors as Record<string, string | Record<string, string>>).flatMap(([name, value]) =>
+    typeof value === "string"
+      ? [[name, value]]
+      : Object.entries(value).map(([k, v]) => [k === "DEFAULT" ? name : `${name}-${k}`, v]),
+  ),
+) as Record<string, string>;
 const fontSizes = extend.fontSize as Record<string, [string, { lineHeight: string; letterSpacing?: string }]>;
 
 const colorUse: Record<string, string> = {
@@ -32,6 +39,7 @@ const colorUse: Record<string, string> = {
   ink: "Headings, emphasised text",
   "ink-muted": "Body text",
   danger: "Form errors",
+  frame: "Tablet frame (product carousel)",
 };
 
 // WCAG 2 contrast ratio between two hex colours

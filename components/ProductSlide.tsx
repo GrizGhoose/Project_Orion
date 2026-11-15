@@ -11,15 +11,18 @@ import { InfoBox } from "./InfoBox";
 import { SpecTable } from "./SpecTable";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-// Entrance: word → Device box → image → leader lines → callouts 01–03 → Anchor box (~1.5 s)
+// Entrance: word → Device box → visual → leader lines → callouts 01–03 → Anchor box (~1.5 s)
 const T_DEVICE = 0.15;
-const T_IMAGE = 0.3;
-const T_LINES = 0.7;
-const T_CALLOUTS = 0.8;
+const T_VISUAL = 0.3;
+const T_LINES = 0.75;
+const T_CALLOUTS = 0.85;
 const STAGGER = 0.15;
 const T_ANCHOR = T_CALLOUTS + 2 * STAGGER + 0.2;
+// While the entrance runs, lines are redrawn every frame so they follow the moving visual (e.g. the swinging tablet)
+const FOLLOW_MS = 2200;
+const DEFAULT_WORD_SIZE = "clamp(140px, 31vw, 620px)";
 
-type Line = { d: string; dot: { x: number; y: number } };
+type Line = { d: string };
 
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
@@ -47,55 +50,77 @@ type ProductSlideProps = {
   active: boolean;
   /** Run the entrance sequence; false resets it so it replays next time */
   play: boolean;
-  /** Reports the image's vertical centre (px from the slide top), used to place the mobile arrows */
-  onImageCenter?: (y: number) => void;
+  /** Reports the visual's vertical centre (px from the slide top), used to place the mobile arrows */
+  onVisualCenter?: (y: number) => void;
 };
 
 /**
- * One product: huge background word, cut-out image (or ImageSlot), three callouts with dots and leader lines,
- * Device box (top left), Anchor box (bottom right) and spec strip. Layout per breakpoint is `.showcase-grid`.
+ * One product: background word, visual (cut-out photo, angled tablet or ImageSlot), three callouts with dots and
+ * leader lines, Device box (top left), Anchor box (bottom right) and spec strip.
+ * Layout per breakpoint is `.showcase-grid`; the tablet's poses are `.tablet` (both in globals.css).
  */
-export function ProductSlide({ product, index, total, active, play, onImageCenter }: ProductSlideProps) {
-  const { name, backgroundWord, image, imageSlot, device, anchor, callouts, specs, cta } = product;
+export function ProductSlide({ product, index, total, active, play, onVisualCenter }: ProductSlideProps) {
+  const { kind, name, backgroundWord, wordSize, image, imageSlot, device, anchor, callouts, specs, cta } = product;
   const reduce = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
-  const imageBoxRef = useRef<HTMLDivElement>(null);
+  const visualRef = useRef<HTMLDivElement>(null);
+  const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
   const [activeCallout, setActiveCallout] = useState<number | null>(null);
 
-  // Leader lines in stage pixels: dot → bend just inside the image edge, level with the label's title → label.
-  // Layout offsets only (not getBoundingClientRect): entrance transforms and the track's translateX don't move them.
+  // One line function for every slide. Dots: screen position via getBoundingClientRect (so 3D-tilted dots on the
+  // tablet are exact), relative to the stage's rect; the track's translateX cancels out. Label ends: layout offsets.
+  // Path: dot → angled run to a bend level with the label's title → short horizontal run to the label.
   const measure = useCallback(() => {
-    const el = imageBoxRef.current;
     const stage = stageRef.current;
-    if (!el || !stage) return;
-    const box = { left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight };
-    onImageCenter?.(stage.offsetTop + box.top + box.height / 2);
+    const visual = visualRef.current;
+    if (!stage || !visual) return;
+    onVisualCenter?.(stage.offsetTop + visual.offsetTop + visual.offsetHeight / 2);
+    const s = stage.getBoundingClientRect();
+    const visualMid = visual.offsetLeft + visual.offsetWidth / 2;
     setLines(
-      callouts.map((c, i) => {
-        const dot = { x: box.left + (c.x / 100) * box.width, y: box.top + (c.y / 100) * box.height };
+      callouts.map((_, i) => {
+        const dotEl = dotRefs.current[i];
         const label = labelRefs.current[i];
-        if (!label || label.offsetWidth === 0) return { d: "", dot };
-        // Which side the label landed on decides the line's direction
-        const left = label.offsetLeft + label.offsetWidth / 2 < box.left + box.width / 2;
+        if (!dotEl || !label || label.offsetWidth === 0) return { d: "" };
+        const r = dotEl.getBoundingClientRect();
+        const dot = { x: r.left - s.left, y: r.top - s.top };
+        const left = label.offsetLeft + label.offsetWidth / 2 < visualMid;
         const y = label.offsetTop + 15; // middle of the title line
-        const end = left ? label.offsetLeft + label.offsetWidth + 24 : label.offsetLeft - 24; // clear of the label's backing
-        const edge = left ? box.left + box.width * 0.04 : box.left + box.width * 0.96;
-        const bendX = left ? Math.min(dot.x, edge) : Math.max(dot.x, edge);
-        const d = Math.abs(y - dot.y) < 2 ? `M${dot.x},${dot.y} L${end},${dot.y}` : `M${dot.x},${dot.y} L${bendX},${y} L${end},${y}`;
-        return { d, dot };
+        const end = left ? label.offsetLeft + label.offsetWidth + 24 : label.offsetLeft - 24; // clear of the label backing
+        const run = 48; // horizontal run out of the label
+        const bendX = left ? end + run : end - run;
+        return { d: `M${dot.x},${dot.y} L${bendX},${y} L${end},${y}` };
       }),
     );
-  }, [callouts, onImageCenter]);
+  }, [callouts, onVisualCenter]);
 
   useIsoLayoutEffect(() => {
     measure();
     const ro = new ResizeObserver(measure);
     if (stageRef.current) ro.observe(stageRef.current);
     document.fonts?.ready.then(measure);
-    return () => ro.disconnect();
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, [measure]);
+
+  // Follow the visual while its entrance (rise or tablet swing) plays
+  useEffect(() => {
+    measure();
+    if (!play || reduce) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      measure();
+      if (now - start < FOLLOW_MS) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [play, reduce, measure]);
 
   const state = reduce || play ? "show" : "hidden";
   const initial = reduce ? false : "hidden";
@@ -115,6 +140,49 @@ export function ProductSlide({ product, index, total, active, play, onImageCente
   const dim = (i: number) => activeCallout !== null && activeCallout !== i;
   const hover = (i: number) => ({ onMouseEnter: () => setActiveCallout(i), onMouseLeave: () => setActiveCallout(null) });
 
+  // Dots sit inside the visual (inside the screen for the tablet), positioned in % so they move with it.
+  // Each anchor is a 0×0 point: its rect is the exact dot position, even when tilted in 3D.
+  const dots = callouts.map((c, i) => (
+    <span
+      key={c.number}
+      ref={(el) => {
+        dotRefs.current[i] = el;
+      }}
+      className="absolute z-10 h-0 w-0"
+      style={{ left: `${c.x}%`, top: `${c.y}%` }}
+    >
+      {/* Desktop: gold diamond */}
+      <motion.span
+        aria-hidden="true"
+        {...hover(i)}
+        initial={initial}
+        animate={state}
+        variants={dotV(i)}
+        className="absolute left-0 top-0 hidden lg:block"
+      >
+        <span
+          className={cn(
+            "absolute h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border bg-bg/70 transition-[opacity,border-color] duration-200",
+            activeCallout === i ? "border-gold-bright" : "border-gold",
+            dim(i) && "opacity-30",
+          )}
+        >
+          <span className={cn("absolute inset-[3px] transition-colors", activeCallout === i ? "bg-gold-bright" : "bg-gold")} />
+        </span>
+      </motion.span>
+      {/* Mobile: numbered marker */}
+      <span
+        aria-hidden="true"
+        className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-gold bg-bg text-[0.6875rem] font-medium tabular-nums text-gold lg:hidden"
+      >
+        {i + 1}
+      </span>
+    </span>
+  ));
+
+  const tablet = kind === "tablet";
+  const playing = Boolean(reduce || play);
+
   return (
     <div
       role="group"
@@ -125,70 +193,100 @@ export function ProductSlide({ product, index, total, active, play, onImageCente
     >
       <h2 className="sr-only">{name}</h2>
 
-      {/* Stage: one grid; lettering, dots and lines share its coordinates */}
+      {/* Stage: one grid; word, dots and lines share its coordinates */}
       <div
         ref={stageRef}
-        className="showcase-grid relative isolate mx-auto w-full max-w-page [--img-w:min(66vw,22rem)] lg:[--img-w:40vw] xl:[--img-w:min(32vw,calc((100svh-10rem)*0.775),38rem)]"
+        className={cn(
+          "showcase-grid relative isolate mx-auto w-full max-w-page",
+          tablet
+            ? "[--img-w:76%] lg:[--img-w:38vw] xl:[--img-w:min(41vw,760px)]"
+            : "[--img-w:min(66vw,22rem)] lg:[--img-w:40vw] xl:[--img-w:min(32vw,calc((100svh-10rem)*0.775),38rem)]",
+        )}
       >
         <motion.div initial={initial} animate={state} variants={fadeAt(T_DEVICE, 24)} className="[grid-area:device]">
           <InfoBox content={device} />
         </motion.div>
 
-        {/* Background word (decorative): outlined gold with a faint gradient fill, centred on the image */}
+        {/* Background word (decorative): outlined gold with a faint gradient fill, centred on the visual */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 [grid-area:img]">
           <motion.p
             initial={initial}
             animate={state}
             variants={fadeAt(0)}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap bg-gradient-to-b from-gold/[0.16] to-gold/[0.03] bg-clip-text font-display text-[clamp(140px,31vw,620px)] font-bold uppercase leading-[0.8] tracking-[-0.05em] text-transparent [-webkit-text-stroke:1.5px_theme(colors.gold/35%)]"
+            style={{ fontSize: wordSize ?? DEFAULT_WORD_SIZE }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap bg-gradient-to-b from-gold/[0.16] to-gold/[0.03] bg-clip-text font-display font-bold uppercase leading-[0.8] tracking-[-0.05em] text-transparent [-webkit-text-stroke:1.5px_theme(colors.gold/35%)]"
           >
             {backgroundWord}
           </motion.p>
         </div>
 
-        {/* Product image (or placeholder slot) with a soft dark shadow underneath */}
+        {/* Visual */}
         <motion.div
-          ref={imageBoxRef}
+          ref={visualRef}
           initial={initial}
           animate={state}
-          variants={fadeAt(T_IMAGE, 32)}
+          variants={tablet ? fadeAt(T_VISUAL) : fadeAt(T_VISUAL, 32)}
           className="relative mx-auto w-[var(--img-w)] self-center [grid-area:img]"
         >
-          <div
-            aria-hidden="true"
-            className="absolute inset-x-[-10%] bottom-[-6%] h-[30%] bg-[radial-gradient(closest-side,theme(colors.black/80%),transparent)]"
-          />
-          {image ? (
-            <Image
-              src={image.src}
-              alt={image.alt}
-              width={image.width}
-              height={image.height}
-              sizes="(min-width: 1280px) 38rem, (min-width: 1024px) 40vw, 66vw"
-              className="relative h-auto w-full"
-            />
+          {tablet && image ? (
+            // Angled tablet: from xl, shifted right of centre and up so it clears the Device and Anchor boxes
+            // (not at lg, where the callout column sits right beside it)
+            <div className="tablet-scene xl:-translate-y-[4%] xl:translate-x-[4vw]">
+              <div
+                role="img"
+                aria-label={image.alt}
+                data-play={playing}
+                className="tablet"
+                style={{ "--tablet-delay": `${T_VISUAL}s` } as React.CSSProperties}
+              >
+                <span aria-hidden="true" className="tablet-camera" />
+                <div className="tablet-screen">
+                  <Image
+                    src={image.src}
+                    alt=""
+                    fill
+                    quality={90}
+                    sizes="(min-width: 1280px) min(41vw, 760px), (min-width: 1024px) 38vw, 76vw"
+                    className="object-cover"
+                  />
+                  {/* Diagonal glare */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,theme(colors.white/10%),transparent_38%)]"
+                  />
+                  {dots}
+                </div>
+              </div>
+            </div>
           ) : (
-            <ImageSlot
-              slot={imageSlot?.slot ?? `${product.id}.png`}
-              size={imageSlot?.size ?? "transparent PNG"}
-              alt={imageSlot?.alt ?? name}
-              className="aspect-[4/5] w-full"
-            />
+            <>
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-[-10%] bottom-[-6%] h-[30%] bg-[radial-gradient(closest-side,theme(colors.black/80%),transparent)]"
+              />
+              {image ? (
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  width={image.width}
+                  height={image.height}
+                  sizes="(min-width: 1280px) 38rem, (min-width: 1024px) 40vw, 66vw"
+                  className="relative h-auto w-full"
+                />
+              ) : (
+                <ImageSlot
+                  slot={imageSlot?.slot ?? `${product.id}.png`}
+                  size={imageSlot?.size ?? "transparent PNG"}
+                  alt={imageSlot?.alt ?? name}
+                  className="aspect-[4/5] w-full"
+                />
+              )}
+              {dots}
+            </>
           )}
-          {/* Mobile: numbered markers on the parts */}
-          {callouts.map((c, i) => (
-            <span
-              key={c.number}
-              aria-hidden="true"
-              className="absolute z-10 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-gold bg-bg text-[0.6875rem] font-medium tabular-nums text-gold lg:hidden"
-              style={{ left: `${c.x}%`, top: `${c.y}%` }}
-            >
-              {i + 1}
-            </span>
-          ))}
         </motion.div>
 
-        {/* Desktop callout labels in grid areas c1–c3 (left of the image at xl for 01 and 03) */}
+        {/* Desktop callout labels in grid areas c1–c3 (01 and 03 left of the visual at xl) */}
         {callouts.map((c, i) => (
           <motion.div
             key={c.number}
@@ -204,11 +302,11 @@ export function ProductSlide({ product, index, total, active, play, onImageCente
             variants={fadeAt(T_CALLOUTS + i * STAGGER)}
             style={{ gridArea: `c${i + 1}` }}
             className={cn(
-              "hidden w-full max-w-[340px] cursor-default self-center outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-8 focus-visible:outline-gold-bright lg:block",
+              "hidden w-full max-w-[340px] cursor-default outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-8 focus-visible:outline-gold-bright lg:block",
+              c.labelAlign === "start" ? "self-start" : c.labelAlign === "end" ? "self-end" : "self-center",
               i !== 1 && "xl:ml-auto xl:text-right",
             )}
           >
-            {/* Dimming lives on this inner layer: Framer Motion owns the li's opacity */}
             {/* Semi-opaque backing keeps the text readable over the background word's outline */}
             <div
               className={cn(
@@ -222,7 +320,7 @@ export function ProductSlide({ product, index, total, active, play, onImageCente
           </motion.div>
         ))}
 
-        {/* Mobile: numbered list; each "01" matches marker 1 on the image */}
+        {/* Mobile: numbered list; each "01" matches marker 1 on the visual */}
         <ol className="border-t border-gold/40 [grid-area:mlist] lg:hidden">
           {callouts.map((c) => (
             <li key={c.number} className="border-b border-gold/40 py-6">
@@ -235,8 +333,8 @@ export function ProductSlide({ product, index, total, active, play, onImageCente
           <InfoBox content={anchor} />
         </motion.div>
 
-        {/* Desktop: leader lines and dots */}
-        <svg aria-hidden="true" className="pointer-events-none absolute inset-0 hidden h-full w-full overflow-visible lg:block">
+        {/* Desktop leader lines */}
+        <svg aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 hidden h-full w-full overflow-visible lg:block">
           {lines.map((line, i) => (
             <g key={i} className={cn("transition-opacity duration-200", dim(i) && "opacity-30")}>
               {line.d && (
@@ -254,23 +352,6 @@ export function ProductSlide({ product, index, total, active, play, onImageCente
             </g>
           ))}
         </svg>
-        {lines.map((line, i) => (
-          <motion.span
-            key={i}
-            aria-hidden="true"
-            {...hover(i)}
-            initial={initial}
-            animate={state}
-            variants={dotV(i)}
-            className="absolute hidden h-4 w-4 -translate-x-1/2 -translate-y-1/2 lg:block"
-            style={{ left: line.dot.x, top: line.dot.y }}
-          >
-            <span className={cn("absolute inset-0 flex items-center justify-center transition-opacity duration-200", dim(i) && "opacity-30")}>
-              <span className={cn("absolute inset-0 border bg-bg/70 transition-colors", activeCallout === i ? "border-gold-bright" : "border-gold/60")} />
-              <span className={cn("relative h-1.5 w-1.5 transition-colors", activeCallout === i ? "bg-gold-bright" : "bg-gold")} />
-            </span>
-          </motion.span>
-        ))}
       </div>
 
       {(specs?.length || cta) && (

@@ -19,6 +19,17 @@ const config: Config = {
         ink: "#EDE8DC", // headings
         "ink-muted": "#A8A396", // body text
         danger: "#E8897A", // form errors (AA on bg)
+        // Tablet frame materials (product carousel), not brand colours
+        frame: {
+          hi: "#2a2a2f",
+          DEFAULT: "#151518",
+          lo: "#0f0f12",
+          edge: "#45454c",
+          ink: "#0b0b0d",
+          d1: "#3a3a40",
+          d2: "#222226",
+          d3: "#141417",
+        },
       },
       fontFamily: {
         // Swap fonts in app/fonts.ts; these read the CSS variables it sets
