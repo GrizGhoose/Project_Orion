@@ -7,8 +7,8 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./content/**/*.ts"],
   theme: {
-    // Sharp: no rounded corners anywhere
-    borderRadius: { none: "0", DEFAULT: "0" },
+    // Sharp: no rounded corners anywhere, except the browser-chrome dots and address bar on live-app preview cards
+    borderRadius: { none: "0", DEFAULT: "0", pill: "9999px" },
     extend: {
       colors: {
         bg: "#0A0A0B", // main background (never pure black)

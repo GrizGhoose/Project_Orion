@@ -29,6 +29,10 @@
   .container-page {
     @apply mx-auto w-full max-w-page px-gutter;
   }
+  /* Gold text link with a hairline underline */
+  .link-gold {
+    @apply text-gold underline decoration-gold/60 decoration-1 underline-offset-[6px] transition-colors duration-200 hover:text-gold-bright hover:decoration-gold-bright focus-visible:text-gold-bright;
+  }
   /* Product carousel slide: grid areas per breakpoint (see components/ProductSlide.tsx).
      Callout labels sit in areas c1–c3; the leader-line side follows from where each label lands. */
   .showcase-grid {

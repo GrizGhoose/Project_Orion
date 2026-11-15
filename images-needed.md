@@ -7,12 +7,12 @@ Every image on the site. Slots without a file show a dark placeholder labelled w
 | Slot | Where | Size | What |
 |---|---|---|---|
 | `herb-hardware` ✅ | Product carousel, slide 1 "H.E.R.B" | 1240×1600 cut-out (done) | Transparent cut-out of the prototype hardware, made from `herb-hardware-raw.jpg` by `scripts/cutout_herb.py`. Replace both if the hardware changes, then re-check the callout dot positions. |
-| `hera-console.png` ✅ | Product carousel, slide 2 "H.E.R.A" | 2310×1732 (4:3) | Screenshot of the H.E.R crew console on the angled tablet. Captured from crew-health-tablet.vercel.app at 1155×866 @2×. Replace with any 4:3 capture, then re-check the dot positions. |
+| `hera-console.png` ✅ | Product carousel, slide 2 "H.E.R.A" | 2640×1980 (4:3) | Screenshot of the H.E.R.A crew console on the angled tablet. Captured from crew-health-tablet.vercel.app at 1320×990 @2×. Replace with any 4:3 capture, then re-check the dot positions. |
 | `aegis-hud.png` ✅ | Product carousel, slide 3 "Aegis" | 2310×1732 (4:3) | Capture of the live helmet HUD over the lunar landscape, shown inside the angled visor. Captured from astronaut-eva-hud.vercel.app at 1155×866 @2×. |
 | `milestone-1-schematic.jpg` ✅ | Milestones, entry 01 | 800×647 (KiCad export) | Circuit schematic of the custom PCB. Shown on an off-white panel and zoomable. A higher-resolution export (a larger PNG, or an SVG) would read better when zoomed: add it and set `fullSrc` on milestone 01 so the overlay loads it, or replace `src`, `width` and `height` outright. |
 | `milestone-2.png` | Milestones, entry 02 | 1200×900 | To be decided. Set `image` on milestone 02. |
-| `milestone-3.png` | Milestones, entry 03 | 1200×900 | To be decided. Set `image` on milestone 03. |
-| `milestone-4.png` | Milestones, entry 04 | 1200×900 | To be decided. Set `image` on milestone 04. |
+| `milestone-3-aegis-preview.webp` ✅ | Milestones, entry 03 (preview card) | 2880×1800 (16:10) | Capture of astronaut-eva-hud.vercel.app at 1440×900 @2×, 3 s after load. |
+| `milestone-4-hera-preview.webp` ✅ | Milestones, entry 04 (preview card) | 2880×1800 (16:10) | Capture of crew-health-tablet.vercel.app at 1440×900 @2×, 30 s after "Begin monitoring". |
 
 ## Also needed
 

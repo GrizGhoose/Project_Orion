@@ -25,7 +25,7 @@ export function InfoBox({ content, className }: { content: InfoBoxContent; class
           href={content.link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-block whitespace-nowrap text-body text-gold underline decoration-gold/60 decoration-1 underline-offset-[6px] transition-colors duration-200 hover:text-gold-bright hover:decoration-gold-bright focus-visible:text-gold-bright"
+          className="link-gold mt-4 inline-block whitespace-nowrap text-body"
         >
           {content.link.label}
         </a>

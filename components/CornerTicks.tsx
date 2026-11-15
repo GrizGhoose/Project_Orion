@@ -1,10 +1,10 @@
 import { cn } from "@/lib/cn";
 
-/** Gold crop-mark ticks in the four corners of a card or image. Parent must be `relative`. */
+/** Gold crop-mark ticks in the four corners of a card or image. Parent must be `relative`. `className` replaces the default inset-2. */
 export function CornerTicks({ className }: { className?: string }) {
   const tick = "pointer-events-none absolute h-3 w-3 border-gold";
   return (
-    <span aria-hidden className={cn("pointer-events-none absolute inset-2 z-10", className)}>
+    <span aria-hidden className={cn("pointer-events-none absolute z-10", className ?? "inset-2")}>
       <span className={cn(tick, "left-0 top-0 border-l border-t")} />
       <span className={cn(tick, "right-0 top-0 border-r border-t")} />
       <span className={cn(tick, "bottom-0 left-0 border-b border-l")} />

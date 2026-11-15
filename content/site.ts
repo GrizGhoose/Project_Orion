@@ -13,11 +13,11 @@ export type Spec = { label: string; value: string; unit?: string };
 // ---------- Site-wide ----------
 
 export const site = {
-  title: "H.E.R: Hypoxia Emergency Responder",
+  title: "H.E.R.A: Hypoxia Emergency Response Assistant",
   /** Visually hidden page heading */
-  heading: "H.E.R: Hypoxia Emergency Responder",
+  heading: "H.E.R.A: Hypoxia Emergency Response Assistant",
   description:
-    "H.E.R detects hypoxia during spacewalks: a behind-the-ear sensor, the Aegis helmet HUD and the H.E.R.A crew console alert the crew and guide first aid.",
+    "H.E.R.A: Hypoxia Emergency Response Assistant. A behind-the-ear sensor, the Aegis helmet HUD and the H.E.R.A crew console detect hypoxia during spacewalks, alert the crew and guide first aid.",
 };
 
 /** Small interface strings used across components */
@@ -143,9 +143,9 @@ export const productShowcase = {
       kind: "tablet",
       image: {
         src: "/images/hera-console.png",
-        width: 2310,
-        height: 1732,
-        alt: "iPad Pro showing the H.E.R crew console: live SpO₂ and heart-rate trends over the last five minutes for two spacewalkers",
+        width: 2640,
+        height: 1980,
+        alt: "iPad Pro showing the H.E.R.A crew console: live SpO₂ and heart-rate trends over the last five minutes for two spacewalkers",
       },
       device: {
         label: "THE ANCHOR",
@@ -154,7 +154,7 @@ export const productShowcase = {
       },
       anchor: {
         label: "THE APP",
-        title: "H.E.R crew console",
+        title: "H.E.R.A crew console",
         body: "Installs on iPad as a full-screen, offline app, with every incident and response saved to its log.",
         link: { label: "Launch the demo →", href: "https://crew-health-tablet.vercel.app" },
       },
@@ -269,15 +269,18 @@ export type Milestone = {
   /** null shows an ImageSlot named `slot` until the image exists */
   image: MilestoneImage | null;
   slot: string;
+  /** Live app: the image becomes a browser-window preview card linking to `url`, plus a "Launch <label> ↗" text link */
+  link?: { url: string; label: string };
 };
 
 /**
  * Milestones section below the product carousel. Entries alternate image-left / image-right.
  * To add an image: put it in public/images/, then set `image` (with `zoomable: true` for click-to-enlarge).
+ * With `link`, the image is shown as a preview card that opens the live app in a new tab.
  */
 export const milestones = {
   eyebrow: "MILESTONES",
-  title: "[PLACEHOLDER: section title, e.g. Building H.E.R]",
+  title: "[PLACEHOLDER: section title, e.g. Building H.E.R.A]",
   items: [
     {
       number: "01",
@@ -294,8 +297,34 @@ export const milestones = {
       },
     },
     { number: "02", title: "[PLACEHOLDER: Milestone 2 title]", caption: "[PLACEHOLDER: caption]", slot: "milestone-2.png", image: null },
-    { number: "03", title: "[PLACEHOLDER: Milestone 3 title]", caption: "[PLACEHOLDER: caption]", slot: "milestone-3.png", image: null },
-    { number: "04", title: "[PLACEHOLDER: Milestone 4 title]", caption: "[PLACEHOLDER: caption]", slot: "milestone-4.png", image: null },
+    {
+      number: "03",
+      title: "Aegis UI",
+      caption: "[PLACEHOLDER: 1–2 sentence caption about building the Aegis helmet HUD]",
+      slot: "milestone-3-aegis-preview.webp",
+      image: {
+        src: "/images/milestone-3-aegis-preview.webp",
+        width: 2880,
+        height: 1800,
+        alt: "Preview of the Aegis helmet HUD: vitals at the edges of view over a lunar landscape",
+        zoomable: false,
+      },
+      link: { url: "https://astronaut-eva-hud.vercel.app", label: "Aegis UI" },
+    },
+    {
+      number: "04",
+      title: "H.E.R.A UI",
+      caption: "[PLACEHOLDER: 1–2 sentence caption about building the H.E.R.A crew console]",
+      slot: "milestone-4-hera-preview.webp",
+      image: {
+        src: "/images/milestone-4-hera-preview.webp",
+        width: 2880,
+        height: 1800,
+        alt: "Preview of the H.E.R.A crew console: live SpO₂ and heart-rate trends for two spacewalkers",
+        zoomable: false,
+      },
+      link: { url: "https://crew-health-tablet.vercel.app", label: "H.E.R.A UI" },
+    },
   ] as Milestone[],
 };
 
@@ -308,4 +337,11 @@ export const lightbox = {
   escHint: "Esc to close",
   hintMouse: "Click to enlarge",
   hintTouch: "Tap to enlarge",
+};
+
+/** Strings for the live-app preview cards */
+export const linkPreview = {
+  chip: "Open live demo ↗",
+  ariaLabel: (label: string) => `Open the ${label} live demo (opens in a new tab)`,
+  launch: (label: string) => `Launch ${label} ↗`,
 };
