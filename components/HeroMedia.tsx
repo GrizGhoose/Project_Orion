@@ -3,6 +3,10 @@
 import { useReducedMotion } from "framer-motion";
 import Image from "next/image";
 
+// object-cover fills the viewport's height on screens taller than 16:9, so the image must be ~178vh wide there,
+// otherwise portrait phones get a small file stretched up
+const COVER_SIZES = "(max-aspect-ratio: 16/9) 178vh, 100vw";
+
 /**
  * Full-bleed hero background: a muted looping video when `video` is set (the image is its poster, and is shown
  * instead with reduced motion), otherwise the image with a very slow zoom. Includes the dark overlays that keep
@@ -24,7 +28,7 @@ export function HeroMedia({ video, image }: { video?: string; image: { src: stri
           aria-hidden
         />
       ) : (
-        <Image src={image.src} alt={image.alt} fill priority sizes="100vw" className="hero-zoom object-cover object-[60%_30%]" />
+        <Image src={image.src} alt={image.alt} fill priority quality={90} sizes={COVER_SIZES} className="hero-zoom object-cover object-[60%_30%]" />
       )}
       {/* Readability overlays: darker towards the bottom-left where the text sits */}
       <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-bg/25" />

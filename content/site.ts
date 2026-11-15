@@ -11,7 +11,7 @@ export type Link = { label: string; href: string };
 // ---------- Site-wide ----------
 
 export const site = {
-  title: "Project Orion: zero hypoxia fatalities on every spacewalk",
+  title: "Project Orion: aiming for zero hypoxia fatalities on every spacewalk",
   description:
     "Project Orion is an incident-response system for three-person EVA crews: a behind-the-ear sensor reads SpO₂ and heart rate, Aegis helmet HUDs alert the spacewalking pair, and the H.E.R.A tablet guides the crew member inside through first aid.",
 };
@@ -28,7 +28,7 @@ export type HeroFact = { value: string; label: string };
 /** Top of the page: full-bleed background, headline (the page's h1), two buttons and a row of key facts */
 export const hero = {
   eyebrow: "PROJECT ORION · NASA SPACE APPS CHALLENGE 2026",
-  headline: "Zero hypoxia fatalities on every spacewalk.",
+  headline: "We are aiming for zero hypoxia fatalities on every spacewalk.",
   body: "Spacesuits trade pressure for mobility and run on pure oxygen, so a single leak can turn fatal within seconds. Project Orion is an incident-response system for three-person crews: a custom sensor reads SpO₂ and heart rate behind the ear, helmet HUDs alert the spacewalking pair, and a tablet guides the crew member inside through first aid.",
   primary: { label: "Explore the system ↓", href: "#products" } as Link,
   secondary: { label: "See our milestones", href: "#milestones" } as Link,
@@ -40,7 +40,7 @@ export const hero = {
   /** Optional muted background loop (path under /public); the image stays as poster and reduced-motion fallback */
   video: undefined as string | undefined,
   facts: [
-    { value: "0.26", label: "Injuries per spacewalk" },
+    { value: "0.26", label: "EVA suit injuries per spacewalk" },
     { value: "3σ", label: "Personal-baseline alert trigger" },
     { value: "3", label: "Devices: sensor, HUD, tablet" },
   ] as HeroFact[],

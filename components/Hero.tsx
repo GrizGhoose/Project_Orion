@@ -26,18 +26,18 @@ export function Hero() {
     <section aria-labelledby="hero-heading" className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-bg">
       <HeroMedia video={hero.video} image={hero.image} />
 
-      <motion.div initial="hidden" animate="show" variants={list} className="container-page relative pb-8 pt-24 md:pb-14 md:pt-32">
+      <motion.div initial="hidden" animate="show" variants={list} className="container-page relative pb-8 pt-24 md:pb-14">
         <motion.div variants={item}>
           <Eyebrow className="mb-6 leading-relaxed">{hero.eyebrow}</Eyebrow>
         </motion.div>
         <motion.h1
           id="hero-heading"
           variants={item}
-          className="max-w-5xl text-[clamp(2.25rem,7vw,6rem)] font-medium leading-[1.02] tracking-[-0.03em]"
+          className="max-w-5xl text-[clamp(2.25rem,5vw,4.5rem)] font-medium leading-[1.02] tracking-[-0.03em]"
         >
           {hero.headline}
         </motion.h1>
-        <motion.p variants={item} className="mt-6 max-w-prose text-lead text-ink md:mt-8">
+        <motion.p variants={item} className="mt-6 max-w-[46rem] text-lead text-ink md:mt-8">
           {hero.body}
         </motion.p>
         <motion.div variants={item} className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mt-10">
@@ -50,7 +50,7 @@ export function Hero() {
         </motion.div>
 
         {/* Key facts */}
-        <motion.dl variants={item} className="mt-10 grid max-w-3xl grid-cols-3 border-t border-gold/40 md:mt-20">
+        <motion.dl variants={item} className="mt-10 grid max-w-3xl grid-cols-3 border-t border-gold/40 md:mt-14">
           {hero.facts.map((f, i) => (
             // Label first for screen readers (dt before dd); the number shows on top
             <div
