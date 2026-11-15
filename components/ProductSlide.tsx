@@ -199,7 +199,7 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
         className={cn(
           "showcase-grid relative isolate mx-auto w-full max-w-page",
           tablet
-            ? "[--img-w:76%] lg:[--img-w:38vw] xl:[--img-w:min(41vw,760px)]"
+            ? "[--img-w:76%] lg:[--img-w:38vw] xl:[--img-w:min(38vw,700px)]"
             : "[--img-w:min(66vw,22rem)] lg:[--img-w:40vw] xl:[--img-w:min(32vw,calc((100svh-10rem)*0.775),38rem)]",
         )}
       >
@@ -229,9 +229,9 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
           className="relative mx-auto w-[var(--img-w)] self-center [grid-area:img]"
         >
           {tablet && image ? (
-            // Angled tablet: from xl, shifted right of centre and up so it clears the Device and Anchor boxes
-            // (not at lg, where the callout column sits right beside it)
-            <div className="tablet-scene xl:-translate-y-[4%] xl:translate-x-[4vw]">
+            // Angled tablet, centred in its column. The tilt makes its outline lean right, so from xl it's nudged
+            // left by 1.5vw to keep equal clearance from the callouts on both sides
+            <div className="tablet-scene xl:-translate-x-[1.5vw]">
               <div
                 role="img"
                 aria-label={image.alt}
@@ -246,7 +246,7 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
                     alt=""
                     fill
                     quality={90}
-                    sizes="(min-width: 1280px) min(41vw, 760px), (min-width: 1024px) 38vw, 76vw"
+                    sizes="(min-width: 1280px) min(38vw, 700px), (min-width: 1024px) 38vw, 76vw"
                     className="object-cover"
                   />
                   {/* Diagonal glare */}
