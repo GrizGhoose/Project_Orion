@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Callout, ShowcaseProduct } from "@/content/site";
 import { cn } from "@/lib/cn";
-import { GhostButton } from "./Buttons";
 import { ImageSlot } from "./ImageSlot";
 import { InfoBox } from "./InfoBox";
 import { SpecTable } from "./SpecTable";
@@ -61,7 +60,7 @@ type ProductSlideProps = {
  * Layout per breakpoint is `.showcase-grid`; the tablet and visor poses are `.tablet` / `.visor` (all in globals.css).
  */
 export function ProductSlide({ product, index, total, active, play, onVisualCenter }: ProductSlideProps) {
-  const { kind, name, backgroundWord, image, imageSlot, device, anchor, callouts, specs, cta } = product;
+  const { kind, name, backgroundWord, image, imageSlot, device, anchor, callouts, specs } = product;
   const reduce = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
@@ -185,8 +184,8 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
 
   const tablet = kind === "tablet";
   const visor = kind === "visor";
-  // Below 1280px the labels stack beside the visual in dot order (top dot first), so lines can't cross
-  const lgRank = callouts.map((c) => callouts.filter((o) => o.y < c.y).length + 1);
+  // Below 1280px the labels stack beside the visual in dot order (top dot first), so lines can't cross, unless `lgRow` says otherwise
+  const lgRank = callouts.map((c) => c.lgRow ?? callouts.filter((o) => o.y < c.y).length + 1);
   const playing = Boolean(reduce || play);
 
   return (
@@ -389,14 +388,9 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
         </svg>
       </div>
 
-      {(specs?.length || cta) && (
+      {specs && specs.length > 0 && (
         <div className="mx-auto w-full max-w-page">
-          {specs && specs.length > 0 && <SpecTable specs={specs} layout="strip" className="mt-16" />}
-          {cta && (
-            <GhostButton href={cta.href} className="mt-10">
-              {cta.label}
-            </GhostButton>
-          )}
+          <SpecTable specs={specs} className="mt-16" />
         </div>
       )}
     </div>

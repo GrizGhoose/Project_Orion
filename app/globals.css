@@ -29,10 +29,6 @@
   .container-page {
     @apply mx-auto w-full max-w-page px-gutter;
   }
-  /* Thin gold underline for inline links */
-  .link-gold {
-    @apply text-ink underline decoration-gold decoration-1 underline-offset-[6px] transition-colors duration-200 hover:text-gold-bright hover:decoration-gold-bright;
-  }
   /* Product carousel slide: grid areas per breakpoint (see components/ProductSlide.tsx).
      Callout labels sit in areas c1–c3; the leader-line side follows from where each label lands. */
   .showcase-grid {
@@ -192,11 +188,6 @@
       radial-gradient(ellipse at 18% 8%, theme("colors.white / 16%"), transparent 45%),
       linear-gradient(135deg, theme("colors.gold / 6%"), transparent 55%);
   }
-
-  /* 1px gold hairline divider */
-  .hairline {
-    @apply border-gold/40;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -208,5 +199,9 @@
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  /* The lightbox keeps a short fade (no movement) */
+  .lightbox-fade {
+    transition-duration: 200ms !important;
   }
 }

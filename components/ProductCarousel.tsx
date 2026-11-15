@@ -42,10 +42,11 @@ export function ProductCarousel() {
     return () => window.clearTimeout(t);
   }, [index, reduce]);
 
-  // ← → while the carousel is in view or focused; never inside form fields
+  // ← → while the carousel is in view or focused; never inside form fields or while a modal is open
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (document.querySelector('[aria-modal="true"]')) return; // an overlay (e.g. the lightbox) is open
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
       const focused = sectionRef.current?.contains(document.activeElement);

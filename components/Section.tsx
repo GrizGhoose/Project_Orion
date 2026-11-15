@@ -24,26 +24,13 @@ export function Section({ children, id, alt, divider, className, innerClassName 
   );
 }
 
-/** Eyebrow + heading + drawn gold hairline, with an optional intro line. */
-export function SectionHeading({
-  eyebrow,
-  title,
-  intro,
-  as: Tag = "h2",
-  className,
-}: {
-  eyebrow?: string;
-  title: string;
-  intro?: string;
-  as?: "h1" | "h2";
-  className?: string;
-}) {
+/** Eyebrow + heading + drawn gold hairline. */
+export function SectionHeading({ eyebrow, title, className }: { eyebrow?: string; title: string; className?: string }) {
   return (
     <Reveal className={cn("max-w-3xl", className)}>
       {eyebrow && <Eyebrow className="mb-5">{eyebrow}</Eyebrow>}
-      <Tag className={Tag === "h1" ? "text-h1" : "text-h2"}>{title}</Tag>
+      <h2 className="text-h2">{title}</h2>
       <Hairline className="mt-6" />
-      {intro && <p className="mt-6 max-w-prose text-lead">{intro}</p>}
     </Reveal>
   );
 }

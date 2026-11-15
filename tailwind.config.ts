@@ -19,6 +19,8 @@ const config: Config = {
         ink: "#EDE8DC", // headings
         "ink-muted": "#A8A396", // body text
         danger: "#E8897A", // form errors (AA on bg)
+        paper: "#F2EFE6", // warm off-white panel behind light technical drawings (schematics)
+        scrim: "#050506", // lightbox backdrop (used at 90%)
         // Tablet frame materials (product carousel), not brand colours
         frame: {
           hi: "#2a2a2f",

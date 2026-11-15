@@ -1,13 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
 import { MotionProvider } from "@/components/MotionProvider";
 import { site, ui } from "@/content/site";
 import { bodyFont, displayFont } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: site.name, template: `%s · ${site.name}` },
+  title: site.title,
   description: site.description,
 };
 
@@ -26,9 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {ui.skipToContent}
         </a>
         <MotionProvider>
-          <Header />
           <main id="main">{children}</main>
-          <Footer />
         </MotionProvider>
       </body>
     </html>
