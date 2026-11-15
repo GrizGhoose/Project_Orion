@@ -1,0 +1,34 @@
+node,category,x,y
+Altered Gravity,Hazard,-651.3,-47.1
+Distance from Earth,Hazard,-651.3,344.0
+Hostile Closed Environment,Hazard,-651.3,-321.1
+Atmospheric Conditions,Contributing Factor,-484.3,-100.0
+Breathing Masks,Contributing Factor,190.0,67.9
+Cognitive Function,Contributing Factor,92.0,19.0
+Compartment Isolation,Contributing Factor,425.0,189.7
+Crew Capability,Contributing Factor,378.0,-321.1
+Crew Health and Performance System,Contributing Factor,70.1,344.0
+Detect Atmospheric Changes,Contributing Factor,-22.6,189.7
+EVA Operations,Contributing Factor,-484.3,-262.6
+Effective Exposure Duration,Contributing Factor,-120.0,-76.7
+Environmental Monitoring Capability,Contributing Factor,70.1,242.9
+Individual Factors,Contributing Factor,92.0,-129.5
+Individual Readiness,Contributing Factor,239.9,-321.1
+Loss of Vehicle,Contributing Factor,620.0,-40.2
+Mild Hypoxia,Contributing Factor,-170.0,19.0
+Pressure Suits,Contributing Factor,295.0,135.9
+Staged Denitrogenation,Contributing Factor,-588.6,19.0
+Suit Design,Contributing Factor,-551.4,182.5
+Suit Failure,Contributing Factor,-311.0,-202.0
+Toxic Substance Exposure,Contributing Factor,-22.6,-249.6
+Vehicle Design,Contributing Factor,-484.3,344.0
+Vehicle Failure,Contributing Factor,-137.4,-321.1
+Depressurization,Contributing Factor,80.0,-321.1
+Hypoxia,Contributing Factor,456.1,55.3
+"DCS, Immune, SANS, Sleep (Risks)",Associated Risk,-304.0,285.3
+EIHSO (Risk),Associated Risk,-618.0,285.3
+Medical (Risk),Associated Risk,523.1,285.3
+Loss of Crew Life,Outcome,523.1,135.3
+Loss of Mission Objectives,Outcome,656.5,-202.0
+Loss of Mission,Outcome,656.5,-321.1
+Task Performance,Outcome,523.1,-321.1

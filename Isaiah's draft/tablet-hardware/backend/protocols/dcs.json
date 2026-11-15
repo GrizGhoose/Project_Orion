@@ -1,0 +1,298 @@
+{
+  "id": "dcs",
+  "title": "DCS check",
+  "phases": [
+    {
+      "id": "screen",
+      "title": "Screen"
+    },
+    {
+      "id": "classify",
+      "title": "Classify"
+    },
+    {
+      "id": "treat",
+      "title": "Treat"
+    },
+    {
+      "id": "handoff",
+      "title": "Monitor & hand off"
+    }
+  ],
+  "start": "when",
+  "nodes": {
+    "when": {
+      "title": "Symptom onset",
+      "phase": "screen",
+      "type": "question",
+      "prompt": "When did {crew}'s symptoms start?",
+      "detail": "Decompression sickness (DCS) comes from nitrogen bubbles after going from habitat pressure (8.2 psia) to suit pressure (4.3 psia).",
+      "options": [
+        {
+          "label": "During the EVA",
+          "next": "ts",
+          "tone": "caution"
+        },
+        {
+          "label": "After coming back in",
+          "sub": "NASA treats this as more serious",
+          "next": "ts",
+          "tone": "warning",
+          "set": {
+            "after_eva": true
+          }
+        },
+        {
+          "label": "No symptoms, routine check",
+          "next": "symptoms",
+          "tone": "good"
+        }
+      ]
+    },
+    "ts": {
+      "title": "Onset time",
+      "phase": "screen",
+      "type": "number",
+      "prompt": "How many minutes into the EVA did the first symptom appear?",
+      "detail": "Count from leaving habitat pressure. Used by NASA's treatment model below.",
+      "field": "ts_min",
+      "unit": "min",
+      "default_from": "eva_minutes",
+      "min": 0,
+      "max": 600,
+      "next": "symptoms"
+    },
+    "symptoms": {
+      "title": "Symptom map",
+      "phase": "classify",
+      "type": "select",
+      "prompt": "Ask and look. Which does {crew} have? Select all that apply.",
+      "options": [
+        {
+          "id": "joint",
+          "label": "Joint pain",
+          "sub": "Shoulder, elbow, knee; deep ache",
+          "group": "type1"
+        },
+        {
+          "id": "tingle",
+          "label": "Tingling or numb patch",
+          "sub": "One limb, hand or foot",
+          "group": "type1"
+        },
+        {
+          "id": "itch",
+          "label": "Itchy skin or rash",
+          "group": "type1"
+        },
+        {
+          "id": "mottle",
+          "label": "Marbled, blotchy skin",
+          "sub": "Cutis marmorata",
+          "group": "cm"
+        },
+        {
+          "id": "neuro",
+          "label": "Weakness, confusion, vision change",
+          "sub": "Or odd headache, unusual tiredness",
+          "group": "type2"
+        },
+        {
+          "id": "chokes",
+          "label": "Chest pain, cough, short of breath",
+          "sub": "“The chokes”",
+          "group": "type2"
+        },
+        {
+          "id": "collapse",
+          "label": "Dizzy, pale, fainting",
+          "group": "type2"
+        }
+      ],
+      "rules": {
+        "type2": "type2",
+        "cm": "cm",
+        "type1": "type1",
+        "none": "none"
+      },
+      "why": [
+        {
+          "text": "Type I: joint pain, peripheral nerve symptoms or simple skin bends. Type II: central nervous system, circulation (collapse/shock) or lungs (the chokes); also unusual headache and inappropriate fatigue. Type II is serious DCS. Marbled skin is its own category.",
+          "source": "NASA TP-2014-218561 pp. 17–20"
+        }
+      ],
+      "image": "body_map"
+    },
+    "none": {
+      "title": "No DCS signs",
+      "phase": "classify",
+      "type": "action",
+      "prompt": "No DCS signs right now.",
+      "steps": [
+        "Recheck {crew} at 30 minutes and 2 hours after the EVA.",
+        "Ask {crew} to report any new ache, tingling or rash straight away."
+      ],
+      "confirm": "Done",
+      "next": "end_ok"
+    },
+    "type1": {
+      "title": "Treat Type I",
+      "phase": "classify",
+      "type": "action",
+      "prompt": "Likely Type I DCS (mild). Treat now; it usually resolves.",
+      "steps": [
+        "Give 100 % O₂ by mask.",
+        "Keep {crew} resting: no exercise, no moving the painful joint.",
+        "Give oral fluids, about 1 litre.",
+        "Rate the pain 0–10 and note where it is.",
+        "Symptoms first appeared after the EVA? NASA moves straight to the BTA."
+      ],
+      "confirm": "Treatment started",
+      "next": "model",
+      "next_if": {
+        "after_eva": "bta"
+      },
+      "image": "o2_mask"
+    },
+    "cm": {
+      "title": "Treat marbled skin",
+      "phase": "classify",
+      "type": "action",
+      "prompt": "Marbled skin (cutis marmorata). It often comes with serious symptoms; treat promptly.",
+      "steps": [
+        "Give 100 % O₂ by mask.",
+        "Keep {crew} lying still and check for any Type II signs every 5 minutes.",
+        "Call the flight surgeon now."
+      ],
+      "confirm": "Treatment started",
+      "next": "model",
+      "why": [
+        {
+          "text": "Cutis marmorata is often associated with serious Type II symptoms.",
+          "source": "NASA TP-2014-218561 p. 20"
+        }
+      ],
+      "next_if": {
+        "after_eva": "bta"
+      },
+      "image": "o2_mask"
+    },
+    "type2": {
+      "title": "Treat Type II",
+      "phase": "classify",
+      "type": "action",
+      "prompt": "Serious (Type II) DCS. Treat with pressure now and call the flight surgeon.",
+      "steps": [
+        "Emergency call to flight surgeon / mission control.",
+        "Give 100 % O₂ by mask; lay {crew} flat.",
+        "Prepare {crew}'s suit and the Bends Treatment Apparatus (next screen).",
+        "If {crew} can't drink, IV normal saline 1 L/h from the medical kit, as the flight surgeon directs."
+      ],
+      "confirm": "Done",
+      "next": "bta",
+      "why": [
+        {
+          "text": "The ISS medical kit holds 4 L of normal saline; oral fluids first, IV saline at 1 L per hour if needed.",
+          "source": "NASA TP-2014-218561 p. 23"
+        }
+      ],
+      "image": "o2_mask"
+    },
+    "model": {
+      "title": "Treatment odds",
+      "phase": "treat",
+      "type": "dcs_model",
+      "prompt": "How likely is each treatment to resolve {crew}'s symptoms?",
+      "detail": "NASA's DCS treatment model, from 154 cases of altitude DCS. Uses the time the symptom appeared.",
+      "next": "after"
+    },
+    "after": {
+      "title": "10-min recheck",
+      "phase": "treat",
+      "type": "question",
+      "prompt": "After 10 minutes on 100 % O₂ at habitat pressure, how are {crew}'s symptoms?",
+      "options": [
+        {
+          "label": "Gone",
+          "next": "continue",
+          "tone": "good"
+        },
+        {
+          "label": "Better but still there",
+          "next": "continue",
+          "tone": "caution"
+        },
+        {
+          "label": "Same, worse, or new symptoms",
+          "next": "bta",
+          "tone": "warning"
+        }
+      ]
+    },
+    "continue": {
+      "title": "2 h on O₂",
+      "phase": "treat",
+      "type": "action",
+      "prompt": "Keep going: 2 hours of 100 % O₂ at habitat pressure.",
+      "steps": [
+        "Keep {crew} resting on 100 % O₂ for 2 hours.",
+        "Check symptoms every 15 minutes; any new or worse symptom: go to the BTA.",
+        "Flight surgeon decides when {crew} can stop O₂."
+      ],
+      "timer_s": 900,
+      "confirm": "Continue to hand-off",
+      "next": "monitor",
+      "alt": {
+        "label": "Symptoms came back",
+        "next": "bta"
+      },
+      "why": [
+        {
+          "text": "2 h of 100 % O₂ at 8.2 psia raised the chance of resolution to 0.99 in NASA's Mars EVA case.",
+          "source": "NASA TP-2014-218561 p. vi"
+        }
+      ],
+      "image": "o2_mask"
+    },
+    "bta": {
+      "title": "BTA pressurise",
+      "phase": "treat",
+      "type": "action",
+      "prompt": "Pressurise with the Bends Treatment Apparatus (BTA).",
+      "steps": [
+        "{crew} dons the suit (helmet and gloves on) inside the habitat.",
+        "Fit the BTA and pressurise the suit to 8.0 psid above cabin.",
+        "Keep 100 % O₂ in the suit; stay on the loop with the flight surgeon.",
+        "Log the time pressurised. The suit can't be used for EVA again until recertified."
+      ],
+      "confirm": "Suit pressurised",
+      "next": "monitor",
+      "why": [
+        {
+          "text": "The BTA is used if DCS is serious, doesn't resolve with 100 % O₂, or first appears after the EVA. It lets the suit be pressurised to 8.0 psid above cabin.",
+          "source": "NASA TP-2014-218561 p. 23"
+        }
+      ],
+      "image": "bta"
+    },
+    "monitor": {
+      "title": "Monitor & hand off",
+      "phase": "handoff",
+      "type": "action",
+      "prompt": "Monitor and hand off to the flight surgeon.",
+      "steps": [
+        "Check symptoms every 15 minutes and log each check.",
+        "No EVA for {crew} until the flight surgeon clears them.",
+        "Send the hand-off report from the Log tab."
+      ],
+      "confirm": "Hand-off done",
+      "next": "end_ok"
+    },
+    "end_ok": {
+      "title": "Check complete",
+      "phase": "handoff",
+      "type": "end",
+      "prompt": "DCS check complete for {crew}. Every step is in the Log."
+    }
+  }
+}

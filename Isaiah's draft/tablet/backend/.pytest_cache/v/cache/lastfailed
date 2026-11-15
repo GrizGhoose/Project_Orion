@@ -1,0 +1,4 @@
+{
+  "tests/test_detector.py::test_single_dip_does_not_alarm": true,
+  "tests/test_scenarios.py::test_C4_vitals_stable_grace_still_alarms_if_worse": true
+}

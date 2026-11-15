@@ -1,0 +1,156 @@
+\{"nodes": \{"Altered Gravity": \{"position": {[}-656.1662517985612,
+-95.0{]}, "category": "Hazard", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Distance from Earth": \{"position": {[}-656.1662517985612,
+134.06982733812947{]}, "category": "Hazard", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}, "Hostile Closed Environment": \{"position":
+{[}-656.1662517985612, -193.26038540596096{]}, "category": "Hazard",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Airlock Design":
+\{"position": {[}-552.662907502569, 31.872327852004098{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Arterial Gas Embolism": \{"position": {[}353.7208138446546,
+-107.03172357338164{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Astronaut Selection": \{"position":
+{[}-85.18164094872171, -115.16799763604696{]}, "category": "Contributing
+Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Atmospheric
+Conditions": \{"position": {[}-486.39256628982525,
+-308.63726104830414{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Crew Capability": \{"position":
+{[}295.1661017471736, -308.63726104830414{]}, "category": "Contributing
+Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Crew Health
+and Performance System": \{"position": {[}-372.069, 341.685{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "DCS Type I": \{"position": {[}-22.183066803699887,
+31.872327852004098{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "DCS Type II": \{"position":
+{[}146.41615930113053, 31.872327852004098{]}, "category": "Contributing
+Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Detect DCS":
+\{"position": {[}-22.183066803699887, 140.88661048304215{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Detect Long Term Health Outcomes": \{"position": {[}600.2411901336073,
+134.06982733812947{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "EVA Operations": \{"position":
+{[}-378.76173895169575, 31.872327852004098{]}, "category": "Contributing
+Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Individual
+Factors": \{"position": {[}68.63463182306025, -58.54871403541381{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Individual Readiness": \{"position": {[}146.41615930113053,
+-308.63726104830414{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Medical Diagnostic Capability":
+\{"position": {[}-199.2953843782117, 242.89157040082222{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Medical Treatment Capability": \{"position": {[}250.0, 341.685{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Suit Design": \{"position": {[}-219.655,
+134.82724768756418{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Suit Failure": \{"position":
+{[}-166.37233196300105, -63.610606372045225{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Vehicle Design": \{"position": {[}-486.39256628982525,
+134.06982733812947{]}, "category": "Contributing Factor", "subgraph":
+\{"nodes": \{\}, "edges": \{\}\}\}, "Vehicle Failure": \{"position":
+{[}-435.0, -160.33280986639252{]}, "category": "Contributing Factor",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Denitrogenation":
+\{"position": {[}-219.655, -140.0{]}, "category": "Contributing Factor",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Depressurization":
+\{"position": {[}-22.183066803699887, -308.63726104830414{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Ebullism": \{"position": {[}455.0, -150.0{]}, "category":
+"Contributing Factor", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Surveillance": \{"position": {[}540.0, 256.0965005138746{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "Workload": \{"position": {[}-138.0, 31.872327852004098{]},
+"category": "Contributing Factor", "subgraph": \{"nodes": \{\}, "edges":
+\{\}\}\}, "EIHSO (Risk)": \{"position": {[}-552.662907502569,
+341.685{]}, "category": "Associated Risk", "subgraph": \{"nodes": \{\},
+"edges": \{\}\}\}, "Long Term Health Outcomes": \{"position":
+{[}651.2515971223023, 31.872327852004098{]}, "category": "Outcome",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Loss of Crew Life":
+\{"position": {[}651.2515971223023, -85.3268139773895{]}, "category":
+"Outcome", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Loss of
+EVA(s)": \{"position": {[}365.0, 140.0{]}, "category": "Outcome",
+"subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Loss of Mission
+Objectives": \{"position": {[}593.810694758479, -230.0{]}, "category":
+"Outcome", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\}, "Loss of
+Mission": \{"position": {[}651.2515971223023, -308.63726104830414{]},
+"category": "Outcome", "subgraph": \{"nodes": \{\}, "edges": \{\}\}\},
+"Task Performance": \{"position": {[}434.0705796505652,
+-308.63726104830414{]}, "category": "Outcome", "subgraph": \{"nodes":
+\{\}, "edges": \{\}\}\}\}, "edges": \{"0": \{"source": "Vehicle Design",
+"dest": "Airlock Design", "loe": 2\}, "1": \{"source":
+"Depressurization", "dest": "Arterial Gas Embolism", "loe": 2\}, "2":
+\{"source": "Hostile Closed Environment", "dest": "Atmospheric
+Conditions", "loe": 2\}, "3": \{"source": "Suit Design", "dest":
+"Atmospheric Conditions", "loe": 2\}, "4": \{"source": "Vehicle Design",
+"dest": "Atmospheric Conditions", "loe": 2\}, "5": \{"source": "Vehicle
+Failure", "dest": "Atmospheric Conditions", "loe": 2\}, "6": \{"source":
+"Individual Readiness", "dest": "Crew Capability", "loe": 2\}, "7":
+\{"source": "EIHSO (Risk)", "dest": "Crew Health and Performance
+System", "loe": 2\}, "8": \{"source": "Vehicle Design", "dest": "Crew
+Health and Performance System", "loe": 2\}, "9": \{"source": "Individual
+Factors", "dest": "DCS Type I", "loe": 2\}, "10": \{"source":
+"Denitrogenation", "dest": "DCS Type I", "loe": 2\}, "11": \{"source":
+"Depressurization", "dest": "DCS Type I", "loe": 2\}, "12": \{"source":
+"Workload", "dest": "DCS Type I", "loe": 2\}, "13": \{"source": "DCS
+Type I", "dest": "DCS Type II", "loe": 2\}, "14": \{"source":
+"Individual Factors", "dest": "DCS Type II", "loe": 2\}, "15":
+\{"source": "Medical Treatment Capability", "dest": "DCS Type II",
+"loe": 2\}, "16": \{"source": "Depressurization", "dest": "DCS Type II",
+"loe": 2\}, "17": \{"source": "DCS Type I", "dest": "Detect DCS", "loe":
+2\}, "18": \{"source": "Medical Diagnostic Capability", "dest": "Detect
+DCS", "loe": 2\}, "19": \{"source": "Surveillance", "dest": "Detect Long
+Term Health Outcomes", "loe": 2\}, "20": \{"source": "Airlock Design",
+"dest": "EVA Operations", "loe": 2\}, "21": \{"source": "Altered
+Gravity", "dest": "EVA Operations", "loe": 2\}, "22": \{"source":
+"Hostile Closed Environment", "dest": "EVA Operations", "loe": 2\},
+"23": \{"source": "Denitrogenation", "dest": "EVA Operations", "loe":
+2\}, "24": \{"source": "Astronaut Selection", "dest": "Individual
+Factors", "loe": 2\}, "25": \{"source": "Arterial Gas Embolism", "dest":
+"Individual Readiness", "loe": 2\}, "26": \{"source": "DCS Type I",
+"dest": "Individual Readiness", "loe": 2\}, "27": \{"source": "DCS Type
+II", "dest": "Individual Readiness", "loe": 2\}, "28": \{"source":
+"Medical Treatment Capability", "dest": "Individual Readiness", "loe":
+2\}, "29": \{"source": "Crew Health and Performance System", "dest":
+"Medical Diagnostic Capability", "loe": 2\}, "30": \{"source": "Crew
+Health and Performance System", "dest": "Medical Treatment Capability",
+"loe": 2\}, "31": \{"source": "Detect DCS", "dest": "Medical Treatment
+Capability", "loe": 2\}, "32": \{"source": "Suit Design", "dest":
+"Medical Treatment Capability", "loe": 2\}, "33": \{"source": "EIHSO
+(Risk)", "dest": "Suit Design", "loe": 2\}, "34": \{"source": "EVA
+Operations", "dest": "Suit Failure", "loe": 2\}, "35": \{"source": "Suit
+Design", "dest": "Suit Failure", "loe": 2\}, "36": \{"source": "Distance
+from Earth", "dest": "Vehicle Design", "loe": 2\}, "37": \{"source":
+"EIHSO (Risk)", "dest": "Vehicle Design", "loe": 2\}, "38": \{"source":
+"Vehicle Design", "dest": "Vehicle Failure", "loe": 2\}, "39":
+\{"source": "Altered Gravity", "dest": "Denitrogenation", "loe": 2\},
+"40": \{"source": "Atmospheric Conditions", "dest": "Denitrogenation",
+"loe": 2\}, "41": \{"source": "Suit Design", "dest": "Denitrogenation",
+"loe": 2\}, "42": \{"source": "Atmospheric Conditions", "dest":
+"Depressurization", "loe": 2\}, "43": \{"source": "Suit Failure",
+"dest": "Depressurization", "loe": 2\}, "44": \{"source": "Vehicle
+Failure", "dest": "Depressurization", "loe": 2\}, "45": \{"source":
+"Depressurization", "dest": "Ebullism", "loe": 2\}, "46": \{"source":
+"EVA Operations", "dest": "Workload", "loe": 2\}, "47": \{"source":
+"Arterial Gas Embolism", "dest": "Long Term Health Outcomes", "loe":
+2\}, "48": \{"source": "DCS Type II", "dest": "Long Term Health
+Outcomes", "loe": 2\}, "49": \{"source": "Detect Long Term Health
+Outcomes", "dest": "Long Term Health Outcomes", "loe": 2\}, "50":
+\{"source": "Medical Treatment Capability", "dest": "Long Term Health
+Outcomes", "loe": 2\}, "51": \{"source": "Arterial Gas Embolism",
+"dest": "Loss of Crew Life", "loe": 2\}, "52": \{"source": "DCS Type
+II", "dest": "Loss of Crew Life", "loe": 2\}, "53": \{"source": "Medical
+Treatment Capability", "dest": "Loss of Crew Life", "loe": 2\}, "54":
+\{"source": "Ebullism", "dest": "Loss of Crew Life", "loe": 2\}, "55":
+\{"source": "Arterial Gas Embolism", "dest": "Loss of EVA(s)", "loe":
+2\}, "56": \{"source": "DCS Type I", "dest": "Loss of EVA(s)", "loe":
+2\}, "57": \{"source": "DCS Type II", "dest": "Loss of EVA(s)", "loe":
+2\}, "58": \{"source": "Individual Readiness", "dest": "Loss of EVA(s)",
+"loe": 2\}, "59": \{"source": "Medical Treatment Capability", "dest":
+"Loss of EVA(s)", "loe": 2\}, "60": \{"source": "Ebullism", "dest":
+"Loss of EVA(s)", "loe": 2\}, "61": \{"source": "Loss of EVA(s)",
+"dest": "Loss of Mission Objectives", "loe": 2\}, "62": \{"source":
+"Task Performance", "dest": "Loss of Mission Objectives", "loe": 2\},
+"63": \{"source": "Denitrogenation", "dest": "Loss of Mission
+Objectives", "loe": 2\}, "64": \{"source": "Loss of Mission Objectives",
+"dest": "Loss of Mission", "loe": 2\}, "65": \{"source": "Crew
+Capability", "dest": "Task Performance", "loe": 2\}\}, "date":
+"10-02-2024"\}
