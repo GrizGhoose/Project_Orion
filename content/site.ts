@@ -310,7 +310,7 @@ export type Milestone = {
  */
 export const milestones = {
   eyebrow: "MILESTONES",
-  title: "[PLACEHOLDER: section title, e.g. Building H.E.R.A]",
+  title: "Project Orion's Prototypes",
   items: [
     {
       number: "01",
