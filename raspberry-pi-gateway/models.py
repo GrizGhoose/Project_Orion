@@ -90,20 +90,24 @@ class Baseline(StrictModel):
 
 
 class Packet(StrictModel):
-    schema_version: Literal[1, 2] = Field(alias='schema')
+    schema_version: Literal[1, 2, 3] = Field(alias='schema')
     device_id: str = Field(pattern=r'^[a-zA-Z0-9_-]{1,32}$')
     boot_id: str = Field(pattern=r'^[a-f0-9]{16}$')
     sent_at_ms: int = Field(ge=0)
     calibration_id: int = Field(ge=1)
     last_command_id: str = Field(pattern=r'^[a-zA-Z0-9-]{0,64}$')
     baseline: Baseline
-    history: list[Reading | ReadingV2] = Field(min_length=1, max_length=15)
+    history: list[Reading | ReadingV2] = Field(min_length=1, max_length=90)
 
     @model_validator(mode='after')
     def check_order(self):
-        expected = ReadingV2 if self.schema_version == 2 else Reading
+        expected = ReadingV2 if self.schema_version >= 2 else Reading
         if any(type(row) is not expected for row in self.history):
             raise ValueError('Reading format does not match schema version')
+        if self.schema_version < 3 and len(self.history) > 15:
+            raise ValueError('Legacy history is limited to 15 reports')
+        if self.schema_version == 3 and self.history[-1].t_ms-self.history[0].t_ms >= 90000:
+            raise ValueError('History must lie within the trailing 90 seconds')
         if self.sent_at_ms < self.history[-1].t_ms:
             raise ValueError("Send time precedes sampling")
         for a, b in zip(self.history, self.history[1:]):

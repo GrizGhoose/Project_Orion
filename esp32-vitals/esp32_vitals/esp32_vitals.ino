@@ -3,14 +3,21 @@
 #include <Wire.h>
 #include <MAX30105.h>
 #include "PpgAnalysis.h"
+#include "OpticalSettings.h"
 #include <esp_timer.h>
 #include "Monitor.h"
+#include "MqttStream.h"
 #include "CheckedFifo.h"
 #include "secrets.h" // Copy secrets.example.h; keep credentials out of Git.
 
 MAX30105 sensor;
 Monitor monitor;
-struct Packet { char data[12288]; };
+struct Packet {
+  Reading history[Monitor::HISTORY_CAPACITY];
+  int count,calibration,baselineCount;
+  double baselineHR,baselineSpO2;
+  char lastCommand[65];
+};
 struct Command { char id[65]; };
 QueueHandle_t packets, commands;
 uint32_t irRing[100], redRing[100];
@@ -20,8 +27,10 @@ uint64_t lastSample=0, lastReport=0;
 bool sensorFound=false;
 const char* acquisitionStatus="sensor_missing";
 bool captureRequested=false;
+uint8_t ledDrive=orion::DEFAULT_LED_DRIVE;
+uint64_t opticalSettleUntil=0;
 struct DiagnosticWindow {
-  uint32_t seq; uint64_t endMs;
+  uint32_t seq; uint64_t endMs; uint8_t ledDrive;
   uint32_t ir[100],red[100];
   orion::AlgorithmDiagnostics algorithm;
 };
@@ -30,7 +39,7 @@ void diagnosticOutput(void*) {
   static DiagnosticWindow d;
   for(;;) {
     if(xQueueReceive(diagnosticWindows,&d,portMAX_DELAY)!=pdTRUE) continue;
-    Serial.printf("PPG_BEGIN,seq=%lu,end_ms=%llu,rate_hz=25,count=100\n",(unsigned long)d.seq,(unsigned long long)d.endMs);
+    Serial.printf("PPG_BEGIN,seq=%lu,end_ms=%llu,rate_hz=25,count=100,led_drive=%u\n",(unsigned long)d.seq,(unsigned long long)d.endMs,d.ledDrive);
     Serial.println("PPG_COLUMNS,seq,index,red,ir");
     for(int i=0;i<100;i++) {
       Serial.printf("PPG,%lu,%d,%lu,%lu\n",(unsigned long)d.seq,i,(unsigned long)d.red[i],(unsigned long)d.ir[i]);
@@ -67,7 +76,7 @@ void networking(void*) {
   PubSubClient mqtt(wifi);
   mqtt.setServer(MQTT_HOST,MQTT_PORT);
   mqtt.setCallback(callback);
-  mqtt.setBufferSize(12288);
+  mqtt.setBufferSize(1024); // Incoming commands are small; outgoing history is streamed.
   mqtt.setSocketTimeout(1);
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
@@ -89,10 +98,9 @@ void networking(void*) {
       if(mqtt.connected()) {
         mqtt.loop();
         if(havePending) {
-          String wire(pending.data);
-          wire.remove(wire.length()-1);
-          wire+=",\"sent_at_ms\":"+number(nowMs())+"}";
-          if(mqtt.publish(telemetryTopic.c_str(),wire.c_str(),false)) havePending=false;
+          String wire=encodePacket(pending,nowMs());
+          if(wire.length() && publishStream(mqtt,telemetryTopic.c_str(),
+              (const uint8_t*)wire.c_str(),wire.length())) havePending=false;
         }
       }
     }
@@ -100,19 +108,19 @@ void networking(void*) {
   }
 }
 String number(uint64_t n) { char b[24]; snprintf(b,sizeof(b),"%llu",(unsigned long long)n); return String(b); }
-void emit(Reading r) {
-  String json; json.reserve(10000);
-  json="{\"schema\":2,\"device_id\":\"" DEVICE_ID "\",\"boot_id\":\"";
+String encodePacket(const Packet& snapshot,uint64_t sentAt) {
+  String json; if(!json.reserve(48000)) return String();
+  json="{\"schema\":3,\"device_id\":\"" DEVICE_ID "\",\"boot_id\":\"";
   json+=bootId;
-  json+="\",\"calibration_id\":"+String(monitor.calibration);
-  json+=",\"last_command_id\":\""+String(lastCommand)+"\",\"baseline\":{\"ready\":";
-  json+=monitor.ready()?"true":"false";
-  json+=",\"count\":"+String(monitor.baselineCount)+",\"required\":15,\"hr\":";
-  json+=monitor.ready()?String(monitor.baselineHR,2):"null";
-  json+=",\"spo2\":"; json+=monitor.ready()?String(monitor.baselineSpO2,2):"null";
+  json+="\",\"calibration_id\":"+String(snapshot.calibration);
+  json+=",\"last_command_id\":\""+String(snapshot.lastCommand)+"\",\"baseline\":{\"ready\":";
+  json+=(snapshot.baselineCount==15)?"true":"false";
+  json+=",\"count\":"+String(snapshot.baselineCount)+",\"required\":15,\"hr\":";
+  json+=(snapshot.baselineCount==15)?String(snapshot.baselineHR,2):"null";
+  json+=",\"spo2\":"; json+=(snapshot.baselineCount==15)?String(snapshot.baselineSpO2,2):"null";
   json+="},\"history\":[";
-  for(int i=0;i<monitor.count;i++) {
-    Reading a=monitor.history[i];
+  for(int i=0;i<snapshot.count;i++) {
+    Reading a=snapshot.history[i];
     if(i) json+=',';
     json+="{\"seq\":"+String(a.seq)+",\"t_ms\":"+number(a.t_ms)+",\"hr\":";
     json+=a.hrValid?String(a.hr):"null";
@@ -126,11 +134,19 @@ void emit(Reading r) {
     json+=",\"spo2_quality\":\""+String(a.spo2Quality)+"\"";
     json+=",\"quality\":\""+String(a.quality)+"\",\"state\":\""+a.state+"\",\"alert\":\""+a.alert+"\"}";
   }
-  json+="]}";
-  static Packet p;
-  if(json.length()>=sizeof(p.data)) { Serial.println("Telemetry too large"); return; }
-  json.toCharArray(p.data,sizeof(p.data));
-  xQueueOverwrite(packets,&p);
+  json+="],\"sent_at_ms\":"+number(sentAt)+"}";
+  return json;
+}
+void emit(Reading r) {
+  // Queue compact results, not multiple copies of a ~35 KB JSON document.
+  // Serialization and all network waits happen off the acquisition task.
+  static Packet snapshot;
+  snapshot.count=monitor.count; snapshot.calibration=monitor.calibration;
+  snapshot.baselineCount=monitor.baselineCount;
+  snapshot.baselineHR=monitor.baselineHR; snapshot.baselineSpO2=monitor.baselineSpO2;
+  memcpy(snapshot.history,monitor.history,sizeof(Reading)*monitor.count);
+  strlcpy(snapshot.lastCommand,lastCommand,sizeof(snapshot.lastCommand));
+  xQueueOverwrite(packets,&snapshot);
   String hrText=r.hrValid?String(r.hr):"NA";
   String spo2Text=r.spo2Valid?String(r.spo2):"NA";
   Serial.printf("seq=%lu HR=%s hr_valid=%d SpO2=%s spo2_valid=%d state=%s acquisition=%s HR_quality=%s SpO2_quality=%s baseline=%d/15\n",
@@ -138,8 +154,8 @@ void emit(Reading r) {
     r.acquisition,r.hrQuality,r.spo2Quality,monitor.baselineCount);
 }
 void report() {
-  Serial.printf("Sampling: window=%d/100 received_total=%lu gap_resets_total=%lu\n",
-    sampleCount,(unsigned long)samplesReceived,(unsigned long)samplingGapResets);
+  Serial.printf("Sampling: window=%d/100 received_total=%lu gap_resets_total=%lu led_drive=%u\n",
+    sampleCount,(unsigned long)samplesReceived,(unsigned long)samplingGapResets,ledDrive);
   bool complete=sensorFound && sampleCount==100 && nowMs()-lastSample<250;
   if(!complete) {
     const char* status=!strcmp(acquisitionStatus,"ok")?"no_samples":acquisitionStatus;
@@ -161,7 +177,7 @@ void report() {
   // Queue a snapshot; printing 100 rows must not pause acquisition.
   if(captureRequested) {
     static DiagnosticWindow d;
-    d.seq=monitor.sequence+1; d.endMs=nowMs(); d.algorithm=result.algorithm;
+    d.seq=monitor.sequence+1; d.endMs=nowMs(); d.ledDrive=ledDrive; d.algorithm=result.algorithm;
     memcpy(d.ir,ir,sizeof(ir)); memcpy(d.red,red,sizeof(red));
     xQueueOverwrite(diagnosticWindows,&d); captureRequested=false;
   }
@@ -195,6 +211,36 @@ void acquisitionFailed(const char* reason,const char* status="i2c_error") {
   sensorFound=false;
   lastSensorAttempt=nowMs();
 }
+bool writeSensorRegister(uint8_t reg,uint8_t value) {
+  Wire.beginTransmission(0x57);
+  Wire.write(reg); Wire.write(value);
+  lastBusError=Wire.endTransmission(true);
+  return lastBusError==0;
+}
+void printOpticalSettings() {
+  Serial.printf("Optics: red/IR LED code=%u (~%.1f mA typical pulse current each), ADC=4096 nA, pulse=411 us, FIFO=25 pairs/s\n",ledDrive,ledDrive*0.2);
+  Serial.println("Commands: + brighter, - dimmer, d default, s settings, w raw capture. LED range 15..63; quality gates unchanged.");
+}
+void changeLedDrive(uint8_t requested) {
+  if(!sensorFound) { Serial.println("LED change not applied: wait for sensor acquisition to recover."); return; }
+  if(requested==ledDrive) { Serial.println("LED level unchanged (default or adjustment limit)."); printOpticalSettings(); return; }
+  // A failed second LED write may leave different channel settings. Never reuse that window.
+  ledDrive=requested;
+  monitor.reset(nowMs());
+  sampleCount=writeIndex=0; lastSample=0;
+  auto result=orion::configureLedDrive(writeSensorRegister,readSensorRegister,ledDrive);
+  if(result!=orion::LedWriteResult::Ok) {
+    acquisitionFailed("LED update not confirmed",result==orion::LedWriteResult::TransferFailed?"i2c_error":"configuration_error");
+  } else {
+    sensorStartedAt=lastPoll=nowMs(); opticalSettleUntil=nowMs()+200;
+    acquisitionStatus="warming_up";
+    Serial.println("LED update verified. Baseline restarted; collecting a fresh window after 200 ms settling. Raw capture queued.");
+  }
+  captureRequested=true;
+  lastReport=nowMs();
+  emit(monitor.add(nowMs(),0,0,false,false,acquisitionStatus,"not_evaluated","not_evaluated"));
+  printOpticalSettings();
+}
 void tryInitializeSensor() {
   lastSensorAttempt=nowMs();
   // Same begin/setup sequence as the working raw test. Do not repeatedly end/restart Wire.
@@ -207,10 +253,10 @@ void tryInitializeSensor() {
     else Serial.printf("Initialization failed: I2C transfer_code=%u; retry in 5 seconds\n",lastBusError);
     return;
   }
-  sensor.setup(0x1F,4,2,100,411,4096);
+  sensor.setup(ledDrive,4,2,100,411,4096);
   // Configuration writes in the library have no error return; verify the essential settings.
   const uint8_t registers[]={0x08,0x09,0x0A,0x0C,0x0D};
-  const uint8_t expected[]={0x50,0x03,0x27,0x1F,0x1F};
+  const uint8_t expected[]={0x50,0x03,0x27,ledDrive,ledDrive};
   const uint8_t masks[]={0xF0,0xC7,0x7F,0xFF,0xFF};
   for(unsigned i=0;i<sizeof(registers);i++) {
     uint8_t value=0;
@@ -226,13 +272,14 @@ void tryInitializeSensor() {
   sampleCount=writeIndex=0;
   lastSample=0;
   sensorStartedAt=lastPoll=nowMs();
+  opticalSettleUntil=nowMs()+200;
   acquisitionStatus="warming_up";
-  Serial.println("MAX30102 ready: verified 25 samples/s, red + IR, LED=31");
+  Serial.printf("MAX30102 ready: verified 25 samples/s, red + IR, LED=%u\n",ledDrive);
 }
 void setup() {
   Serial.begin(115200);
   delay(1000); // Match the startup settling time of the working raw-reading test.
-  Serial.println("EVA firmware: ppg-quality-v2. Send w for the next complete raw window + beat AC/DC ratios.");
+  Serial.println("EVA firmware: ppg-quality-v3-1hz-led-tuning. Send w for a raw capture; +/- adjusts LED brightness, d restores default, s shows settings.");
   snprintf(bootId,sizeof(bootId),"%08lx%08lx",(unsigned long)esp_random(),(unsigned long)esp_random());
   packets=xQueueCreate(1,sizeof(Packet)); commands=xQueueCreate(1,sizeof(Command));
   diagnosticWindows=xQueueCreate(1,sizeof(DiagnosticWindow));
@@ -240,18 +287,22 @@ void setup() {
   xTaskCreatePinnedToCore(diagnosticOutput,"ppg-log",4096,nullptr,1,nullptr,0);
   Wire.begin(21,22);
   tryInitializeSensor();
+  printOpticalSettings();
   xTaskCreatePinnedToCore(networking,"mqtt",8192,nullptr,1,nullptr,0);
   lastReport=nowMs();
 }
 void loop() {
   if(Serial.available()) {
     char command=Serial.read();
-    if(command=='w' || command=='W') { captureRequested=true; Serial.println("Raw capture requested; waiting for a complete window."); }
+    uint8_t requested=ledDrive;
+    if(orion::ledCommand(command,ledDrive,requested)) changeLedDrive(requested);
+    else if(command=='s' || command=='S') printOpticalSettings();
+    else if(command=='w' || command=='W') { captureRequested=true; Serial.println("Raw capture requested; waiting for a complete window."); }
   }
   if(!sensorFound && nowMs()-lastSensorAttempt>=5000) tryInitializeSensor();
   Command cmd;
   if(xQueueReceive(commands,&cmd,0)==pdTRUE && strcmp(lastCommand,cmd.id)) {
-    monitor.reset(); if(sensorFound) acquisitionStatus="warming_up"; strlcpy(lastCommand,cmd.id,sizeof(lastCommand));
+    monitor.reset(nowMs()); if(sensorFound) acquisitionStatus="warming_up"; strlcpy(lastCommand,cmd.id,sizeof(lastCommand));
     sampleCount=writeIndex=0; if(sensorFound) sensor.clearFIFO(); lastReport=nowMs();
   }
   if(sensorFound && nowMs()-lastPoll>=10) {
@@ -269,6 +320,9 @@ void loop() {
       Serial.println("Sample timing gap: backlog drained; collecting a new window");
     } else if(result!=FifoResult::Ok) {
       acquisitionFailed("I2C read failed");
+    } else if(nowMs()<opticalSettleUntil) {
+      // Drain and discard possible partially averaged samples from the prior LED setting.
+      sampleCount=writeIndex=0; lastSample=0;
     } else {
       for(uint8_t i=0;i<batch.count;i++) {
         irRing[writeIndex]=batch.ir[i]; redRing[writeIndex]=batch.red[i];
@@ -282,6 +336,6 @@ void loop() {
         acquisitionFailed("no samples for two seconds","no_samples");
     }
   }
-  if(nowMs()-lastReport>=6000) { lastReport=nowMs(); report(); }
+  if(nowMs()-lastReport>=Monitor::REPORT_MS) { lastReport=nowMs(); report(); }
   delay(1);
 }

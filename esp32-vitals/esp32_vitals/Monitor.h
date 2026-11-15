@@ -10,18 +10,34 @@ struct Reading {
   bool hrValid, spo2Valid;
   const char* acquisition; const char* hrQuality; const char* spo2Quality;
 };
+struct ConditionHold {
+  bool active=false;
+  uint64_t since=0;
+  void reset() { active=false; }
+  bool update(bool condition,uint64_t ms,uint64_t duration) {
+    if(!condition) { reset(); return false; }
+    if(!active) { active=true; since=ms; }
+    return ms-since>=duration;
+  }
+};
 class Monitor {
  public:
-  Reading history[15]{};
+  static constexpr int HISTORY_CAPACITY=90;
+  static constexpr uint64_t HISTORY_MS=90000;
+  static constexpr uint64_t REPORT_MS=1000;
+  Reading history[HISTORY_CAPACITY]{};
   int count=0, baselineCount=0, calibration=1;
   double baselineHR=0, baselineSpO2=0;
   const char* alert="NORMAL";
-  int lowCount=0, severeCount=0, recoveryCount=0;
+  ConditionHold low, severe, recovery;
+  uint64_t lastBaselineMs=0, lastReadingMs=0;
+  bool havePreviousReading=false;
   uint32_t sequence=0;
   bool ready() const { return baselineCount==15; }
-  void reset() {
+  void reset(uint64_t ms=0) {
     count=baselineCount=0; baselineHR=baselineSpO2=0;
-    lowCount=severeCount=recoveryCount=0; alert="NORMAL"; ++calibration;
+    low.reset(); severe.reset(); recovery.reset(); alert="NORMAL"; ++calibration;
+    lastBaselineMs=ms; havePreviousReading=false;
   }
   Reading add(uint64_t ms,int hr,int spo2,bool hrValid,bool spo2Valid,
       const char* acquisition,const char* hrQuality,const char* spo2Quality) {
@@ -34,24 +50,32 @@ class Monitor {
       if(spo2<70 || spo2>100) { if(spo2Valid || !strcmp(spo2Quality,"accepted")) spo2Quality="out_of_range"; }
     }
     bool valid=hrValid && spo2Valid;
+    // Missing reports must not count as observed persistence of a condition.
+    if(havePreviousReading && (ms<=lastReadingMs || ms-lastReadingMs>2500)) {
+      low.reset(); severe.reset(); recovery.reset();
+    }
+    lastReadingMs=ms; havePreviousReading=true;
     // Never incorporate low saturation into a supposedly healthy baseline.
-    if (!ready() && valid && spo2>=95 && hr>=40 && hr<=120) {
+    // Keep 15 baseline samples >=6 seconds apart despite faster live updates.
+    if (!ready() && valid && spo2>=95 && hr>=40 && hr<=120 && ms-lastBaselineMs>=6000) {
+      lastBaselineMs=ms;
       ++baselineCount;
       baselineHR+=(hr-baselineHR)/baselineCount;
       baselineSpO2+=(spo2-baselineSpO2)/baselineCount;
     }
     if (!spo2Valid) {
-      lowCount=severeCount=recoveryCount=0;
+      low.reset(); severe.reset(); recovery.reset();
     } else {
-      bool low=spo2<94 || (ready() && baselineSpO2-spo2>=3);
-      bool severe=spo2<90 || (ready() && baselineSpO2-spo2>=6);
-      lowCount=low?lowCount+1:0;
-      severeCount=severe?severeCount+1:0;
+      bool isLow=spo2<94 || (ready() && baselineSpO2-spo2>=3);
+      bool isSevere=spo2<90 || (ready() && baselineSpO2-spo2>=6);
       bool recovered=spo2>=95 && (!ready() || baselineSpO2-spo2<2);
-      recoveryCount=recovered?recoveryCount+1:0;
-      if (spo2<85 || severeCount>=2) alert="CRITICAL";
-      else if (lowCount>=3 && alert[0]!='C') alert="WARNING";
-      else if (recoveryCount>=3) alert="NORMAL";
+      // Preserve the elapsed spans of old 3/2/3 reports at six-second spacing.
+      bool warningDue=low.update(isLow,ms,12000);
+      bool criticalDue=severe.update(isSevere,ms,6000);
+      bool recoveredDue=recovery.update(recovered,ms,12000);
+      if (spo2<85 || criticalDue) alert="CRITICAL";
+      else if (warningDue && alert[0]!='C') alert="WARNING";
+      else if (recoveredDue) alert="NORMAL";
     }
     const char* quality=!acquired?"not_evaluated":valid?"accepted":
       hrValid || spo2Valid?"partial":"rejected";
@@ -62,7 +86,13 @@ class Monitor {
       ready()?"NORMAL":"CALIBRATING";
     Reading r{++sequence,ms,hr,spo2,valid,quality,state,alert,ready() && hrValid && hr>=baselineHR+20,
       hrValid,spo2Valid,acquisition,hrQuality,spo2Quality};
-    if(count==15) { for(int i=1;i<15;i++) history[i-1]=history[i]; --count; }
+    int expired=0;
+    while(expired<count && ms-history[expired].t_ms>=HISTORY_MS) ++expired;
+    if(!expired && count==HISTORY_CAPACITY) expired=1;
+    if(expired) {
+      for(int i=expired;i<count;++i) history[i-expired]=history[i];
+      count-=expired;
+    }
     history[count++]=r; return r;
   }
 };
