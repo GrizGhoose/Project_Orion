@@ -45,6 +45,8 @@ export const hero = {
     { value: "3", label: "Devices: sensor, HUD, tablet" },
   ] as HeroFact[],
   scrollCue: "Scroll",
+  /** Top-right link to the team's code */
+  repo: { label: "Explore our GitHub repository ↗", href: "https://github.com/GrizGhoose/Project_Orion" } as Link,
 };
 
 export type Callout = {
@@ -336,9 +338,9 @@ export const milestones = {
   items: [
     {
       number: "01",
-      title: "Mock-up schematics",
+      title: "Final Design Renderings",
       caption:
-        "From the KiCad schematic to a 3D render of the H.E.R.B v1 board: an ESP32-C3 microcontroller, MAX30102 sensor, regulator and USB-C power on one compact PCB.",
+        "From the KiCad schematic to a 3D render of the H.E.R.B v1 board. This is our final hardware design of our device, featuring an ESP32-C3 microcontroller, MAX30102 sensor, regulator and USB-C power on one compact PCB.",
       slot: "milestone-1-schematic.png",
       media: [
         {
@@ -364,6 +366,8 @@ export const milestones = {
     {
       number: "02",
       title: "Prototype functionality",
+      caption:
+        "Live demo tests of successful hardware interaction with live data. Alongside it, a 7-slide deck explains our project in more detail.",
       slot: "milestone-2 video",
       media: [
         {

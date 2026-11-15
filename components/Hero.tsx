@@ -26,6 +26,19 @@ export function Hero() {
     <section aria-labelledby="hero-heading" className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-bg">
       <HeroMedia video={hero.video} image={hero.image} />
 
+      {/* Repository link, top right */}
+      <motion.a
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: reduce ? 0 : 0.9 }}
+        href={hero.repo.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="link-gold absolute right-gutter top-6 z-10 font-eyebrow text-eyebrow font-medium uppercase md:top-8"
+      >
+        {hero.repo.label}
+      </motion.a>
+
       <motion.div initial="hidden" animate="show" variants={list} className="container-page relative pb-8 pt-24 md:pb-14">
         <motion.div variants={item}>
           <Eyebrow className="mb-6 leading-relaxed">{hero.eyebrow}</Eyebrow>
