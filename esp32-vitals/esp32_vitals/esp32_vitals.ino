@@ -4,8 +4,10 @@
 #include <MAX30105.h>
 #include "PpgAnalysis.h"
 #include "OpticalSettings.h"
+#include "RecordedReference.h"
 #include <esp_timer.h>
 #include "Monitor.h"
+#include "Simulation.h"
 #include "MqttStream.h"
 #include "CheckedFifo.h"
 #include "secrets.h" // Copy secrets.example.h; keep credentials out of Git.
@@ -25,6 +27,7 @@ int sampleCount=0, writeIndex=0;
 uint32_t samplesReceived=0, samplingGapResets=0;
 uint64_t lastSample=0, lastReport=0;
 bool sensorFound=false;
+uint64_t simulationStartedAt=0;
 const char* acquisitionStatus="sensor_missing";
 bool captureRequested=false;
 uint8_t ledDrive=orion::DEFAULT_LED_DRIVE;
@@ -122,7 +125,7 @@ String encodePacket(const Packet& snapshot,uint64_t sentAt) {
   for(int i=0;i<snapshot.count;i++) {
     Reading a=snapshot.history[i];
     if(i) json+=',';
-    json+="{\"seq\":"+String(a.seq)+",\"t_ms\":"+number(a.t_ms)+",\"hr\":";
+    json+="{\"source\":\""+String(SIMULATED_TELEMETRY?"simulated":"sensor")+"\",\"seq\":"+String(a.seq)+",\"t_ms\":"+number(a.t_ms)+",\"hr\":";
     json+=a.hrValid?String(a.hr):"null";
     json+=",\"spo2\":"; json+=a.spo2Valid?String(a.spo2):"null";
     json+=",\"hr_elevated\":"; json+=a.hrElevated?"true":"false";
@@ -153,12 +156,31 @@ void emit(Reading r) {
     (unsigned long)r.seq,hrText.c_str(),r.hrValid,spo2Text.c_str(),r.spo2Valid,r.state,
     r.acquisition,r.hrQuality,r.spo2Quality,monitor.baselineCount);
 }
+void printRecordedComparison(double redDC,double irDC,bool completeWindow) {
+  const auto c=orion::compareRecordedReference(redDC,irDC,ledDrive,completeWindow);
+  if(!c.comparable) {
+    Serial.printf("Recorded reference: status=%s RED_change_pct=NA IR_change_pct=NA DC_ratio_change_pct=NA\n",c.status);
+    return;
+  }
+  // Diagnostic comparison only: never promote candidates, seed Monitor's
+  // vital-sign baseline, or derive oxygen saturation from brightness.
+  Serial.printf("Recorded reference: status=%s RED_change_pct=%+.2f IR_change_pct=%+.2f DC_ratio_change_pct=%+.2f HR_reference=NA SpO2_reference=NA\n",
+    c.status,c.redChangePct,c.irChangePct,c.dcRatioChangePct);
+}
 void report() {
+  if(SIMULATED_TELEMETRY) {
+    const auto v=orion::simulatedVitals(nowMs()-simulationStartedAt);
+    Serial.printf("SIMULATED phase=%s elapsed_s=%llu ",v.phase,
+      (unsigned long long)((nowMs()-simulationStartedAt)/1000));
+    emit(monitor.add(nowMs(),v.hr,v.spo2,true,true,"ok","accepted","accepted"));
+    return;
+  }
   Serial.printf("Sampling: window=%d/100 received_total=%lu gap_resets_total=%lu led_drive=%u\n",
     sampleCount,(unsigned long)samplesReceived,(unsigned long)samplingGapResets,ledDrive);
   bool complete=sensorFound && sampleCount==100 && nowMs()-lastSample<250;
   if(!complete) {
     const char* status=!strcmp(acquisitionStatus,"ok")?"no_samples":acquisitionStatus;
+    printRecordedComparison(0,0,false);
     emit(monitor.add(nowMs(),0,0,false,false,status,"not_evaluated","not_evaluated"));
     return;
   }
@@ -174,6 +196,7 @@ void report() {
   Serial.printf("Candidates only: HR=%ld algorithm_hr_valid=%d SpO2=%ld algorithm_spo2_valid=%d | correlation=%.3f interval_CV=%.3f beats=%d R_mean=%.5f R_CV=%.3f\n",
     (long)result.hr,result.hrCandidateValid,(long)result.spo2,result.spo2CandidateValid,
     result.correlation,result.intervalCV,result.algorithm.beatCount,result.ratioMean,result.ratioCV);
+  printRecordedComparison(result.red.dc,result.ir.dc,true);
   // Queue a snapshot; printing 100 rows must not pause acquisition.
   if(captureRequested) {
     static DiagnosticWindow d;
@@ -220,6 +243,8 @@ bool writeSensorRegister(uint8_t reg,uint8_t value) {
 void printOpticalSettings() {
   Serial.printf("Optics: red/IR LED code=%u (~%.1f mA typical pulse current each), ADC=4096 nA, pulse=411 us, FIFO=25 pairs/s\n",ledDrive,ledDrive*0.2);
   Serial.println("Commands: + brighter, - dimmer, d default, s settings, w raw capture. LED range 15..63; quality gates unchanged.");
+  Serial.printf("Recorded reference: id=%s RED_mean=%.2f IR_mean=%.2f required_LED=%u; optical comparison only, healthy HR/SpO2 not established.\n",
+    orion::RECORDED_REFERENCE_ID,orion::RECORDED_RED_MEAN,orion::RECORDED_IR_MEAN,orion::RECORDED_LED_DRIVE);
 }
 void changeLedDrive(uint8_t requested) {
   if(!sensorFound) { Serial.println("LED change not applied: wait for sensor acquisition to recover."); return; }
@@ -279,30 +304,37 @@ void tryInitializeSensor() {
 void setup() {
   Serial.begin(115200);
   delay(1000); // Match the startup settling time of the working raw-reading test.
-  Serial.println("EVA firmware: ppg-quality-v3-1hz-led-tuning. Send w for a raw capture; +/- adjusts LED brightness, d restores default, s shows settings.");
+  if(!SIMULATED_TELEMETRY) Serial.println("EVA firmware: ppg-quality-v3-recorded-reference. Send w for a raw capture; +/- adjusts LED brightness, d restores default, s shows settings.");
   snprintf(bootId,sizeof(bootId),"%08lx%08lx",(unsigned long)esp_random(),(unsigned long)esp_random());
   packets=xQueueCreate(1,sizeof(Packet)); commands=xQueueCreate(1,sizeof(Command));
   diagnosticWindows=xQueueCreate(1,sizeof(DiagnosticWindow));
   configASSERT(packets && commands && diagnosticWindows);
   xTaskCreatePinnedToCore(diagnosticOutput,"ppg-log",4096,nullptr,1,nullptr,0);
-  Wire.begin(21,22);
-  tryInitializeSensor();
-  printOpticalSettings();
+  if(SIMULATED_TELEMETRY) {
+    simulationStartedAt=nowMs();
+    monitor.lastBaselineMs=simulationStartedAt;
+    Serial.println("SIMULATED TELEMETRY: no sensor required. 240-second loop; Pi baseline restart also restarts the demo.");
+  } else {
+    Wire.begin(21,22);
+    tryInitializeSensor();
+    printOpticalSettings();
+  }
   xTaskCreatePinnedToCore(networking,"mqtt",8192,nullptr,1,nullptr,0);
   lastReport=nowMs();
 }
 void loop() {
-  if(Serial.available()) {
+  if(!SIMULATED_TELEMETRY && Serial.available()) {
     char command=Serial.read();
     uint8_t requested=ledDrive;
     if(orion::ledCommand(command,ledDrive,requested)) changeLedDrive(requested);
     else if(command=='s' || command=='S') printOpticalSettings();
     else if(command=='w' || command=='W') { captureRequested=true; Serial.println("Raw capture requested; waiting for a complete window."); }
   }
-  if(!sensorFound && nowMs()-lastSensorAttempt>=5000) tryInitializeSensor();
+  if(!SIMULATED_TELEMETRY && !sensorFound && nowMs()-lastSensorAttempt>=5000) tryInitializeSensor();
   Command cmd;
   if(xQueueReceive(commands,&cmd,0)==pdTRUE && strcmp(lastCommand,cmd.id)) {
-    monitor.reset(nowMs()); if(sensorFound) acquisitionStatus="warming_up"; strlcpy(lastCommand,cmd.id,sizeof(lastCommand));
+    simulationStartedAt=nowMs();
+    monitor.reset(simulationStartedAt); if(sensorFound) acquisitionStatus="warming_up"; strlcpy(lastCommand,cmd.id,sizeof(lastCommand));
     sampleCount=writeIndex=0; if(sensorFound) sensor.clearFIFO(); lastReport=nowMs();
   }
   if(sensorFound && nowMs()-lastPoll>=10) {

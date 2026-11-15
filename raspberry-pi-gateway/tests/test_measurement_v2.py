@@ -19,7 +19,7 @@ def packet_v2():
 class MeasurementV2Tests(unittest.TestCase):
     def test_partial_metric_is_preserved(self):
         p = packet_v2()
-        self.assertEqual(Packet.model_validate(p).model_dump(by_alias=True), p)
+        self.assertEqual(Packet.model_validate(p).model_dump(by_alias=True, exclude_unset=True), p)
 
     def test_inconsistent_validity_or_schema_rejected(self):
         for updates in ({'hr': None}, {'spo2_valid': True}, {'valid': True},

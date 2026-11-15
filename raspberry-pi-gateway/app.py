@@ -45,7 +45,7 @@ def on_message(c, userdata, message):
     if message.retain or len(message.payload) > 65536:
         return  # Old retained packets are never evidence of a live sensor.
     try:
-        packet = Packet.model_validate_json(message.payload).model_dump(by_alias=True)
+        packet = Packet.model_validate_json(message.payload).model_dump(by_alias=True, exclude_unset=True)
         if message.topic != f"eva/{packet['device_id']}/telemetry":
             raise ValueError('Device/topic mismatch')
         store.ingest(packet)

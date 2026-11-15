@@ -32,6 +32,7 @@ MeasurementQuality = Literal['accepted', 'not_evaluated', 'weak_signal', 'clippe
 
 
 class ReadingV2(StrictModel):
+    source: Literal['sensor', 'simulated'] = 'sensor'
     seq: int = Field(ge=1)
     t_ms: int = Field(ge=0)
     hr: int | None = Field(ge=35, le=220)

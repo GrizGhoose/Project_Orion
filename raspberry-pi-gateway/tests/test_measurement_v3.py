@@ -18,9 +18,23 @@ def packet_v3(last_seq=90):
 
 
 class MeasurementV3Tests(unittest.TestCase):
+    def test_simulated_source_survives_validation_and_storage(self):
+        p = packet_v3()
+        for row in p['history']:
+            row['source'] = 'simulated'
+        validated = Packet.model_validate(p).model_dump(by_alias=True, exclude_unset=True)
+        self.assertEqual(validated, p)
+        store = Store(':memory:')
+        self.addCleanup(store.db.close)
+        store.ingest(validated, 100)
+        self.assertEqual(store.snapshot('astro01', 100)['packet']['history'][-1]['source'], 'simulated')
+        self.assertEqual(store.readings('astro01')[0]['data']['source'], 'simulated')
+        p['history'][0]['source'] = 'unknown'
+        with self.assertRaises(ValueError): Packet.model_validate(p)
+
     def test_full_window_and_payload_size(self):
         p = packet_v3()
-        self.assertEqual(Packet.model_validate(p).model_dump(by_alias=True), p)
+        self.assertEqual(Packet.model_validate(p).model_dump(by_alias=True, exclude_unset=True), p)
         self.assertLess(len(json.dumps(p).encode()), 48000)
         # Long diagnostics and maximum MCU identifier/uptime sizes still fit serializer reserve.
         p['device_id'] = 'a'*32

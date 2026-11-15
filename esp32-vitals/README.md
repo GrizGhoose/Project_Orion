@@ -1,5 +1,7 @@
 # ESP32 MAX30102 measurements, baseline and MQTT history
 
+**Current build: ESP32 simulation enabled.** It sends synthetic HR/SpO₂ over MQTT without the MAX30102. See [simulation setup](../docs/ESP32_SIMULATED_DEMO.md). Update the Pi gateway/HUD first. Set `SIMULATED_TELEMETRY = false` in `Simulation.h` and re-upload to use the sensor workflow below.
+
 This is the firmware for the live astronaut HUD. The ESP32 computes heart rate (BPM), estimated SpO₂ (%), signal validity, startup baseline, and alert state. The Raspberry Pi stores and displays those results; it does not recompute them.
 
 ## Upload
@@ -52,6 +54,14 @@ A separate ESP32 task handles Wi-Fi/MQTT so connection retries do not pause samp
 Serial diagnostics distinguish initialization failures, transfer failures, sampling gaps and rejected optical measurements. Diagnostic transfer code 6 means a short/failed read in this sketch; it is not a standard Wire error code. A power cycle resets both boards; RST/EN resets only the ESP32. Initialization retries cannot repair a power, voltage-level or physical connection fault.
 
 
+## Recorded optical comparison
+
+The firmware contains the 2026-11-15 17:55:45 SGT **60-second earlobe recording** as a fixed optical reference in `RecordedReference.h`: 1,499 pairs, mean red **86,713.28** and mean IR **80,606.34**. These full-recording averages include the observed disturbances. There was no independently measured HR or SpO₂, so this does not establish healthy vital-sign values. The possible 50–55 cycles/minute component is not installed as an accepted heart-rate baseline.
+
+Every complete four-second window prints a `Recorded reference:` serial line with percentage changes in red mean, IR mean and their DC ratio. `RED_change_pct=-10` means 10% less red light than the recording's mean; it does **not** mean lower heart rate or oxygen. `DC_ratio_change_pct` is not the pulsatile AC/DC ratio-of-ratios used for SpO₂. This diagnostic can be printed even when pulse quality is rejected; `optical_comparison_only` is not a quality approval. `HR_reference` and `SpO2_reference` remain `NA`.
+
+Comparison requires the recorded LED code **31** and the unchanged ADC/pulse/sample settings (4096 nA, 411 µs, 100 Hz with averaging 4). Changing LED brightness shows `settings_mismatch`; send `d` and wait for a fresh window to resume. Missing/incomplete acquisition shows `acquisition_unavailable`. The comparison appears in **Serial Monitor only**: schema-3 MQTT packets, Pi/HUD behavior, measurement validity and alert rules are unchanged. **No Pi update is required.** It neither completes nor replaces the startup baseline below.
+
 ## Baseline and prototype alert rules
 
 On boot, calibration starts automatically. Its six-second sampling clock also restarts on a baseline/LED reset, so one-second reporting cannot finish calibration in 15 seconds. The first **15 valid baseline-eligible samples taken at least six seconds apart** establish arithmetic means for HR and SpO₂. Eligibility is HR 40–120 and SpO₂ ≥95. Low readings are not learned as a healthy baseline; partial/rejected/ineligible readings extend calibration beyond 90 seconds. Stay at rest during this period. Baseline means freeze after collection, rather than following a deterioration downward.
@@ -85,7 +95,7 @@ Each one-second MQTT update contains the full current rolling history. Compact s
 
 ## Capture and inspect the actual waveform
 
-Upload this sketch, then open Serial Monitor at **115200 baud**. The boot banner is `EVA firmware: ppg-quality-v3-1hz-led-tuning`. Every second, diagnostics show channel DC means, detrended RMS, fractional span/drift/steps, candidate results, channel correlation, interval CV, and the mean/CV of per-beat R.
+Upload this sketch, then open Serial Monitor at **115200 baud**. The boot banner is `EVA firmware: ppg-quality-v3-recorded-reference`. Every second, diagnostics show channel DC means, detrended RMS, fractional span/drift/steps, candidate results, channel correlation, interval CV, the mean/CV of per-beat R, and the recorded optical comparison.
 
 Send **`w`** (newline optional) to request the next complete 100-pair window. It waits for a complete window if acquisition is warming up. A separate task prints the snapshot so the 100-line dump does not block optical sampling. The output includes:
 
@@ -151,6 +161,8 @@ c++ -std=c++11 tests/fifo_test.cpp -o /tmp/eva-fifo-test
 /tmp/eva-fifo-test
 c++ -std=c++11 tests/optical_settings_test.cpp -o /tmp/eva-optical-test
 /tmp/eva-optical-test
+c++ -std=c++11 tests/recorded_reference_test.cpp -o /tmp/eva-reference-test
+/tmp/eva-reference-test
 c++ -std=c++11 -fsanitize=undefined,bounds -fno-sanitize-recover=all tests/ppg_test.cpp esp32_vitals/PpgAlgorithm.cpp -o /tmp/eva-ppg-test
 /tmp/eva-ppg-test
 python3 -m unittest discover -s tests -p 'test_*.py' -v

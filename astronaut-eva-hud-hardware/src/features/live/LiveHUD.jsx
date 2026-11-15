@@ -41,6 +41,7 @@ export function LiveHUD() {
   const packet = data?.packet;
   const fastReports = packet?.schema === 3;
   const reading = packet?.history.at(-1);
+  const simulated = reading?.source === 'simulated';
   const connected = Boolean(data?.fresh && data?.broker_connected && !error);
   const hrUsable = connected && (reading?.hr_valid ?? reading?.valid);
   const spo2Usable = connected && (reading?.spo2_valid ?? reading?.valid);
@@ -70,22 +71,22 @@ export function LiveHUD() {
           telemetry={{ heartRate: hrUsable ? reading.hr : null, spo2: spo2Usable ? reading.spo2 : null,
             respiration: null, oxygen: null }} />
         <section className="live-status" aria-label="Live sensor status" aria-live="polite">
-          <div className="live-eyebrow">{device} · ESP32 SENSOR · PROTOTYPE</div>
+          <div className="live-eyebrow">{device} · {simulated ? 'ESP32 SIMULATED DATA' : 'ESP32 SENSOR'} · PROTOTYPE</div>
           <h1>{status.replaceAll('_', ' ')}</h1>
           {connected && reading.acquisition && reading.acquisition !== 'ok' && <p>Acquisition: {reading.acquisition.replaceAll('_', ' ')}. Measurements have not been evaluated.</p>}
           {connected && reading.hr_quality && <p>HR: {reading.hr_quality.replaceAll('_', ' ')} · SpO₂: {reading.spo2_quality.replaceAll('_', ' ')}.</p>}
           {connected && !reading.valid && !reading.acquisition && <p>Measurement unavailable: {reading.quality.replaceAll('_', ' ')}.</p>}
-          {connected && !baseline.ready && <p>Startup baseline: {baseline.count}/{baseline.required} eligible samples, at least 6 seconds apart. Rest and keep your finger still; allow at least 90 seconds.</p>}
+          {connected && !baseline.ready && <p>Startup baseline: {baseline.count}/{baseline.required} eligible samples, at least 6 seconds apart. {simulated ? 'Demo baseline collects automatically; allow at least 90 seconds.' : 'Rest and keep your finger still; allow at least 90 seconds.'}</p>}
           {baseline?.ready && <p>Baseline: {baseline.hr.toFixed(1)} BPM · {baseline.spo2.toFixed(1)}% SpO₂</p>}
           {!connected && <p>{error || 'Waiting for fresh telemetry from the Raspberry Pi.'}</p>}
           {(!spo2Usable && reading?.alert !== 'NORMAL' && reading?.alert) && <p>Last reported alert: {reading.alert}. Current oxygen condition unknown.</p>}
           {hrUsable && reading.hr_elevated && <p>Heart rate elevated relative to startup baseline.</p>}
-          <p className="live-muted">Respiration and suit oxygen reserve are not measured by this sensor.</p>
+          <p className="live-muted">{simulated ? 'HR and SpO₂ are generated on the ESP32 for demonstration. No sensor measurements.' : 'Respiration and suit oxygen reserve are not measured by this sensor.'}</p>
         </section>
       </div>
       <section className="live-history" aria-label="Measurement history">
         <div className="live-history-header">
-          <div><h2>{fastReports ? 'Last 90 seconds' : 'Last 15 measurements'}</h2><p>{fastReports ? 'One result every second · latest 4-second optical window · up to 90 results' : 'One result every 6 seconds'} · stored on Raspberry Pi · invalid results stay in the log</p></div>
+          <div><h2>{fastReports ? 'Last 90 seconds' : 'Last 15 measurements'}</h2><p>{fastReports ? (simulated ? 'One simulated result every second · up to 90 results' : 'One result every second · latest 4-second optical window · up to 90 results') : 'One result every 6 seconds'} · stored on Raspberry Pi · invalid results stay in the log</p></div>
           <button onClick={restart} disabled={!connected || sending || waiting}>Start new baseline</button>
         </div>
         {waiting && <p role="status">Restart sent. Waiting for the ESP32 to acknowledge…</p>}

@@ -16,6 +16,16 @@ function mockData(data) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('Pi-backed live HUD', () => {
+  it('labels ESP32 simulations while displaying the received readings', async () => {
+    const data = snapshot(); data.packet.schema = 3;
+    Object.assign(data.packet.history[0], { source: 'simulated', hr: 120, spo2: 88 });
+    mockData(data); render(<App />);
+    expect(await screen.findByText(/ESP32 SIMULATED DATA/)).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'HEART RATE: 120 BPM' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'SpO₂: 88%' })).toBeInTheDocument();
+    expect(screen.queryByText(/latest 4-second optical window/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Rest and keep your finger still/)).not.toBeInTheDocument();
+  });
   it('shows the one-second cadence and full 90-second history for schema 3', async () => {
     const data = snapshot(); data.packet.schema = 3;
     const row = data.packet.history[0];
