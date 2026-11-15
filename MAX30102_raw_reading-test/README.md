@@ -1,5 +1,7 @@
 # MAX30102 raw-reading test
 
+For a saved, timed at-rest recording with only red/IR values, use the separate [60-second capture sketch and Mac recorder](capture_60s/README.md).
+
 This standalone Arduino sketch checks that an ESP32 can initialise the MAX30102 sensor over I²C and receive raw red and infrared optical samples. Use it to check sensor operation before integrating heart-rate estimation, SpO₂ estimation, or Raspberry Pi communication.
 
 The test prints raw optical counts. It does **not** calculate heart rate or SpO₂, validate measurement accuracy, or send data over Wi-Fi/MQTT.
