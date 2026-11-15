@@ -43,7 +43,7 @@ Use this only on the trusted demo LAN. HTTP has no login and reachable clients c
 
 1. Upload `../esp32-vitals/esp32_vitals/esp32_vitals.ino` using your own `secrets.h`.
 2. Serial Monitor should show `MQTT connected`, then a report every six seconds.
-3. The HUD shows live HR/SpO₂ or `NO SIGNAL`, and calibration progress such as `4/15`.
+3. The HUD shows independently accepted HR/SpO₂ or an explicit acquisition/rejection state, and calibration progress such as `4/15`.
 4. After 15 eligible valid reports, the HUD shows the frozen baseline means. The table below the visor shows the latest 15 results.
 5. **Start new baseline** asks the ESP32 to restart. It stays pending until the command ID returns from the ESP32; a timeout does not claim success.
 6. Disconnect the ESP32 to test connection handling: after 18 seconds without a fresh sample, current readings disappear and the HUD shows `CONNECTION LOST`. Stored historical readings remain.
@@ -62,7 +62,11 @@ SQLite defaults to `data/eva.sqlite3` (ignored by Git). It survives gateway and 
 | `POST /api/devices/astro01/baseline/restart` | Queue ESP32 restart; returns command ID and HTTP 202, **not** a completed calibration |
 | `GET /docs` | Interactive API schema |
 
-Each packet's `history[-1]` is its latest measurement. Use `packet.baseline` and each reading's `state`, `alert`, `hr_elevated`, `valid`, `quality`, `hr`, and `spo2` directly. Never treat null as zero or as a normal measurement. A UI should hide current values if `fresh` or `broker_connected` is false. `NO_SIGNAL` and lost connection mean the current condition is unknown; `alert` preserves the last oxygen alert for context.
+The gateway accepts schemas **1 and 2**, and keeps stored legacy packets unchanged. Deploy this version and rebuild the HUD before uploading schema-2 firmware. Each packet's `history[-1]` is its latest measurement.
+
+For schema 2, display `hr` only when `hr_valid`, and `spo2` only when `spo2_valid`; `valid` means **both** accepted. Never hide an accepted HR solely because SpO₂ was rejected. Use `acquisition`, `hr_quality`, and `spo2_quality` for diagnostics. `ACQUISITION_ERROR` is distinct from `MEASUREMENT_REJECTED`; `PARTIAL_SIGNAL` retains a single accepted value. An active oxygen alert may coexist with rejected HR. Present `alert` as current only when SpO₂ is accepted and the packet is fresh; otherwise label it as the prior alert. Firmware quality checks are heuristics, not accuracy certification.
+
+Schema-1 readings keep the legacy combined `valid` flag and `NO_SIGNAL`. Both versions use the ESP32's baseline/state/alert decisions unchanged. Hide all current values if `fresh` or `broker_connected` is false. Null is never zero or a normal measurement. The maximum MQTT body is 12,288 bytes; raw waveform captures are serial-only and are not stored in the Pi database.
 
 Rows are de-duplicated by `(device_id, boot_id, seq)`. Overlapping windows are inserted once; duplicate/out-of-order packets cannot refresh the live state. Packets from a known retired boot cannot overwrite the current boot. A previously unseen boot is treated as a restart, since the ESP32 has no synchronized wall clock. Retained MQTT packets are ignored. The gateway validates message shape, sizes, measurement ranges and topic identity, without calculating physiological values or alarm thresholds.
 

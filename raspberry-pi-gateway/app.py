@@ -42,7 +42,7 @@ def on_disconnect(c, userdata, flags, reason, properties):
 
 
 def on_message(c, userdata, message):
-    if message.retain or len(message.payload) > 8192:
+    if message.retain or len(message.payload) > 12288:
         return  # Old retained packets are never evidence of a live sensor.
     try:
         packet = Packet.model_validate_json(message.payload).model_dump(by_alias=True)

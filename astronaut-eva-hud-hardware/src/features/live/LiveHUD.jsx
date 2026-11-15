@@ -41,12 +41,13 @@ export function LiveHUD() {
   const packet = data?.packet;
   const reading = packet?.history.at(-1);
   const connected = Boolean(data?.fresh && data?.broker_connected && !error);
-  const usable = connected && reading?.valid;
+  const hrUsable = connected && (reading?.hr_valid ?? reading?.valid);
+  const spo2Usable = connected && (reading?.spo2_valid ?? reading?.valid);
   const baseline = packet?.baseline;
   const acknowledged = pending && packet?.last_command_id === pending.id;
   const waiting = pending && !acknowledged && now - pending.at < 20000;
   const timedOut = pending && !acknowledged && !waiting;
-  const severity = usable && ['WARNING', 'CRITICAL'].includes(reading.alert) ? reading.alert : 'NORMAL';
+  const severity = spo2Usable && ['WARNING', 'CRITICAL'].includes(reading.alert) ? reading.alert : 'NORMAL';
   const status = !connected ? (packet ? 'CONNECTION LOST' : 'WAITING FOR ESP32') : reading.state;
 
   async function restart() {
@@ -64,18 +65,20 @@ export function LiveHUD() {
     <div className="live-hud">
       <div className="live-visor">
         <HelmetHUD live deviceElapsed={reading?.t_ms ?? 0} severity={severity}
-          heartRateElevated={Boolean(usable && reading.hr_elevated)}
-          telemetry={{ heartRate: usable ? reading.hr : null, spo2: usable ? reading.spo2 : null,
+          heartRateElevated={Boolean(hrUsable && reading.hr_elevated)}
+          telemetry={{ heartRate: hrUsable ? reading.hr : null, spo2: spo2Usable ? reading.spo2 : null,
             respiration: null, oxygen: null }} />
         <section className="live-status" aria-label="Live sensor status" aria-live="polite">
           <div className="live-eyebrow">{device} · ESP32 SENSOR · PROTOTYPE</div>
           <h1>{status.replaceAll('_', ' ')}</h1>
-          {connected && !reading.valid && <p>Check sensor contact and keep still. {reading.quality.replaceAll('_', ' ')}.</p>}
+          {connected && reading.acquisition && reading.acquisition !== 'ok' && <p>Acquisition: {reading.acquisition.replaceAll('_', ' ')}. Measurements have not been evaluated.</p>}
+          {connected && reading.hr_quality && <p>HR: {reading.hr_quality.replaceAll('_', ' ')} · SpO₂: {reading.spo2_quality.replaceAll('_', ' ')}.</p>}
+          {connected && !reading.valid && !reading.acquisition && <p>Measurement unavailable: {reading.quality.replaceAll('_', ' ')}.</p>}
           {connected && !baseline.ready && <p>Startup baseline: {baseline.count}/15 valid readings. Rest and keep your finger still; allow at least 90 seconds.</p>}
           {baseline?.ready && <p>Baseline: {baseline.hr.toFixed(1)} BPM · {baseline.spo2.toFixed(1)}% SpO₂</p>}
           {!connected && <p>{error || 'Waiting for fresh telemetry from the Raspberry Pi.'}</p>}
-          {(!usable && reading?.alert !== 'NORMAL' && reading?.alert) && <p>Last reported alert: {reading.alert}. Current condition unknown.</p>}
-          {usable && reading.hr_elevated && <p>Heart rate elevated relative to startup baseline.</p>}
+          {(!spo2Usable && reading?.alert !== 'NORMAL' && reading?.alert) && <p>Last reported alert: {reading.alert}. Current oxygen condition unknown.</p>}
+          {hrUsable && reading.hr_elevated && <p>Heart rate elevated relative to startup baseline.</p>}
           <p className="live-muted">Respiration and suit oxygen reserve are not measured by this sensor.</p>
         </section>
       </div>
@@ -92,7 +95,7 @@ export function LiveHUD() {
         <table><thead><tr><th>Sequence</th><th>Device uptime (s)</th><th>Heart rate (BPM)</th><th>SpO₂ (%)</th><th>State from ESP32</th><th>Signal</th></tr></thead>
           <tbody>{packet?.history.slice().reverse().map(r => <tr key={`${packet.boot_id}-${r.seq}`}>
             <td>{r.seq}</td><td>{(r.t_ms / 1000).toFixed(1)}</td><td>{r.hr ?? '—'}</td><td>{r.spo2 ?? '—'}</td>
-            <td>{r.state}</td><td>{r.quality.replaceAll('_', ' ')}</td>
+            <td>{r.state}</td><td>{r.acquisition ? `Acquisition: ${r.acquisition.replaceAll('_', ' ')}; HR: ${r.hr_quality.replaceAll('_', ' ')}; SpO₂: ${r.spo2_quality.replaceAll('_', ' ')}` : r.quality.replaceAll('_', ' ')}</td>
           </tr>)}</tbody>
         </table>
         {!packet && <p>No measurements received yet.</p>}
