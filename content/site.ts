@@ -8,16 +8,12 @@
 
 export type Link = { label: string; href: string };
 
-export type Spec = { label: string; value: string; unit?: string };
-
 // ---------- Site-wide ----------
 
 export const site = {
-  title: "H.E.R.A: Hypoxia Emergency Response Assistant",
-  /** Visually hidden page heading */
-  heading: "H.E.R.A: Hypoxia Emergency Response Assistant",
+  title: "Project Orion: zero hypoxia fatalities on every spacewalk",
   description:
-    "H.E.R.A: Hypoxia Emergency Response Assistant. A behind-the-ear sensor, the Aegis helmet HUD and the H.E.R.A crew console detect hypoxia during spacewalks, alert the crew and guide first aid.",
+    "Project Orion is an incident-response system for three-person EVA crews: a behind-the-ear sensor reads SpO₂ and heart rate, Aegis helmet HUDs alert the spacewalking pair, and the H.E.R.A tablet guides the crew member inside through first aid.",
 };
 
 /** Small interface strings used across components */
@@ -26,6 +22,30 @@ export const ui = {
 };
 
 // ---------- Home ----------
+
+export type HeroFact = { value: string; label: string };
+
+/** Top of the page: full-bleed background, headline (the page's h1), two buttons and a row of key facts */
+export const hero = {
+  eyebrow: "PROJECT ORION · NASA SPACE APPS CHALLENGE 2026",
+  headline: "Zero hypoxia fatalities on every spacewalk.",
+  body: "Spacesuits trade pressure for mobility and run on pure oxygen, so a single leak can turn fatal within seconds. Project Orion is an incident-response system for three-person crews: a custom sensor reads SpO₂ and heart rate behind the ear, helmet HUDs alert the spacewalking pair, and a tablet guides the crew member inside through first aid.",
+  primary: { label: "Explore the system ↓", href: "#products" } as Link,
+  secondary: { label: "See our milestones", href: "#milestones" } as Link,
+  /** NASA public-domain photo (see credits.md); also the poster for `video` */
+  image: {
+    src: "/images/hero-eva.jpg",
+    alt: "NASA astronaut Suni Williams on a spacewalk outside the International Space Station",
+  },
+  /** Optional muted background loop (path under /public); the image stays as poster and reduced-motion fallback */
+  video: undefined as string | undefined,
+  facts: [
+    { value: "0.26", label: "Injuries per spacewalk" },
+    { value: "3σ", label: "Personal-baseline alert trigger" },
+    { value: "3", label: "Devices: sensor, HUD, tablet" },
+  ] as HeroFact[],
+  scrollCue: "Scroll",
+};
 
 export type Callout = {
   number: string;
@@ -67,7 +87,6 @@ export type ShowcaseProduct = {
   /** Bottom-right standalone caption */
   anchor: InfoBoxContent;
   callouts: Callout[];
-  specs?: Spec[];
 };
 
 /**
@@ -127,13 +146,6 @@ export const productShowcase = {
           x: 53,
           y: 69,
         },
-      ],
-      specs: [
-        { label: "[PLACEHOLDER: Sampling rate]", value: "[PLACEHOLDER]" },
-        { label: "[PLACEHOLDER: Connectivity]", value: "[PLACEHOLDER]" },
-        { label: "[PLACEHOLDER: Power]", value: "[PLACEHOLDER]" },
-        { label: "[PLACEHOLDER: Weight]", value: "[PLACEHOLDER]" },
-        { label: "[PLACEHOLDER: Battery life]", value: "[PLACEHOLDER]" },
       ],
     },
     {
@@ -250,6 +262,7 @@ export const productShowcase = {
 
 /** Milestone image: a framed figure; with `zoomable` it opens in the click-to-enlarge overlay */
 export type MilestoneImage = {
+  type: "image";
   /** Optimised version shown in the milestone frame */
   src: string;
   /** Full-resolution file (or SVG), loaded only when the overlay opens. Defaults to `src` */
@@ -257,25 +270,42 @@ export type MilestoneImage = {
   width: number;
   height: number;
   alt: string;
+  /** Short name under the frame, e.g. "Schematic" */
+  label: string;
   zoomable: boolean;
-  /** Trigger button label, e.g. "Enlarge schematic" */
-  enlargeLabel?: string;
 };
+
+/** Milestone video, prepared with scripts/prepare_video.sh */
+export type MilestoneVideo = {
+  type: "video";
+  /** H.264 MP4 */
+  src: string;
+  srcWebm?: string;
+  /** JPG frame shown before playback */
+  poster: string;
+  /** WebVTT captions, if any */
+  captions?: string;
+  width: number;
+  height: number;
+  title: string;
+};
+
+export type MilestoneMedia = MilestoneImage | MilestoneVideo;
 
 export type Milestone = {
   number: string;
   title: string;
-  caption: string;
-  /** null shows an ImageSlot named `slot` until the image exists */
-  image: MilestoneImage | null;
+  caption?: string;
+  /** One or more images or videos; more than one adds arrows and a counter. Empty shows an ImageSlot named `slot` */
+  media: MilestoneMedia[];
   slot: string;
-  /** Live app: the image becomes a browser-window preview card linking to `url`, plus a "Launch <label> ↗" text link */
+  /** Live app: the first image becomes a browser-window preview card linking to `url`, plus a "Launch <label> ↗" text link */
   link?: { url: string; label: string };
 };
 
 /**
  * Milestones section below the product carousel. Entries alternate image-left / image-right.
- * To add an image: put it in public/images/, then set `image` (with `zoomable: true` for click-to-enlarge).
+ * To add media: put images in public/images/ and videos in public/videos/, then add entries to `media`.
  * With `link`, the image is shown as a preview card that opens the live app in a new tab.
  */
 export const milestones = {
@@ -284,53 +314,92 @@ export const milestones = {
   items: [
     {
       number: "01",
-      title: "[PLACEHOLDER: Milestone 1 title, e.g. Custom PCB schematic]",
-      caption: "[PLACEHOLDER: 1–2 sentence caption]",
-      slot: "milestone-1-schematic.jpg",
-      image: {
-        src: "/images/milestone-1-schematic.jpg",
-        width: 800,
-        height: 647,
-        alt: "Schematic of the custom PCB: ESP32-C3 microcontroller, MAX30102 sensor, USB-C power and supporting circuitry",
-        zoomable: true,
-        enlargeLabel: "Enlarge schematic",
-      },
+      title: "Mock-up schematics",
+      caption:
+        "From the KiCad schematic to a 3D render of the H.E.R.B v1 board: an ESP32-C3 microcontroller, MAX30102 sensor, regulator and USB-C power on one compact PCB.",
+      slot: "milestone-1-schematic.png",
+      media: [
+        {
+          type: "image",
+          src: "/images/milestone-1-schematic.png",
+          width: 1280,
+          height: 1059,
+          alt: "KiCad schematic of the custom PCB: ESP32-C3 microcontroller, MAX30102 SpO₂ sensor, LT1963 3.3V regulator, USB-C input, buttons and status LEDs",
+          label: "Schematic",
+          zoomable: true,
+        },
+        {
+          type: "image",
+          src: "/images/milestone-1-pcb-3d.png",
+          width: 1280,
+          height: 705,
+          alt: "3D render of the H.E.R.B v1 PCB showing the ESP32-C3 chip, regulator, USB-C port and two push buttons",
+          label: "3D render",
+          zoomable: true,
+        },
+      ],
     },
-    { number: "02", title: "[PLACEHOLDER: Milestone 2 title]", caption: "[PLACEHOLDER: caption]", slot: "milestone-2.png", image: null },
+    {
+      number: "02",
+      title: "Prototype functionality",
+      // Add the video here once it exists (run scripts/prepare_video.sh first), e.g.
+      // { type: "video", src: "/videos/milestone-2/demo.mp4", srcWebm: "/videos/milestone-2/demo.webm",
+      //   poster: "/videos/milestone-2/demo-poster.jpg", width: 1920, height: 1080, title: "Prototype demo" }
+      media: [],
+      slot: "milestone-2 video",
+    },
     {
       number: "03",
       title: "Aegis UI",
-      caption: "[PLACEHOLDER: 1–2 sentence caption about building the Aegis helmet HUD]",
       slot: "milestone-3-aegis-preview.webp",
-      image: {
-        src: "/images/milestone-3-aegis-preview.webp",
-        width: 2880,
-        height: 1800,
-        alt: "Preview of the Aegis helmet HUD: vitals at the edges of view over a lunar landscape",
-        zoomable: false,
-      },
+      media: [
+        {
+          type: "image",
+          src: "/images/milestone-3-aegis-preview.webp",
+          width: 2880,
+          height: 1800,
+          alt: "Preview of the Aegis helmet HUD: vitals at the edges of view over a lunar landscape",
+          label: "Aegis UI",
+          zoomable: false,
+        },
+      ],
       link: { url: "https://astronaut-eva-hud.vercel.app", label: "Aegis UI" },
     },
     {
       number: "04",
       title: "H.E.R.A UI",
-      caption: "[PLACEHOLDER: 1–2 sentence caption about building the H.E.R.A crew console]",
       slot: "milestone-4-hera-preview.webp",
-      image: {
-        src: "/images/milestone-4-hera-preview.webp",
-        width: 2880,
-        height: 1800,
-        alt: "Preview of the H.E.R.A crew console: live SpO₂ and heart-rate trends for two spacewalkers",
-        zoomable: false,
-      },
+      media: [
+        {
+          type: "image",
+          src: "/images/milestone-4-hera-preview.webp",
+          width: 2880,
+          height: 1800,
+          alt: "Preview of the H.E.R.A crew console: live SpO₂ and heart-rate trends for two spacewalkers",
+          label: "H.E.R.A UI",
+          zoomable: false,
+        },
+      ],
       link: { url: "https://crew-health-tablet.vercel.app", label: "H.E.R.A UI" },
     },
   ] as Milestone[],
 };
 
+/** Strings for the milestone gallery (arrows, counter) and video player */
+export const gallery = {
+  next: "Next image",
+  previous: "Previous image",
+  nextVideo: "Next video",
+  previousVideo: "Previous video",
+  play: (title: string) => `Play video: ${title}`,
+  enlarge: (label: string) => `Enlarge ${label.toLowerCase()}`,
+};
+
 /** Strings for the click-to-enlarge overlay */
 export const lightbox = {
   close: "Close enlarged image",
+  next: "Next image",
+  previous: "Previous image",
   zoomIn: "Zoom in",
   zoomOut: "Zoom out",
   reset: "Reset zoom",

@@ -1,11 +1,11 @@
+import { Hero } from "@/components/Hero";
 import { Milestones } from "@/components/Milestones";
 import { ProductCarousel } from "@/components/ProductCarousel";
-import { site } from "@/content/site";
 
 export default function HomePage() {
   return (
     <>
-      <h1 className="sr-only">{site.heading}</h1>
+      <Hero />
       <ProductCarousel />
       <Milestones />
     </>

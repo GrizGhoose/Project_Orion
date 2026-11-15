@@ -6,6 +6,7 @@
   html {
     @apply bg-bg;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-bg font-sans text-body text-ink-muted antialiased;
@@ -28,6 +29,40 @@
   /* Page width and side padding */
   .container-page {
     @apply mx-auto w-full max-w-page px-gutter;
+  }
+  /* Hero background: very slow zoom (off with reduced motion) */
+  .hero-zoom {
+    animation: hero-zoom 20s ease-out forwards;
+  }
+  @keyframes hero-zoom {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.05);
+    }
+  }
+  /* Scroll cue: a thin gold line that draws downward, on repeat */
+  .scroll-line {
+    animation: scroll-line 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    transform-origin: top;
+  }
+  @keyframes scroll-line {
+    0% {
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+    50% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+    50.01% {
+      transform-origin: bottom;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+    }
   }
   /* Gold text link with a hairline underline */
   .link-gold {
@@ -203,6 +238,10 @@
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  .hero-zoom,
+  .scroll-line {
+    animation: none !important;
   }
   /* The lightbox keeps a short fade (no movement) */
   .lightbox-fade {

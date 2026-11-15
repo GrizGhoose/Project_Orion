@@ -46,7 +46,7 @@ export function ProductCarousel() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      if (document.querySelector('[aria-modal="true"]')) return; // an overlay (e.g. the lightbox) is open
+      if (e.defaultPrevented || document.querySelector('[aria-modal="true"]')) return; // handled elsewhere, or an overlay is open
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
       const focused = sectionRef.current?.contains(document.activeElement);
@@ -71,6 +71,7 @@ export function ProductCarousel() {
   return (
     <section
       ref={sectionRef}
+      id="products"
       aria-roledescription="carousel"
       aria-label={label}
       className="relative overflow-hidden bg-bg"

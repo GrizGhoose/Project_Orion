@@ -1,6 +1,6 @@
 # H.E.R.A site
 
-A single-page site for H.E.R.A (Hypoxia Emergency Response Assistant): a product carousel (H.E.R.B, H.E.R.A, Aegis) followed by a Milestones section. Built with Next.js (App Router), TypeScript, Tailwind CSS and Framer Motion, in a black-and-gold design system.
+A single-page site for Project Orion: a hero introduction, a product carousel (H.E.R.B, H.E.R.A, Aegis) and a Milestones section. Built with Next.js (App Router), TypeScript, Tailwind CSS and Framer Motion, in a black-and-gold design system.
 
 ## Run
 
@@ -21,16 +21,19 @@ app/                 The one route (/) + layout, global CSS, fonts
   fonts.ts           Font choices (Google Fonts via next/font)
   globals.css        Base styles, carousel grid areas, tablet/visor poses
 components/
+  Hero, HeroMedia    Project Orion introduction: background, headline, buttons, key facts
   ProductCarousel    Carousel: arrows, pager, ← → keys, swipe
   ProductSlide       One product: visual, callouts with leader lines, Device / Anchor boxes
   Milestones         Alternating image/text entries
-  ImageLightbox      Click-to-enlarge overlay with zoom and pan (any milestone image with zoomable: true)
+  MilestoneGallery   One or more milestone images/videos in one frame, with arrows and a counter
+  ImageLightbox      Framed image button + click-to-enlarge overlay with zoom, pan and prev/next
+  VideoPlayer        Framed video: poster and play button, then native controls
   LinkPreview        Browser-window preview card that opens a live app (any milestone with a link)
-  InfoBox, ImageSlot, SpecTable, Section, Eyebrow, Hairline, Reveal, CornerTicks, MotionProvider
+  Buttons, InfoBox, ImageSlot, Section, Eyebrow, Hairline, Reveal, CornerTicks, MotionProvider
 content/site.ts      ALL copy and data, as typed objects
 lib/cn.ts            Class-name helper
 public/images/       Images (see images-needed.md)
-scripts/             cutout_herb.py: makes the H.E.R.B cut-out
+scripts/             cutout_herb.py (H.E.R.B cut-out), prepare_video.sh (web-ready milestone videos)
 tailwind.config.ts   Design tokens: colours, fonts, type scale, spacing
 ```
 
@@ -44,12 +47,14 @@ tailwind.config.ts   Design tokens: colours, fonts, type scale, spacing
 
 - **Text and data:** everything is in `content/site.ts`. Search for `[PLACEHOLDER` to find what is still open.
 - **Carousel:** `productShowcase.products`. Add an entry to add a slide.
-- **Milestones:** `milestones.items`. To give an entry an image, put it in `public/images/` and set `image` (`src`, `width`, `height`, `alt`). Set `zoomable: true` to open it in the lightbox; `fullSrc` optionally points at a larger file (or SVG) that is loaded only when the overlay opens. Set `link` (`url`, `label`) instead to show the image as a preview card that opens the live app.
+- **Hero:** `hero` (headline, buttons, key facts, background image and optional `video`). Image credits are in `credits.md`.
+- **Milestones:** `milestones.items`. Each entry has a `media` array of images (`type: "image"`, with `zoomable` for the lightbox) and/or videos (`type: "video"`); more than one item adds arrows and a counter. Set `link` (`url`, `label`) to show the first image as a preview card that opens a live app. For a video, run `scripts/prepare_video.sh <file>` and paste the entry it prints.
 
 ## Motion
 
 - Carousel slide entrance (word, visual, leader lines, callouts) and track slide
 - Fade-and-rise reveals on scroll (`Reveal`) and the gold hairline under the section heading
-- Lightbox: the image grows from its place on the page into the overlay
+- Hero: staggered text entrance, a very slow background zoom and a drawing "Scroll" line
+- Milestone galleries slide between items; the lightbox grows from the image on the page
 
 All of it respects `prefers-reduced-motion` (no movement; the lightbox only fades).

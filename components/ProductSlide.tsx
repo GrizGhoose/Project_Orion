@@ -7,7 +7,6 @@ import type { Callout, ShowcaseProduct } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { ImageSlot } from "./ImageSlot";
 import { InfoBox } from "./InfoBox";
-import { SpecTable } from "./SpecTable";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 // Entrance: word → Device box → visual → leader lines → callouts 01–03 → Anchor box (~1.5 s)
@@ -56,11 +55,11 @@ type ProductSlideProps = {
 
 /**
  * One product: background word, visual (cut-out photo, angled tablet or angled visor), three callouts with dots and
- * leader lines, Device box (top left), Anchor box (bottom right) and spec strip.
+ * leader lines, Device box (top left) and Anchor box (bottom right).
  * Layout per breakpoint is `.showcase-grid`; the tablet and visor poses are `.tablet` / `.visor` (all in globals.css).
  */
 export function ProductSlide({ product, index, total, active, play, onVisualCenter }: ProductSlideProps) {
-  const { kind, name, backgroundWord, image, imageSlot, device, anchor, callouts, specs } = product;
+  const { kind, name, backgroundWord, image, imageSlot, device, anchor, callouts } = product;
   const reduce = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
@@ -388,11 +387,6 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
         </svg>
       </div>
 
-      {specs && specs.length > 0 && (
-        <div className="mx-auto w-full max-w-page">
-          <SpecTable specs={specs} className="mt-16" />
-        </div>
-      )}
     </div>
   );
 }
