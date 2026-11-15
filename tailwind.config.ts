@@ -30,6 +30,16 @@ const config: Config = {
           d2: "#222226",
           d3: "#141417",
         },
+        // Helmet visor materials (product carousel), not brand colours
+        visor: {
+          hi: "#4a4130",
+          mid: "#1c1914",
+          lo: "#0e0d0b",
+          edge: "#2c2619",
+          d1: "#2a251c",
+          d2: "#15130f",
+          glow: "#78a0dc",
+        },
       },
       fontFamily: {
         // Swap fonts in app/fonts.ts; these read the CSS variables it sets

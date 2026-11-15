@@ -126,7 +126,9 @@ export type Callout = {
   /** Dot position on the part, as % of the product visual (for a tablet: % of its screen), from the top-left */
   x: number;
   y: number;
-  /** Desktop label alignment within its row (default "center"); "start" pins it to the top */
+  /** Where the label sits on wide screens (1280px+). Below that, labels stack beside the visual in dot order. */
+  position: "left-mid" | "left-low" | "right-top" | "right-mid";
+  /** Label alignment within its row (default "center"); "start" pins it to the top */
   labelAlign?: "start" | "center" | "end";
 };
 
@@ -140,11 +142,9 @@ export type ShowcaseProduct = {
   name: string;
   /** Huge decorative lettering behind the visual */
   backgroundWord: string;
-  /** Optional font-size override for long words, e.g. "clamp(120px, 24vw, 520px)" */
-  wordSize?: string;
-  /** photo: cut-out image · tablet: angled tablet frame with `image` as its screen · slot: placeholder ImageSlot */
-  kind: "photo" | "tablet" | "slot";
-  /** For "photo" the cut-out, for "tablet" the screen image; null for "slot" */
+  /** photo: cut-out image · tablet: angled tablet with `image` as its screen · visor: angled helmet visor */
+  kind: "photo" | "tablet" | "visor";
+  /** For "photo" the cut-out (null shows `imageSlot`); for "tablet" and "visor" the screen image */
   image: { src: string; alt: string; width: number; height: number } | null;
   imageSlot?: { slot: string; size: string; alt: string };
   /** Top-left caption for the whole product */
@@ -155,13 +155,6 @@ export type ShowcaseProduct = {
   specs?: Spec[];
   cta?: Link;
 };
-
-const placeholderSpecs: Spec[] = [
-  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
-  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
-  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
-  { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
-];
 
 /**
  * Home product carousel. To add a product, add an entry to `products`: the counter, pager bars and arrows
@@ -197,6 +190,7 @@ export const productShowcase = {
           name: "The Sensor",
           model: "MAX30102",
           body: "Uses infrared and red light to measure how much of each the blood absorbs. Infrared is absorbed by oxyhaemoglobin (oxygenated blood), red light by deoxyhaemoglobin, and the sensor returns the raw values.",
+          position: "left-mid",
           secondary: "It samples every 6 seconds and keeps the last 15 readings in memory to watch for serious trends. Older samples are erased to keep it fast.",
           x: 21,
           y: 15,
@@ -206,6 +200,7 @@ export const productShowcase = {
           name: "The MCU",
           model: "ESP32-WROOM-32E",
           body: "Turns the raw data into real SpO₂ and BPM values, then sends the live data over long-range Bluetooth to the Brain (Raspberry Pi).",
+          position: "right-top",
           x: 42,
           y: 36,
         },
@@ -214,6 +209,7 @@ export const productShowcase = {
           name: "The Brain",
           model: "Raspberry Pi 5",
           body: "The main communicator to the two HUDs and the tablet. It handles several devices at once for low-latency syncing, updates each one with the refined data, and triggers any warnings needed on each device.",
+          position: "left-low",
           x: 53,
           y: 69,
         },
@@ -228,13 +224,12 @@ export const productShowcase = {
       cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" },
     },
     {
-      id: "anchor",
-      name: "The Anchor",
-      backgroundWord: "ANCHOR",
-      wordSize: "clamp(120px, 24vw, 520px)",
+      id: "hera",
+      name: "H.E.R.A",
+      backgroundWord: "H.E.R.A",
       kind: "tablet",
       image: {
-        src: "/images/tablet-ui.png",
+        src: "/images/hera-console.png",
         width: 2310,
         height: 1732,
         alt: "iPad Pro showing the H.E.R crew console: live SpO₂ and heart-rate trends over the last five minutes for two spacewalkers",
@@ -258,6 +253,7 @@ export const productShowcase = {
           body: "[PLACEHOLDER: each spacewalker's SpO₂ over the last five minutes, against their own pre-EVA baseline.]",
           x: 16,
           y: 32.3,
+          position: "left-mid",
         },
         {
           number: "02",
@@ -266,6 +262,7 @@ export const productShowcase = {
           body: "[PLACEHOLDER: a status tag per spacewalker that escalates as readings drift.]",
           x: 94.4,
           y: 9.7,
+          position: "right-top",
           labelAlign: "start",
         },
         {
@@ -275,33 +272,61 @@ export const productShowcase = {
           body: "[PLACEHOLDER: a game-style, step-by-step care protocol for the crew member inside.]",
           x: 37.5,
           y: 95.5,
+          position: "left-low",
         },
       ],
     },
     {
-      id: "product-3",
-      name: "[PLACEHOLDER: Product 3 name]",
-      backgroundWord: "PRODUCT 03",
-      kind: "slot",
-      image: null,
-      imageSlot: { slot: "product-3.png", size: "transparent PNG · ~1200×1500", alt: "[PLACEHOLDER: Product 3 image description]" },
+      id: "aegis",
+      name: "Aegis",
+      backgroundWord: "AEGIS",
+      kind: "visor",
+      image: {
+        src: "/images/aegis-hud.png",
+        width: 2310,
+        height: 1732,
+        alt: "Aegis helmet HUD over a lunar landscape: respiration and heart rate on the left, SpO₂ and O₂ reserve on the right, EVA timer at the top and a locator for buddy astronaut EV2",
+      },
       device: {
-        label: "[PLACEHOLDER: LABEL]",
-        title: "[PLACEHOLDER: Product title]",
-        body: "[PLACEHOLDER: 1–2 sentence overview of this product]",
+        label: "THE VISOR",
+        title: "Aegis helmet HUD",
+        body: "Vitals ride the edge of the astronaut's vision, so the view stays clear until an alert needs the centre.",
       },
       anchor: {
-        label: "[PLACEHOLDER: LABEL]",
-        title: "[PLACEHOLDER: Supporting item]",
-        body: "[PLACEHOLDER: short standalone note, not connected to anything]",
+        label: "THE DEMO",
+        title: "Aegis prototype",
+        body: "[PLACEHOLDER: one line about the prototype.] Live demo at",
+        link: { label: "astronaut-eva-hud.vercel.app", href: "https://astronaut-eva-hud.vercel.app" },
       },
       callouts: [
-        { number: "01", name: "[Part A]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 30, y: 22 },
-        { number: "02", name: "[Part B]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 62, y: 40 },
-        { number: "03", name: "[Part C]", model: "[Model]", body: "[PLACEHOLDER: what this part does]", x: 45, y: 72 },
+        {
+          number: "01",
+          name: "Vitals",
+          model: "Respiration · Heart rate",
+          body: "[PLACEHOLDER: live breathing and heart-rate traces at the edge of view.]",
+          x: 25,
+          y: 29,
+          position: "left-mid",
+        },
+        {
+          number: "02",
+          name: "Oxygen",
+          model: "SpO₂ · O₂ reserve",
+          body: "[PLACEHOLDER: blood oxygen and suit oxygen reserve, always in sight.]",
+          x: 80,
+          y: 18.7,
+          position: "right-top",
+        },
+        {
+          number: "03",
+          name: "Buddy locator",
+          model: "EV2 distance & bearing",
+          body: "[PLACEHOLDER: where your EVA partner is, so help is never far.]",
+          x: 96.5,
+          y: 55.3,
+          position: "right-mid",
+        },
       ],
-      specs: placeholderSpecs,
-      cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" },
     },
   ] as ShowcaseProduct[],
 };

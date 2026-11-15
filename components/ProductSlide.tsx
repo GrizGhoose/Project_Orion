@@ -20,7 +20,8 @@ const STAGGER = 0.15;
 const T_ANCHOR = T_CALLOUTS + 2 * STAGGER + 0.2;
 // While the entrance runs, lines are redrawn every frame so they follow the moving visual (e.g. the swinging tablet)
 const FOLLOW_MS = 2200;
-const DEFAULT_WORD_SIZE = "clamp(140px, 31vw, 620px)";
+// Same size on every slide
+const WORD_SIZE = "clamp(140px, 31vw, 620px)";
 
 type Line = { d: string };
 
@@ -55,12 +56,12 @@ type ProductSlideProps = {
 };
 
 /**
- * One product: background word, visual (cut-out photo, angled tablet or ImageSlot), three callouts with dots and
+ * One product: background word, visual (cut-out photo, angled tablet or angled visor), three callouts with dots and
  * leader lines, Device box (top left), Anchor box (bottom right) and spec strip.
- * Layout per breakpoint is `.showcase-grid`; the tablet's poses are `.tablet` (both in globals.css).
+ * Layout per breakpoint is `.showcase-grid`; the tablet and visor poses are `.tablet` / `.visor` (all in globals.css).
  */
 export function ProductSlide({ product, index, total, active, play, onVisualCenter }: ProductSlideProps) {
-  const { kind, name, backgroundWord, wordSize, image, imageSlot, device, anchor, callouts, specs, cta } = product;
+  const { kind, name, backgroundWord, image, imageSlot, device, anchor, callouts, specs, cta } = product;
   const reduce = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
@@ -70,8 +71,9 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
   const [activeCallout, setActiveCallout] = useState<number | null>(null);
 
   // One line function for every slide. Dots: screen position via getBoundingClientRect (so 3D-tilted dots on the
-  // tablet are exact), relative to the stage's rect; the track's translateX cancels out. Label ends: layout offsets.
-  // Path: dot → angled run to a bend level with the label's title → short horizontal run to the label.
+  // tablet and visor are exact), relative to the stage's rect; the track's translateX cancels out. Label ends: layout
+  // offsets. Path: short horizontal run out of the label, then an angled run to the dot; when the dot is closer
+  // than that run, one straight line instead, so a line never doubles back on itself.
   const measure = useCallback(() => {
     const stage = stageRef.current;
     const visual = visualRef.current;
@@ -91,7 +93,8 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
         const end = left ? label.offsetLeft + label.offsetWidth + 24 : label.offsetLeft - 24; // clear of the label backing
         const run = 48; // horizontal run out of the label
         const bendX = left ? end + run : end - run;
-        return { d: `M${dot.x},${dot.y} L${bendX},${y} L${end},${y}` };
+        const tooClose = left ? dot.x <= bendX : dot.x >= bendX;
+        return { d: tooClose ? `M${dot.x},${dot.y} L${end},${y}` : `M${dot.x},${dot.y} L${bendX},${y} L${end},${y}` };
       }),
     );
   }, [callouts, onVisualCenter]);
@@ -181,6 +184,9 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
   ));
 
   const tablet = kind === "tablet";
+  const visor = kind === "visor";
+  // Below 1280px the labels stack beside the visual in dot order (top dot first), so lines can't cross
+  const lgRank = callouts.map((c) => callouts.filter((o) => o.y < c.y).length + 1);
   const playing = Boolean(reduce || play);
 
   return (
@@ -200,6 +206,8 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
           "showcase-grid relative isolate mx-auto w-full max-w-page",
           tablet
             ? "[--img-w:76%] lg:[--img-w:38vw] xl:[--img-w:min(38vw,700px)]"
+            : visor
+              ? "[--img-w:76%] lg:[--img-w:38vw] xl:[--img-w:min(40vw,740px)]"
             : "[--img-w:min(66vw,22rem)] lg:[--img-w:40vw] xl:[--img-w:min(32vw,calc((100svh-10rem)*0.775),38rem)]",
         )}
       >
@@ -213,7 +221,7 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
             initial={initial}
             animate={state}
             variants={fadeAt(0)}
-            style={{ fontSize: wordSize ?? DEFAULT_WORD_SIZE }}
+            style={{ fontSize: WORD_SIZE }}
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap bg-gradient-to-b from-gold/[0.16] to-gold/[0.03] bg-clip-text font-display font-bold uppercase leading-[0.8] tracking-[-0.05em] text-transparent [-webkit-text-stroke:1.5px_theme(colors.gold/35%)]"
           >
             {backgroundWord}
@@ -225,7 +233,7 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
           ref={visualRef}
           initial={initial}
           animate={state}
-          variants={tablet ? fadeAt(T_VISUAL) : fadeAt(T_VISUAL, 32)}
+          variants={tablet || visor ? fadeAt(T_VISUAL) : fadeAt(T_VISUAL, 32)}
           className="relative mx-auto w-[var(--img-w)] self-center [grid-area:img]"
         >
           {tablet && image ? (
@@ -258,6 +266,32 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
                 </div>
               </div>
             </div>
+          ) : visor && image ? (
+            // Angled visor, right side nearer; from xl nudged left and down so it clears the right-hand callouts
+            <div className="tablet-scene xl:translate-x-[-2vw] xl:translate-y-[5%]">
+              <div
+                role="img"
+                aria-label={image.alt}
+                data-play={playing}
+                className="visor"
+                style={{ "--tablet-delay": `${T_VISUAL}s` } as React.CSSProperties}
+              >
+                {/* Glass box: the clipped glass plus an unclipped layer for the dots, both % of the same box */}
+                <div className="relative h-full">
+                  <div className="visor-glass">
+                    <Image
+                      src={image.src}
+                      alt=""
+                      fill
+                      quality={90}
+                      sizes="(min-width: 1280px) min(40vw, 740px), (min-width: 1024px) 38vw, 76vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  {dots}
+                </div>
+              </div>
+            </div>
           ) : (
             <>
               <div
@@ -286,7 +320,7 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
           )}
         </motion.div>
 
-        {/* Desktop callout labels in grid areas c1–c3 (01 and 03 left of the visual at xl) */}
+        {/* Desktop callout labels: placed by `position` from xl, stacked in dot order below that */}
         {callouts.map((c, i) => (
           <motion.div
             key={c.number}
@@ -300,11 +334,11 @@ export function ProductSlide({ product, index, total, active, play, onVisualCent
             initial={initial}
             animate={state}
             variants={fadeAt(T_CALLOUTS + i * STAGGER)}
-            style={{ gridArea: `c${i + 1}` }}
+            style={{ "--lg-area": `s${lgRank[i]}`, "--xl-area": c.position } as React.CSSProperties}
             className={cn(
-              "hidden w-full max-w-[340px] cursor-default outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-8 focus-visible:outline-gold-bright lg:block",
+              "showcase-label hidden w-full max-w-[340px] cursor-default outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-8 focus-visible:outline-gold-bright lg:block",
               c.labelAlign === "start" ? "self-start" : c.labelAlign === "end" ? "self-end" : "self-center",
-              i !== 1 && "xl:ml-auto xl:text-right",
+              c.position.startsWith("left") && "xl:ml-auto xl:text-right",
             )}
           >
             {/* Semi-opaque backing keeps the text readable over the background word's outline */}

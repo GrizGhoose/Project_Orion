@@ -42,27 +42,35 @@
     row-gap: 3rem;
   }
   @media (min-width: theme("screens.lg")) {
-    /* 1024–1279: Device box on top; image left with the three callouts stacked to its right in dot order,
-       so no line crosses another line or a box */
+    /* 1024–1279: Device box on top; visual left with the three callouts stacked to its right in dot order
+       (s1–s3, set per label via --lg-area), so no line crosses another line or a box */
     .showcase-grid {
       grid-template-columns: var(--img-w) minmax(0, 1fr);
       grid-template-areas:
         "device device"
-        "img    c1"
-        "img    c2"
-        "img    c3"
+        "img    s1"
+        "img    s2"
+        "img    s3"
         ".      anchor";
       column-gap: 3rem;
     }
+    .showcase-label {
+      grid-area: var(--lg-area);
+    }
   }
   @media (min-width: theme("screens.xl")) {
-    /* 1280+: callouts either side of the image; info boxes in the top-left and bottom-right corners */
+    /* 1280+: callouts either side of the visual, placed by each callout's `position` (--xl-area);
+       info boxes in the top-left and bottom-right corners */
     .showcase-grid {
       grid-template-columns: minmax(0, 1fr) var(--img-w) minmax(0, 1fr);
+      grid-template-rows: auto 1fr auto;
       grid-template-areas:
-        "device img c2"
-        "c1     img c2"
-        "c3     img anchor";
+        "device   img right-top"
+        "left-mid img right-mid"
+        "left-low img anchor";
+    }
+    .showcase-label {
+      grid-area: var(--xl-area);
     }
   }
   /* Angled tablet (product carousel, kind "tablet"). Poses are custom properties so they're easy to tweak:
@@ -125,6 +133,64 @@
     border-radius: 9999px;
     background: theme("colors.frame.d2");
     box-shadow: inset 0 0 0 1px theme("colors.frame.edge");
+  }
+
+  /* Angled helmet visor (product carousel, kind "visor"): shield-shaped rim, glass with the HUD capture.
+     Turned the opposite way from the tablet (right side nearer); poses are custom properties as above. */
+  .visor {
+    --visor-pose: rotateY(10deg) rotateX(4deg) rotateZ(-1deg);
+    --visor-from: rotateY(20deg) rotateX(8deg) rotateZ(-2deg);
+    --visor-radius: 30% 30% 42% 42% / 18% 18% 48% 48%;
+    position: relative;
+    aspect-ratio: 2310 / 1732;
+    padding: 1.4%;
+    border-radius: var(--visor-radius);
+    background: linear-gradient(160deg, theme("colors.visor.hi"), theme("colors.visor.mid") 40%, theme("colors.visor.lo") 70%, theme("colors.visor.edge"));
+    box-shadow:
+      inset 0 0 0 1px theme("colors.gold / 45%"),
+      -3px 2px 0 theme("colors.visor.d1"),
+      -6px 4px 0 theme("colors.visor.d2"),
+      -30px 50px 90px theme("colors.black / 80%"),
+      0 0 120px theme("colors.visor.glow / 10%");
+    transform-origin: 50% 55%;
+    transform-style: preserve-3d;
+    transform: var(--visor-from);
+    transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) var(--tablet-delay, 0s);
+  }
+  .visor[data-play="true"] {
+    transform: var(--visor-pose);
+  }
+  @media (min-width: theme("screens.lg")) {
+    .visor {
+      --visor-pose: rotateY(16deg) rotateX(5deg) rotateZ(-2deg);
+      --visor-from: rotateY(30deg) rotateX(12deg) rotateZ(-4deg) translateZ(-140px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .visor,
+    .visor[data-play="true"] {
+      transform: var(--visor-pose);
+      transition: none;
+    }
+  }
+  .visor-glass {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: var(--visor-radius);
+    background: theme("colors.frame.ink");
+  }
+  .visor-glass::after {
+    /* inner shadow + sheen: soft white highlight top left, faint gold diagonal tint */
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 0 40px theme("colors.black / 90%");
+    background:
+      radial-gradient(ellipse at 18% 8%, theme("colors.white / 16%"), transparent 45%),
+      linear-gradient(135deg, theme("colors.gold / 6%"), transparent 55%);
   }
 
   /* 1px gold hairline divider */
