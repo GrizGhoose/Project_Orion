@@ -114,12 +114,65 @@ export const specs: Spec[] = [
   { label: "[PLACEHOLDER: Spec]", value: "[PLACEHOLDER]" },
 ];
 
-export const productSpec = {
-  eyebrow: "[PLACEHOLDER: Product line]",
-  title: "[PLACEHOLDER: Product name]",
-  intro: "[PLACEHOLDER: Two sentences introducing the product and what it is for.]",
-  image: { slot: "product-main", size: "1600×1200", alt: "[PLACEHOLDER: Product image description]" } as ImageRef,
-  cta: { label: "Explore the product", href: "/product" } as Link,
+export type Callout = {
+  number: string;
+  name: string;
+  description: string;
+  /** Dot position on the part, as % of the product image box (0–100, from the top-left) */
+  x: number;
+  y: number;
+  /** Which side the label sits on (desktop) */
+  side: "left" | "right";
+  /** Optional label height as % of the image box; defaults to the dot's y (straight leader line) */
+  labelY?: number;
+};
+
+/** Home product showcase: cut-out hardware over huge background lettering, with callouts */
+export const productShowcase = {
+  eyebrow: "[PLACEHOLDER: eyebrow, e.g. PROTOTYPE HARDWARE]",
+  /** Background lettering (decorative) and the screen-reader heading */
+  word: "H.E.R.B",
+  heading: "H.E.R.B",
+  image: {
+    src: "/images/herb-hardware.webp",
+    width: 1240,
+    height: 1600,
+    alt: "[PLACEHOLDER: H.E.R.B] prototype hardware: pulse-oximeter sensor, ESP32 microcontroller and Raspberry Pi wired together on breadboards",
+  },
+  callouts: [
+    {
+      number: "01",
+      name: "[PLACEHOLDER: Sensor name, e.g. MAX30102 SpO₂ sensor]",
+      description: "[PLACEHOLDER: 1–2 sentence explanation of what this part does]",
+      x: 21,
+      y: 15,
+      side: "left",
+    },
+    {
+      number: "02",
+      name: "[PLACEHOLDER: MCU name, e.g. ESP32 microcontroller]",
+      description: "[PLACEHOLDER: 1–2 sentence explanation of what this part does]",
+      x: 42,
+      y: 36,
+      side: "right",
+    },
+    {
+      number: "03",
+      name: "[PLACEHOLDER: Brain, e.g. Raspberry Pi]",
+      description: "[PLACEHOLDER: 1–2 sentence explanation of what this part does]",
+      x: 53,
+      y: 69,
+      side: "left",
+    },
+  ] as Callout[],
+  specs: [
+    { label: "[PLACEHOLDER: Sampling rate]", value: "[PLACEHOLDER]" },
+    { label: "[PLACEHOLDER: Connectivity]", value: "[PLACEHOLDER]" },
+    { label: "[PLACEHOLDER: Power]", value: "[PLACEHOLDER]" },
+    { label: "[PLACEHOLDER: Weight]", value: "[PLACEHOLDER]" },
+    { label: "[PLACEHOLDER: Battery life]", value: "[PLACEHOLDER]" },
+  ] as Spec[],
+  cta: { label: "[PLACEHOLDER: Learn more]", href: "/product" } as Link,
 };
 
 export const progress = {

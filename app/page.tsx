@@ -4,12 +4,12 @@ import { MediaCard } from "@/components/MediaCard";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { NewsRow } from "@/components/NewsRow";
 import { PageHero } from "@/components/PageHero";
+import { ProductShowcase } from "@/components/ProductShowcase";
 import { PressQuote } from "@/components/PressQuote";
 import { Reveal } from "@/components/Reveal";
 import { Section, SectionHeading } from "@/components/Section";
-import { SpecTable } from "@/components/SpecTable";
 import { StatBand } from "@/components/StatBand";
-import { hero, homeSections, mission, news, newsletter, press, productSpec, progress, specs, stats } from "@/content/site";
+import { hero, homeSections, mission, news, newsletter, press, progress, stats } from "@/content/site";
 
 export default function HomePage() {
   return (
@@ -25,23 +25,7 @@ export default function HomePage() {
         video={hero.video}
       />
 
-      {/* Product spec */}
-      <Section>
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
-          <Reveal className="lg:col-span-7">
-            <ImageSlot {...productSpec.image} ticks sizes="(min-width: 1024px) 58vw, 100vw" className="aspect-[4/3]" />
-          </Reveal>
-          <div className="lg:col-span-5">
-            <SectionHeading eyebrow={productSpec.eyebrow} title={productSpec.title} intro={productSpec.intro} />
-            <Reveal delay={0.1}>
-              <SpecTable specs={specs.slice(0, 4)} className="mt-10" />
-              <GhostButton href={productSpec.cta.href} className="mt-10">
-                {productSpec.cta.label}
-              </GhostButton>
-            </Reveal>
-          </div>
-        </div>
-      </Section>
+      <ProductShowcase />
 
       {/* Progress feed */}
       <Section alt divider>
