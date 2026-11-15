@@ -277,7 +277,7 @@ sudo journalctl -u mosquitto -n 50 --no-pager
 
 ## Dashboard integration is a separate step
 
-This establishes message transport. The existing `tablet/` backend currently generates simulated telemetry; it does not subscribe to these MQTT topics. Running Mosquitto does not automatically put ESP32 data into the dashboard.
+This establishes message transport. The existing `apps/tablet/` backend currently generates simulated telemetry; it does not subscribe to these MQTT topics. Running Mosquitto does not automatically put ESP32 data into the dashboard.
 
 Future integration needs to process MAX30102 samples into validated readings, subscribe in the Pi backend, identify each astronaut, detect stale data/disconnections, and deliver buddy alerts. The hello messages here are connection tests, not physiological measurements.
 

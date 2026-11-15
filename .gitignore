@@ -1,25 +1,42 @@
-# Research folders are ignored by default; explicitly include app, data, docs, and hardware tests.
+# Keep project categories explicit; local downloads and preservation backups stay private.
 /*
 !/.gitignore
+!/README.md
 !/.github/
-!/tablet/
-!/HYPOXIA/
+!/apps/
+!/demo/
+!/firmware/
+!/services/
+!/hardware/
+!/research/
 !/docs/
-!/MAX30102_raw_reading-test/
 
-# Over GitHub's 100 MB limit; rebuild with HYPOXIA/scripts/build_hypoxia_dataset.py
-/HYPOXIA/analog_harespod_waveforms_100hz.csv
-/HYPOXIA/nasa_crew_state_ecg_resp_256hz.csv
-
+# Local dependencies and generated output. Existing tracked root dependencies remain tracked.
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.tsbuildinfo
+.vercel/
 .DS_Store
+
+# Private settings and device credentials; sanitized examples may be tracked.
+.env
+.env.*
+!.env.example
+secrets.h
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+/.local-preserved/
+
+# Over GitHub's 100 MB limit; rebuild from the original external raw inputs.
+/research/HYPOXIA/analog_harespod_waveforms_100hz.csv
+/research/HYPOXIA/nasa_crew_state_ecg_resp_256hz.csv
 
 # Local ESP32 communication sketch with device-specific credentials.
 /sketch_nov14a_copy_20261114174051/
-
-!/astronaut-eva-hud-hardware/
-!/tablet-hardware/
-!/node_modules/
-
-!/esp32-vitals/
-
-!/raspberry-pi-gateway/

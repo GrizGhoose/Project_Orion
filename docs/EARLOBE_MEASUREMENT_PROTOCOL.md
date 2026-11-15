@@ -29,7 +29,7 @@ The existing `w` command captures only four seconds (100 pairs). It works even i
 1. Capture an uncovered sensor window as an ambient/no-contact comparison. It is not a physiological reference or a complete electronics-noise measurement.
 2. Place the board on a nonconductive support and rest a fingertip gently over its window. Keep the hand supported and stationary for 10–15 seconds; collect three complete `w` captures, at least five seconds apart.
 3. Repeat with supported earlobe placement and collect three complete captures at the same LED setting.
-4. Keep the BEGIN/END markers, every sample 0–99, settings, and surrounding diagnostics. Use `esp32-vitals/tools/inspect_ppg.py` to plot the captures.
+4. Keep the BEGIN/END markers, every sample 0–99, settings, and surrounding diagnostics. Use `firmware/esp32-vitals/tools/inspect_ppg.py` to plot the captures.
 5. Inspect for recurring pulses, abrupt steps, drift, clipping, and plausible agreement between channels. A large correlation alone does not distinguish pulse from shared motion.
 
 Stop baseline development if no consistent pulse is visible in either placement. Investigate mounting, LED operation, power, and the breakout before selecting a mathematical “normal” range. If a stable signal is weak, compare LED code 47 in a separate session; reject clipping and do not select a setting because its SpO2 output looks normal.
